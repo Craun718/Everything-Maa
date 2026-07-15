@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  verify-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false
+      - run: python -m pip install -r requirements-dev.txt
+      - run: npm ci
+      - run: python scripts/validate_skills.py
+      - run: python -m pytest
+      - run: npm test
+      - name: Check release contract
+        if: github.ref_type != 'tag'
+        run: npm run release:check
+      - name: Check tag and release contract
+        if: github.ref_type == 'tag'
+        run: npm run release:check -- --tag "$GITHUB_REF_NAME"
+      - run: npm pack --ignore-scripts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-package
+          path: everything-maa-*.tgz
+          if-no-files-found: error
+      - name: Publish to npm with trusted publishing
+        if: github.ref_type == 'tag'
+        run: npm publish
+      - name: Create GitHub Release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" everything-maa-*.tgz --verify-tag --generate-notes --title "$GITHUB_REF_NAME"

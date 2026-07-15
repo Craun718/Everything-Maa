@@ -65,6 +65,7 @@ Project-specific workflows belong under `recipes/` and are not installed as core
 - `.claude-plugin/` and `.codex-plugin/`: native plugin manifests.
 - `packages/cli/`: dependency-free Node.js installer.
 - `tests/`: portable fixtures and repository invariants.
+- `.github/workflows/`: cross-platform CI and tag-gated trusted publishing.
 
 ## Development
 
@@ -73,6 +74,7 @@ python -m pip install -r requirements-dev.txt
 python -m pytest
 python scripts/validate_skills.py
 npm test
+npm run release:check
 npm pack --dry-run
 ```
 

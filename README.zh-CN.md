@@ -65,6 +65,7 @@ npx everything-maa uninstall --target codex
 - `.claude-plugin/` 与 `.codex-plugin/`：原生插件清单。
 - `packages/cli/`：无运行时依赖的 Node.js 安装器。
 - `tests/`：跨平台 fixture 和仓库结构约束。
+- `.github/workflows/`：跨平台 CI 与标签门控的可信发布流程。
 
 ## 开发与验证
 
@@ -73,6 +74,7 @@ python -m pip install -r requirements-dev.txt
 python -m pytest
 python scripts/validate_skills.py
 npm test
+npm run release:check
 npm pack --dry-run
 ```
 
