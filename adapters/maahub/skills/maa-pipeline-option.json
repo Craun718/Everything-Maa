@@ -1,0 +1,18 @@
+{
+  "id": "KhazixW2/maa-pipeline-option",
+  "title": "Maa Pipeline Option",
+  "description": "Runtime UI option design patterns for MaaFramework, including select, switch, input, checkbox, and pipeline_override integration.",
+  "author": "KhazixW2",
+  "source": "MaaHub",
+  "sourceGithub": "https://github.com/MaaXYZ/MaaHub",
+  "tags": ["pipeline", "option", "ui", "skill"],
+  "createdAt": "2026-06-11",
+  "updatedAt": "2026-07-15",
+  "version": "0.2.0",
+  "mfwVersion": "5.10.4",
+  "entry": "../../../skills/maa-pipeline-option/SKILL.md",
+  "readme": "../../../docs/skills/maa-pipeline-option.md",
+  "status": "beta",
+  "type": "skill",
+  "category": "pipeline"
+}
