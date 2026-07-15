@@ -1,0 +1,31 @@
+{
+  "name": "everything-maa",
+  "version": "0.1.0",
+  "description": "MaaFramework skills with optional MaaMCP and Playwright MCP profiles.",
+  "author": {
+    "name": "KhazixW2"
+  },
+  "homepage": "https://github.com/KhazixW2/Everything-Maa",
+  "repository": "https://github.com/KhazixW2/Everything-Maa",
+  "license": "MIT",
+  "keywords": [
+    "maa",
+    "maaframework",
+    "pipeline",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Everything Maa",
+    "shortDescription": "Build and maintain MaaFramework projects.",
+    "longDescription": "Focused MaaFramework skills for Pipeline authoring, generation, options, testing, graph analysis, project discovery, and history auditing, with optional MaaMCP and Playwright MCP servers.",
+    "developerName": "KhazixW2",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": "Use $maa-project-init to inspect this MaaFramework project and recommend the next Maa workflow."
+  },
+  "mcpServers": "./.mcp.json"
+}

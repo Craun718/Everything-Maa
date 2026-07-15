@@ -52,3 +52,25 @@ def test_relative_markdown_links_inside_skills_exist():
                 continue
             resolved = (markdown_path.parent / target).resolve()
             assert resolved.exists(), f"{markdown_path.relative_to(ROOT)} -> {raw_target}"
+
+
+def test_plugin_versions_and_mcp_presets_stay_in_sync():
+    package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
+    claude = json.loads(
+        (ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")
+    )
+    codex = json.loads(
+        (ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")
+    )
+    catalog = json.loads((ROOT / "mcp" / "catalog.json").read_text(encoding="utf-8"))
+    native_mcp = json.loads((ROOT / ".mcp.json").read_text(encoding="utf-8"))
+
+    assert package["version"] == claude["version"] == codex["version"]
+    expected_servers = {
+        name: {
+            "command": catalog["servers"][name]["command"],
+            "args": catalog["servers"][name]["args"],
+        }
+        for name in catalog["profiles"]["full"]
+    }
+    assert native_mcp["mcpServers"] == expected_servers

@@ -1,0 +1,49 @@
+{
+  "name": "everything-maa",
+  "version": "0.1.0",
+  "description": "Install focused MaaFramework skills and optional MCP profiles for Claude Code and Codex.",
+  "type": "module",
+  "bin": {
+    "everything-maa": "packages/cli/bin/everything-maa.js"
+  },
+  "files": [
+    ".claude-plugin/",
+    ".codex-plugin/",
+    ".mcp.json",
+    "adapters/",
+    "docs/",
+    "mcp/",
+    "packages/cli/",
+    "recipes/",
+    "skills/",
+    "!skills/**/__pycache__/**",
+    "!skills/**/*.py[cod]",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "README.md",
+    "README.zh-CN.md",
+    "SECURITY.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "test": "node --test tests/node/*.test.mjs",
+    "test:node": "node --test tests/node/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "maa",
+    "maaframework",
+    "claude-code",
+    "codex",
+    "mcp"
+  ],
+  "author": "KhazixW2",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KhazixW2/Everything-Maa.git"
+  },
+  "homepage": "https://github.com/KhazixW2/Everything-Maa#readme"
+}

@@ -2,7 +2,39 @@
 
 Everything Maa 是一个严格面向 MaaFramework 项目的 AI skills 工具集。核心范围只包括 Maa 项目发现、Pipeline 编写与生成、选项接线、节点图谱、测试和历史审计。
 
-> 当前状态：Phase 1 开发基线。核心 skills 与测试已经独立；原生插件清单、MCP 预设和 `npx everything-maa` 安装器将在下一阶段加入。
+> 当前状态：预发布开发基线。规范化 skills、原生插件清单、MCP profiles 和安装器均已在本地实现并通过测试；npm 包与 GitHub 仓库尚未发布。
+
+## 安装
+
+首次发布到 npm 后，可用下面任一命令安装到当前项目：
+
+```bash
+npx everything-maa@latest install --target claude
+npx everything-maa@latest install --target codex
+```
+
+在本地仓库试用时，将 `npx everything-maa@latest` 替换为 `node packages/cli/bin/everything-maa.js`。
+
+默认 `core` profile 会安装全部 7 个 skills 并配置 MaaMCP。三个 profile 的边界是固定且版本化的：
+
+| Profile | 安装内容 |
+| --- | --- |
+| `skills-only` | 仅 Maa skills |
+| `core` | Maa skills + MaaMCP |
+| `full` | Maa skills + MaaMCP + 隔离模式 Playwright MCP |
+
+常用操作：
+
+```bash
+npx everything-maa list
+npx everything-maa doctor
+npx everything-maa install --target codex --profile full --dry-run
+npx everything-maa uninstall --target codex
+```
+
+默认安装到项目级。`--scope user` 可安装用户级 skills；Claude 用户级 MCP 合并暂不支持，因为这需要修改 Claude 的共享全局配置。该场景请选择 `--profile skills-only`、项目级安装或原生插件。
+
+安装器只管理自己写入的内容。卸载时仅删除哈希仍与安装记录一致的 skill，保留无关 MCP 配置，并保留用户修改过的内容与恢复状态。
 
 ## 核心 skills
 
@@ -24,6 +56,9 @@ Everything Maa 是一个严格面向 MaaFramework 项目的 AI skills 工具集�
 - `recipes/`：可选的项目或任务配方。
 - `evals/`：与安装载荷分离的 skill 评测用例。
 - `adapters/`：MaaHub 及后续 agent 平台的分发元数据。
+- `mcp/`：版本化 MCP 服务器目录与 profiles。
+- `.claude-plugin/` 与 `.codex-plugin/`：原生插件清单。
+- `packages/cli/`：无运行时依赖的 Node.js 安装器。
 - `tests/`：跨平台 fixture 和仓库结构约束。
 
 ## 开发与验证
@@ -32,13 +67,15 @@ Everything Maa 是一个严格面向 MaaFramework 项目的 AI skills 工具集�
 python -m pip install -r requirements-dev.txt
 python -m pytest
 python scripts/validate_skills.py
+npm test
+npm pack --dry-run
 ```
 
-当前基线支持 Python 3.10 及以上。skill 不得假设自己安装在 `.claude/skills`、固定盘符或 Everything Maa 源码目录中。
+当前基线支持 Python 3.10 及以上、Node.js 18 及以上。skill 不得假设自己安装在 `.claude/skills`、固定盘符或 Everything Maa 源码目录中。
 
 ## 范围与依赖
 
-Everything Maa 不复制 MaaMCP、Playwright MCP、MaaFramework 二进制或 OCR 模型。后续 MCP 预设只调用官方上游发行包，并按 Everything Maa 版本锁定经过验证的版本。
+Everything Maa 不复制 MaaMCP、Playwright MCP、MaaFramework 二进制或 OCR 模型。MCP 预设只调用官方上游发行包，并按 Everything Maa 版本锁定经过验证的版本。MaaMCP 需要 `uvx`，Playwright MCP 需要 `npx`。
 
 许可证边界见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
