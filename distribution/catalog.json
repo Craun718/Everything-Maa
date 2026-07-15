@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "version": "0.1.0",
+  "releaseStatus": "prepared-not-published",
+  "channels": {
+    "npm": {
+      "package": "everything-maa",
+      "manifest": "package.json",
+      "installer": "packages/cli/bin/everything-maa.js",
+      "status": "prepared"
+    },
+    "claude-marketplace": {
+      "marketplace": "everything-maa",
+      "plugin": "everything-maa",
+      "manifest": ".claude-plugin/marketplace.json",
+      "status": "prepared"
+    },
+    "codex-plugin": {
+      "manifest": ".codex-plugin/plugin.json",
+      "installerProfileSupport": true,
+      "status": "prepared"
+    },
+    "maahub": {
+      "adapterRoot": "adapters/maahub/skills",
+      "adapterCount": 9,
+      "status": "adapter-ready"
+    },
+    "github-release": {
+      "workflow": ".github/workflows/release.yml",
+      "status": "workflow-ready"
+    }
+  }
+}

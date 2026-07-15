@@ -12,6 +12,7 @@
     ".mcp.json",
     "adapters/",
     "docs/",
+    "distribution/",
     "integrations/",
     "mcp/",
     "packages/cli/",
@@ -44,6 +45,7 @@
   "keywords": [
     "maa",
     "maaframework",
+    "cli",
     "claude-code",
     "codex",
     "mcp"

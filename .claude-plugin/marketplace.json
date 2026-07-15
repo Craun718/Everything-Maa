@@ -1,0 +1,35 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "everything-maa",
+  "description": "MaaFramework project lifecycle skills and versioned runtime integrations.",
+  "owner": {
+    "name": "KhazixW2"
+  },
+  "plugins": [
+    {
+      "name": "everything-maa",
+      "description": "Create, inspect, author, test, and operate MaaFramework projects with focused skills and optional MCP servers.",
+      "source": "./",
+      "version": "0.1.0",
+      "author": {
+        "name": "KhazixW2"
+      },
+      "homepage": "https://github.com/KhazixW2/Everything-Maa",
+      "repository": "https://github.com/KhazixW2/Everything-Maa",
+      "license": "MIT",
+      "keywords": [
+        "maa",
+        "maaframework",
+        "pipeline",
+        "skills",
+        "mcp"
+      ],
+      "category": "development",
+      "tags": [
+        "maa",
+        "maaframework",
+        "automation"
+      ]
+    }
+  ]
+}

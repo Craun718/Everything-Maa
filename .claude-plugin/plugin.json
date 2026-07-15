@@ -1,7 +1,7 @@
 {
   "name": "everything-maa",
   "version": "0.1.0",
-  "description": "MaaFramework skills with project lifecycle, MaaMCP, and optional browser integrations.",
+  "description": "MaaFramework lifecycle and CLI skills with MaaMCP and optional browser integrations.",
   "author": {
     "name": "KhazixW2"
   },

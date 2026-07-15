@@ -1,6 +1,6 @@
 # Everything Maa
 
-Everything Maa is a focused toolkit of reusable AI skills for MaaFramework projects. Its canonical content is limited to Maa project discovery, Pipeline authoring, node generation, option wiring, graph analysis, testing, and history auditing.
+Everything Maa is a focused toolkit of reusable AI skills for MaaFramework projects. Its canonical content covers project creation and discovery, Pipeline authoring and generation, option wiring, graph analysis, testing, history auditing, and guarded CLI operation.
 
 > Status: pre-release development baseline. The canonical skills, native plugin manifests, MCP profiles, and installer are implemented and tested locally; the npm package and GitHub repository have not been published yet.
 
@@ -14,6 +14,13 @@ npx everything-maa@latest install --target codex
 ```
 
 For a local checkout, replace `npx everything-maa@latest` with `node packages/cli/bin/everything-maa.js`.
+
+After the GitHub repository is public, Claude Code can also install the native plugin through its self-hosted marketplace:
+
+```text
+/plugin marketplace add https://github.com/KhazixW2/Everything-Maa
+/plugin install everything-maa@everything-maa
+```
 
 The default `core` profile installs all nine skills and configures MaaMCP. Profiles are explicit and versioned:
 
@@ -60,12 +67,15 @@ Project-specific workflows belong under `recipes/` and are not installed as core
 - `recipes/`: optional project or task recipes.
 - `evals/`: skill evaluation cases kept outside installed skill payloads.
 - `adapters/`: distribution metadata for MaaHub and future agent harnesses.
+- `distribution/`: versioned status and paths for every supported release channel.
 - `integrations/`: runtime routing metadata for MCP and optional CLI tools.
 - `mcp/`: versioned MCP server catalog and profiles.
 - `.claude-plugin/` and `.codex-plugin/`: native plugin manifests.
 - `packages/cli/`: dependency-free Node.js installer.
 - `tests/`: portable fixtures and repository invariants.
 - `.github/workflows/`: cross-platform CI and tag-gated trusted publishing.
+
+The completed six-phase roadmap and remaining public-release gate are documented in [docs/roadmap.md](docs/roadmap.md).
 
 ## Development
 

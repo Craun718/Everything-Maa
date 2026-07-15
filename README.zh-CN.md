@@ -1,6 +1,6 @@
 # Everything Maa
 
-Everything Maa 是一个严格面向 MaaFramework 项目的 AI skills 工具集。核心范围只包括 Maa 项目发现、Pipeline 编写与生成、选项接线、节点图谱、测试和历史审计。
+Everything Maa 是一个严格面向 MaaFramework 项目的 AI skills 工具集。核心范围包括项目创建与发现、Pipeline 编写与生成、选项接线、节点图谱、测试、历史审计和受控 CLI 操作。
 
 > 当前状态：预发布开发基线。规范化 skills、原生插件清单、MCP profiles 和安装器均已在本地实现并通过测试；npm 包与 GitHub 仓库尚未发布。
 
@@ -14,6 +14,13 @@ npx everything-maa@latest install --target codex
 ```
 
 在本地仓库试用时，将 `npx everything-maa@latest` 替换为 `node packages/cli/bin/everything-maa.js`。
+
+GitHub 仓库公开后，Claude Code 也可以通过自托管 marketplace 安装原生插件：
+
+```text
+/plugin marketplace add https://github.com/KhazixW2/Everything-Maa
+/plugin install everything-maa@everything-maa
+```
 
 默认 `core` profile 会安装全部 9 个 skills 并配置 MaaMCP。四个 profile 的边界是固定且版本化的：
 
@@ -60,12 +67,15 @@ npx everything-maa uninstall --target codex
 - `recipes/`：可选的项目或任务配方。
 - `evals/`：与安装载荷分离的 skill 评测用例。
 - `adapters/`：MaaHub 及后续 agent 平台的分发元数据。
+- `distribution/`：所有支持发行渠道的版本化状态与路径。
 - `integrations/`：MCP 与可选 CLI 工具的运行时路由元数据。
 - `mcp/`：版本化 MCP 服务器目录与 profiles。
 - `.claude-plugin/` 与 `.codex-plugin/`：原生插件清单。
 - `packages/cli/`：无运行时依赖的 Node.js 安装器。
 - `tests/`：跨平台 fixture 和仓库结构约束。
 - `.github/workflows/`：跨平台 CI 与标签门控的可信发布流程。
+
+已完成的六阶段路线图和剩余公开发布门槛见 [docs/roadmap.md](docs/roadmap.md)。
 
 ## 开发与验证
 

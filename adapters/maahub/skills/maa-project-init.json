@@ -1,0 +1,18 @@
+{
+  "id": "KhazixW2/maa-project-init",
+  "title": "Maa Project Init",
+  "description": "Inspect an existing MaaFramework project and produce a structured handoff covering resources, Pipeline, interface, and Python Agent structure.",
+  "author": "KhazixW2",
+  "source": "Everything Maa",
+  "sourceGithub": "https://github.com/KhazixW2/Everything-Maa",
+  "tags": ["project", "discovery", "handoff", "analysis", "skill"],
+  "createdAt": "2026-07-15",
+  "updatedAt": "2026-07-15",
+  "version": "0.1.0",
+  "mfwVersion": "5.10.4",
+  "entry": "../../../skills/maa-project-init/SKILL.md",
+  "readme": "../../../docs/skills/maa-project-init.md",
+  "status": "beta",
+  "type": "skill",
+  "category": "project"
+}

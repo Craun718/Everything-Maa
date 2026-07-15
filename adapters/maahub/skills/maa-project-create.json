@@ -1,0 +1,18 @@
+{
+  "id": "KhazixW2/maa-project-create",
+  "title": "Maa Project Create",
+  "description": "Create and maintain MaaFramework projects through the external create-maa-project lifecycle MCP or pinned CLI.",
+  "author": "KhazixW2",
+  "source": "Everything Maa",
+  "sourceGithub": "https://github.com/KhazixW2/Everything-Maa",
+  "tags": ["project", "scaffold", "lifecycle", "mcp", "skill"],
+  "createdAt": "2026-07-15",
+  "updatedAt": "2026-07-15",
+  "version": "0.1.0",
+  "mfwVersion": "5.10.4",
+  "entry": "../../../skills/maa-project-create/SKILL.md",
+  "readme": "../../../docs/skills/maa-project-create.md",
+  "status": "beta",
+  "type": "skill",
+  "category": "project"
+}

@@ -1,7 +1,7 @@
 {
   "name": "everything-maa",
   "version": "0.1.0",
-  "description": "MaaFramework skills with project lifecycle, MaaMCP, and optional browser integrations.",
+  "description": "MaaFramework lifecycle and CLI skills with MaaMCP and optional browser integrations.",
   "author": {
     "name": "KhazixW2"
   },
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Everything Maa",
     "shortDescription": "Build and maintain MaaFramework projects.",
-    "longDescription": "Focused MaaFramework skills for project creation, Pipeline authoring, generation, options, testing, graph analysis, project discovery, and history auditing, with create-maa-project, MaaMCP, and optional Playwright MCP servers.",
+    "longDescription": "Focused MaaFramework skills for project creation, CLI operation, Pipeline authoring, generation, options, testing, graph analysis, project discovery, and history auditing, with create-maa-project, MaaMCP, and optional Playwright MCP servers.",
     "developerName": "KhazixW2",
     "category": "Productivity",
     "capabilities": [

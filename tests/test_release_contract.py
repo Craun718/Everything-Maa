@@ -21,6 +21,7 @@ def test_release_metadata_and_packaged_validator_are_present():
     assert "scripts/check-release.mjs" in package["files"]
     assert "CHANGELOG.md" in package["files"]
     assert "release:check" in package["scripts"]
+    assert "distribution/" in package["files"]
 
 
 def test_release_workflow_publishes_only_for_tags_with_oidc():

@@ -22,7 +22,8 @@ Trusted publishing requires a public GitHub-hosted workflow with OIDC. The relea
    - `package.json` and `package-lock.json`;
    - `.codex-plugin/plugin.json`;
    - `.claude-plugin/plugin.json`;
-   - `.claude-plugin/marketplace.json` once that marketplace is present.
+   - `.claude-plugin/marketplace.json`;
+   - `distribution/catalog.json`.
 3. Review pinned third-party versions and licenses in `mcp/catalog.json`, `integrations/catalog.json`, and `THIRD_PARTY_NOTICES.md`.
 4. Run:
 

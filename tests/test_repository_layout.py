@@ -40,6 +40,25 @@ def test_maahub_adapter_paths_exist():
             assert target.is_file(), f"{metadata_path.name}: missing {field} target {target}"
 
 
+def test_every_canonical_skill_has_a_maahub_adapter():
+    skills = {path.name for path in (ROOT / "skills").iterdir() if path.is_dir()}
+    adapters = {
+        path.stem for path in (ROOT / "adapters" / "maahub" / "skills").glob("*.json")
+    }
+
+    assert adapters == skills
+    for name in sorted(skills):
+        data = json.loads(
+            (ROOT / "adapters" / "maahub" / "skills" / f"{name}.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        assert data["id"] == f"KhazixW2/{name}"
+        assert data["type"] == "skill"
+        assert re.fullmatch(r"\d+\.\d+\.\d+", data["version"])
+        assert (ROOT / "docs" / "skills" / f"{name}.md").is_file()
+
+
 def test_relative_markdown_links_inside_skills_exist():
     link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
     for markdown_path in (ROOT / "skills").rglob("*.md"):
@@ -90,3 +109,24 @@ def test_integration_catalog_resolves_to_known_mcp_servers():
     create_server = mcp_catalog["servers"]["create-maa-project"]
     assert create_cli["command"] == create_server["command"]
     assert create_cli["args"] == create_server["args"][:-1]
+
+
+def test_distribution_manifests_match_package_version():
+    package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
+    marketplace = json.loads(
+        (ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8")
+    )
+    distribution = json.loads(
+        (ROOT / "distribution" / "catalog.json").read_text(encoding="utf-8")
+    )
+
+    plugin = next(item for item in marketplace["plugins"] if item["name"] == "everything-maa")
+    assert plugin["source"] == "./"
+    assert plugin["version"] == package["version"] == distribution["version"]
+    assert distribution["channels"]["maahub"]["adapterCount"] == len(
+        list((ROOT / "skills").iterdir())
+    )
+    for channel in distribution["channels"].values():
+        for field in ("manifest", "installer", "adapterRoot", "workflow"):
+            if field in channel:
+                assert (ROOT / channel[field]).exists(), (field, channel[field])

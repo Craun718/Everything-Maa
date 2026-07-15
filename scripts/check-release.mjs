@@ -18,10 +18,19 @@ function checkVersions() {
   const pkg = readJson("package.json");
   const codex = readJson(".codex-plugin/plugin.json");
   const claude = readJson(".claude-plugin/plugin.json");
+  const marketplace = readJson(".claude-plugin/marketplace.json");
+  const distribution = readJson("distribution/catalog.json");
   const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$/;
   if (!semver.test(pkg.version)) fail(`package version is not semver: ${pkg.version}`);
   if (codex.version !== pkg.version || claude.version !== pkg.version) {
     fail(`version mismatch: package=${pkg.version}, codex=${codex.version}, claude=${claude.version}`);
+  }
+  const marketplacePlugin = marketplace.plugins.find((item) => item.name === "everything-maa");
+  if (!marketplacePlugin || marketplacePlugin.version !== pkg.version) {
+    fail(`Claude marketplace does not expose everything-maa@${pkg.version}`);
+  }
+  if (distribution.version !== pkg.version) {
+    fail(`distribution catalog version ${distribution.version} does not match ${pkg.version}`);
   }
   return pkg;
 }
@@ -78,6 +87,8 @@ function inspectTarball() {
     "mcp/catalog.json",
     ".codex-plugin/plugin.json",
     ".claude-plugin/plugin.json",
+    ".claude-plugin/marketplace.json",
+    "distribution/catalog.json",
   ];
   for (const skill of fs.readdirSync(path.join(ROOT, "skills"), { withFileTypes: true })) {
     if (!skill.isDirectory()) continue;

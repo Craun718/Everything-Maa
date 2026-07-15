@@ -1,0 +1,18 @@
+{
+  "id": "KhazixW2/maa-pipeline-graph",
+  "title": "Maa Pipeline Graph",
+  "description": "Visualize MaaFramework Pipeline state machines across JSON, interface entries, and Python run_task calls while finding broken or orphaned links.",
+  "author": "KhazixW2",
+  "source": "Everything Maa",
+  "sourceGithub": "https://github.com/KhazixW2/Everything-Maa",
+  "tags": ["pipeline", "graph", "state-machine", "debugging", "skill"],
+  "createdAt": "2026-07-15",
+  "updatedAt": "2026-07-15",
+  "version": "0.1.0",
+  "mfwVersion": "5.10.4",
+  "entry": "../../../skills/maa-pipeline-graph/SKILL.md",
+  "readme": "../../../docs/skills/maa-pipeline-graph.md",
+  "status": "beta",
+  "type": "skill",
+  "category": "pipeline"
+}
