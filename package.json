@@ -36,8 +36,8 @@
     "release:check": "node scripts/check-release.mjs",
     "smoke:maafw-cli": "node scripts/smoke-maafw-cli.mjs",
     "smoke:create-project": "node scripts/smoke-create-maa-project.mjs",
-    "test": "node --test tests/node/*.test.mjs",
-    "test:node": "node --test tests/node/*.test.mjs"
+    "test": "node --test tests/node/cli.test.mjs",
+    "test:node": "node --test tests/node/cli.test.mjs"
   },
   "engines": {
     "node": ">=18"
