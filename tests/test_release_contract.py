@@ -33,4 +33,6 @@ def test_release_workflow_publishes_only_for_tags_with_oidc():
     assert "id-token: write" in workflow
     assert "npm publish" in workflow
     assert workflow.count("if: github.ref_type == 'tag'") >= 3
+    assert 'npm view "everything-maa@$version" version' in workflow
+    assert "steps.npm-version.outputs.published != 'true'" in workflow
     assert "NPM_TOKEN" not in workflow

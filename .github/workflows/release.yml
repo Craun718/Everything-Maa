@@ -37,6 +37,17 @@ jobs:
       - name: Check tag and release contract
         if: github.ref_type == 'tag'
         run: npm run release:check -- --tag "$GITHUB_REF_NAME"
+      - name: Check whether this version is already on npm
+        if: github.ref_type == 'tag'
+        id: npm-version
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if npm view "everything-maa@$version" version >/dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
       - run: npm pack --ignore-scripts
       - uses: actions/upload-artifact@v4
         with:
@@ -44,7 +55,7 @@ jobs:
           path: everything-maa-*.tgz
           if-no-files-found: error
       - name: Publish to npm with trusted publishing
-        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag' && steps.npm-version.outputs.published != 'true'
         run: npm publish
       - name: Create GitHub Release
         if: github.ref_type == 'tag'
