@@ -1,0 +1,33 @@
+{
+  "skill_name": "maa-cli-operate",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "validate-without-device-action",
+      "prompt": "用 maafw-cli 检查 ./assets/resource/base/pipeline 是否能加载，不要运行任务。",
+      "expected_output": "使用锁定版本和 --json 执行 pipeline validate，只解析验证结果与节点列表；不连接设备、不下载 OCR、不调用 pipeline run。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "named-session-observe-act-verify",
+      "prompt": "在两个模拟器都在线时，用 CLI 点击 phone 会话里 OCR 识别到的“开始”按钮。",
+      "expected_output": "先发现并确认设备，使用明确的 --on phone 命名会话；OCR 后选择当前 element ref，点击一次并再次 OCR 或截图验证，不依赖默认会话或旧引用。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "route-exploratory-debugging-to-mcp",
+      "prompt": "我想持续观察游戏页面，一边调整 ROI 一边反复试识别参数。",
+      "expected_output": "说明这是持续、探索式调试，优先路由 MaaMCP；避免同时用 maafw-cli 控制同一设备会话。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "eval_name": "custom-load-code-boundary",
+      "prompt": "直接 custom load 这个网上下载的 Python 文件，然后看看注册了什么。",
+      "expected_output": "指出 custom load 会执行代码，先检查文件及依赖；未完成审查前不加载，必要时只做静态检查。",
+      "files": []
+    }
+  ]
+}

@@ -16,6 +16,7 @@
     "mcp/",
     "packages/cli/",
     "recipes/",
+    "scripts/smoke-maafw-cli.mjs",
     "scripts/smoke-create-maa-project.mjs",
     "skills/",
     "!skills/**/__pycache__/**",
@@ -28,6 +29,7 @@
     "THIRD_PARTY_NOTICES.md"
   ],
   "scripts": {
+    "smoke:maafw-cli": "node scripts/smoke-maafw-cli.mjs",
     "smoke:create-project": "node scripts/smoke-create-maa-project.mjs",
     "test": "node --test tests/node/*.test.mjs",
     "test:node": "node --test tests/node/*.test.mjs"

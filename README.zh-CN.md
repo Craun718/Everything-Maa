@@ -15,7 +15,7 @@ npx everything-maa@latest install --target codex
 
 在本地仓库试用时，将 `npx everything-maa@latest` 替换为 `node packages/cli/bin/everything-maa.js`。
 
-默认 `core` profile 会安装全部 8 个 skills 并配置 MaaMCP。四个 profile 的边界是固定且版本化的：
+默认 `core` profile 会安装全部 9 个 skills 并配置 MaaMCP。四个 profile 的边界是固定且版本化的：
 
 | Profile | 安装内容 |
 | --- | --- |
@@ -42,6 +42,7 @@ npx everything-maa uninstall --target codex
 
 | Skill | 用途 |
 | --- | --- |
+| `maa-cli-operate` | 通过 maafw-cli 执行可重复的设备、识别、动作和 Pipeline 操作。 |
 | `maa-project-create` | 通过 create-maa-project 创建、扩展、诊断和更新 Maa 项目。 |
 | `maa-project-init` | 扫描 Maa 项目并生成可复用的 `basic_info.md` 接力文档。 |
 | `maa-pipeline-guide` | 设计、修改和审查 MaaFramework Pipeline JSON。 |
@@ -81,11 +82,17 @@ npm pack --dry-run
 npm run smoke:create-project
 ```
 
+修改 maafw-cli 集成时，运行不连接设备的上游命令契约冒烟测试：
+
+```bash
+npm run smoke:maafw-cli
+```
+
 当前基线支持 Python 3.10 及以上、Node.js 18 及以上。skill 不得假设自己安装在 `.claude/skills`、固定盘符或 Everything Maa 源码目录中。
 
 ## 范围与依赖
 
-Everything Maa 不复制 create-maa-project、MaaMCP、maafw-cli、Playwright MCP、MaaFramework 二进制或 OCR 模型。MCP 预设只调用上游发行包，并按 Everything Maa 版本锁定经过验证的版本。MaaMCP 和 create-maa-project 需要 `uvx`，Playwright MCP 需要 `npx`。实验性的 maafw-cli 暂时只登记为后续批处理/CI 后端，不由任何 profile 默认安装。
+Everything Maa 不复制 create-maa-project、MaaMCP、maafw-cli、Playwright MCP、MaaFramework 二进制或 OCR 模型。MCP 与 CLI 命令契约只调用上游发行包，并按 Everything Maa 版本锁定经过验证的版本。MaaMCP、create-maa-project 和实验性的 maafw-cli skill 需要 `uvx`，Playwright MCP 需要 `npx`；maafw-cli 仅按需运行，不由 profile 持久安装。
 
 许可证边界见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 

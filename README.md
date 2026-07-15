@@ -15,7 +15,7 @@ npx everything-maa@latest install --target codex
 
 For a local checkout, replace `npx everything-maa@latest` with `node packages/cli/bin/everything-maa.js`.
 
-The default `core` profile installs all eight skills and configures MaaMCP. Profiles are explicit and versioned:
+The default `core` profile installs all nine skills and configures MaaMCP. Profiles are explicit and versioned:
 
 | Profile | Installed components |
 | --- | --- |
@@ -42,6 +42,7 @@ The installer records exactly what it owns. Uninstall removes an installed skill
 
 | Skill | Purpose |
 | --- | --- |
+| `maa-cli-operate` | Run repeatable device, recognition, action, and Pipeline operations through maafw-cli. |
 | `maa-project-create` | Create, extend, diagnose, and update Maa projects through create-maa-project. |
 | `maa-project-init` | Scan a Maa project and produce a reusable `basic_info.md` handoff. |
 | `maa-pipeline-guide` | Design and review MaaFramework Pipeline JSON. |
@@ -81,11 +82,17 @@ When changing the create-maa-project integration, also run the networked upstrea
 npm run smoke:create-project
 ```
 
+When changing the maafw-cli integration, run its non-device upstream contract smoke test:
+
+```bash
+npm run smoke:maafw-cli
+```
+
 The current baseline supports Python 3.10 and later and Node.js 18 and later. Do not assume a skill is installed under `.claude/skills`, a particular drive letter, or the Everything Maa checkout itself.
 
 ## Scope and dependencies
 
-Everything Maa does not vendor create-maa-project, MaaMCP, maafw-cli, Playwright MCP, MaaFramework binaries, or OCR models. MCP launch presets reference upstream packages and pin versions per Everything Maa release. MaaMCP and create-maa-project require `uvx`; Playwright MCP requires `npx`. Experimental maafw-cli support is cataloged for future batch/CI routing but is not installed by a profile.
+Everything Maa does not vendor create-maa-project, MaaMCP, maafw-cli, Playwright MCP, MaaFramework binaries, or OCR models. MCP and CLI launch contracts reference upstream packages and pin versions per Everything Maa release. MaaMCP, create-maa-project, and the experimental maafw-cli skill require `uvx`; Playwright MCP requires `npx`. maafw-cli runs on demand and is not installed persistently by a profile.
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for license boundaries and [README.zh-CN.md](README.zh-CN.md) for Chinese documentation.
 

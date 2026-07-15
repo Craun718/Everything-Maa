@@ -24,6 +24,15 @@
       "role": "batch-runtime",
       "description": "Use for low-context, repeatable MaaFramework device and Pipeline operations with strict JSON output.",
       "status": "experimental",
+      "verifiedAt": "2026-07-15",
+      "capabilities": [
+        "device-discovery",
+        "named-sessions",
+        "recognition-actions",
+        "pipeline-validation",
+        "pipeline-execution",
+        "strict-json"
+      ],
       "package": "maafw-cli",
       "version": "0.1.6",
       "license": "MIT",
