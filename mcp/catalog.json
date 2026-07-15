@@ -5,8 +5,13 @@
     "core": [
       "maa-mcp"
     ],
+    "authoring": [
+      "maa-mcp",
+      "create-maa-project"
+    ],
     "full": [
       "maa-mcp",
+      "create-maa-project",
       "playwright"
     ]
   },
@@ -22,6 +27,20 @@
         "--from",
         "maa-mcp==1.2.3",
         "maa-mcp"
+      ]
+    },
+    "create-maa-project": {
+      "description": "Create, update, diagnose, and release MaaFramework application projects.",
+      "package": "create-maa-project",
+      "version": "2.0.0",
+      "license": "AGPL-3.0-or-later",
+      "upstream": "https://github.com/Windsland52/create-maa-project",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "create-maa-project==2.0.0",
+        "create-maa-project",
+        "--mcp"
       ]
     },
     "playwright": {

@@ -74,3 +74,19 @@ def test_plugin_versions_and_mcp_presets_stay_in_sync():
         for name in catalog["profiles"]["full"]
     }
     assert native_mcp["mcpServers"] == expected_servers
+
+
+def test_integration_catalog_resolves_to_known_mcp_servers():
+    mcp_catalog = json.loads((ROOT / "mcp" / "catalog.json").read_text(encoding="utf-8"))
+    integrations = json.loads(
+        (ROOT / "integrations" / "catalog.json").read_text(encoding="utf-8")
+    )
+
+    for name, tool in integrations["tools"].items():
+        if "mcpServer" in tool:
+            assert tool["mcpServer"] in mcp_catalog["servers"], name
+
+    create_cli = integrations["tools"]["create-maa-project"]["cli"]
+    create_server = mcp_catalog["servers"]["create-maa-project"]
+    assert create_cli["command"] == create_server["command"]
+    assert create_cli["args"] == create_server["args"][:-1]

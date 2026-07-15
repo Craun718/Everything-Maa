@@ -8,6 +8,15 @@
         "maa-mcp"
       ]
     },
+    "create-maa-project": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "create-maa-project==2.0.0",
+        "create-maa-project",
+        "--mcp"
+      ]
+    },
     "playwright": {
       "command": "npx",
       "args": [

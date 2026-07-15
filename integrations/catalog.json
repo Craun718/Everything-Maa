@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "tools": {
+    "maa-mcp": {
+      "role": "persistent-runtime",
+      "description": "Use for persistent device sessions and exploratory recognition, interaction, and Pipeline debugging.",
+      "mcpServer": "maa-mcp"
+    },
+    "create-maa-project": {
+      "role": "project-lifecycle",
+      "description": "Use for deterministic Maa project creation, structured updates, doctor, diff, and release scaffolding.",
+      "mcpServer": "create-maa-project",
+      "cli": {
+        "command": "uvx",
+        "args": [
+          "--from",
+          "create-maa-project==2.0.0",
+          "create-maa-project"
+        ],
+        "reportFlag": "--report"
+      }
+    },
+    "maafw-cli": {
+      "role": "batch-runtime",
+      "description": "Use for low-context, repeatable MaaFramework device and Pipeline operations with strict JSON output.",
+      "status": "experimental",
+      "package": "maafw-cli",
+      "version": "0.1.6",
+      "license": "MIT",
+      "upstream": "https://github.com/otowa-kotori/maafw-cli",
+      "cli": {
+        "command": "uvx",
+        "args": [
+          "--from",
+          "maafw-cli==0.1.6",
+          "maafw-cli"
+        ],
+        "jsonFlag": "--json"
+      }
+    },
+    "playwright": {
+      "role": "optional-web-runtime",
+      "description": "Use only when Maa work requires browser-side documentation, UI observation, or web testing.",
+      "mcpServer": "playwright"
+    }
+  }
+}

@@ -473,14 +473,23 @@ function checkCommand(label, command) {
   return true;
 }
 
-function doctor() {
+function doctor(catalog, integrations) {
   console.log(`Everything Maa ${readJson(path.join(PACKAGE_ROOT, "package.json")).version}`);
   const checks = [
     checkCommand("Node.js", process.execPath),
     checkCommand("Python", process.platform === "win32" ? "python" : "python3"),
-    checkCommand("uvx (required by MaaMCP)", "uvx"),
+    checkCommand("uvx (required by Maa MCP integrations)", "uvx"),
     checkCommand("npx (required by Playwright MCP)", process.platform === "win32" ? "npx.cmd" : "npx"),
   ];
+  console.log("Configured integrations:");
+  for (const [name, tool] of Object.entries(integrations.tools)) {
+    if (tool.mcpServer) {
+      const server = catalog.servers[tool.mcpServer];
+      console.log(`  [mcp] ${name}: ${server.package}@${server.version}`);
+    } else if (tool.cli) {
+      console.log(`  [optional cli] ${name}: ${tool.package}@${tool.version} (${tool.status || "stable"})`);
+    }
+  }
   if (!checks.every(Boolean)) process.exitCode = 1;
 }
 
@@ -495,8 +504,8 @@ Usage:
 
 Options:
   --scope project|user          Installation scope (default: project)
-  --profile skills-only|core|full
-                                core adds MaaMCP; full also adds Playwright MCP
+  --profile skills-only|core|authoring|full
+                                authoring adds create-maa-project; full also adds Playwright MCP
   --project-dir <path>          Project root (default: current directory)
   --dry-run                     Preview changes without writing files
   --force                       Replace conflicting managed destinations
@@ -506,11 +515,12 @@ The init command is an alias for install.`);
 
 function main() {
   const catalog = readJson(path.join(PACKAGE_ROOT, "mcp", "catalog.json"));
+  const integrations = readJson(path.join(PACKAGE_ROOT, "integrations", "catalog.json"));
   const options = parseArgs(process.argv.slice(2));
   validateOptions(options, catalog);
   if (["help", "--help", "-h"].includes(options.command)) return help();
   if (options.command === "list") return list(catalog);
-  if (options.command === "doctor") return doctor();
+  if (options.command === "doctor") return doctor(catalog, integrations);
   if (options.command === "install") return install(options, catalog);
   if (options.command === "uninstall") return uninstall(options);
   throw new Error(`Unknown command: ${options.command}`);

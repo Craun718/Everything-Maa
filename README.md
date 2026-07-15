@@ -15,19 +15,21 @@ npx everything-maa@latest install --target codex
 
 For a local checkout, replace `npx everything-maa@latest` with `node packages/cli/bin/everything-maa.js`.
 
-The default `core` profile installs all seven skills and configures MaaMCP. Profiles are explicit and versioned:
+The default `core` profile installs all eight skills and configures MaaMCP. Profiles are explicit and versioned:
 
 | Profile | Installed components |
 | --- | --- |
 | `skills-only` | Maa skills only |
 | `core` | Maa skills + MaaMCP |
-| `full` | Maa skills + MaaMCP + isolated Playwright MCP |
+| `authoring` | Core + create-maa-project project lifecycle MCP |
+| `full` | Authoring + isolated Playwright MCP |
 
 Useful operations:
 
 ```bash
 npx everything-maa list
 npx everything-maa doctor
+npx everything-maa install --target codex --profile authoring
 npx everything-maa install --target codex --profile full --dry-run
 npx everything-maa uninstall --target codex
 ```
@@ -40,6 +42,7 @@ The installer records exactly what it owns. Uninstall removes an installed skill
 
 | Skill | Purpose |
 | --- | --- |
+| `maa-project-create` | Create, extend, diagnose, and update Maa projects through create-maa-project. |
 | `maa-project-init` | Scan a Maa project and produce a reusable `basic_info.md` handoff. |
 | `maa-pipeline-guide` | Design and review MaaFramework Pipeline JSON. |
 | `maa-pipeline-generate` | Generate recognition/action nodes and sweep OCR ROIs. |
@@ -56,6 +59,7 @@ Project-specific workflows belong under `recipes/` and are not installed as core
 - `recipes/`: optional project or task recipes.
 - `evals/`: skill evaluation cases kept outside installed skill payloads.
 - `adapters/`: distribution metadata for MaaHub and future agent harnesses.
+- `integrations/`: runtime routing metadata for MCP and optional CLI tools.
 - `mcp/`: versioned MCP server catalog and profiles.
 - `.claude-plugin/` and `.codex-plugin/`: native plugin manifests.
 - `packages/cli/`: dependency-free Node.js installer.
@@ -71,11 +75,17 @@ npm test
 npm pack --dry-run
 ```
 
+When changing the create-maa-project integration, also run the networked upstream smoke test:
+
+```bash
+npm run smoke:create-project
+```
+
 The current baseline supports Python 3.10 and later and Node.js 18 and later. Do not assume a skill is installed under `.claude/skills`, a particular drive letter, or the Everything Maa checkout itself.
 
 ## Scope and dependencies
 
-Everything Maa does not vendor MaaMCP, Playwright MCP, MaaFramework binaries, or OCR models. MCP launch presets reference official upstream packages and pin versions per Everything Maa release. MaaMCP requires `uvx`; Playwright MCP requires `npx`.
+Everything Maa does not vendor create-maa-project, MaaMCP, maafw-cli, Playwright MCP, MaaFramework binaries, or OCR models. MCP launch presets reference upstream packages and pin versions per Everything Maa release. MaaMCP and create-maa-project require `uvx`; Playwright MCP requires `npx`. Experimental maafw-cli support is cataloged for future batch/CI routing but is not installed by a profile.
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for license boundaries and [README.zh-CN.md](README.zh-CN.md) for Chinese documentation.
 

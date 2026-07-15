@@ -15,19 +15,21 @@ npx everything-maa@latest install --target codex
 
 在本地仓库试用时，将 `npx everything-maa@latest` 替换为 `node packages/cli/bin/everything-maa.js`。
 
-默认 `core` profile 会安装全部 7 个 skills 并配置 MaaMCP。三个 profile 的边界是固定且版本化的：
+默认 `core` profile 会安装全部 8 个 skills 并配置 MaaMCP。四个 profile 的边界是固定且版本化的：
 
 | Profile | 安装内容 |
 | --- | --- |
 | `skills-only` | 仅 Maa skills |
 | `core` | Maa skills + MaaMCP |
-| `full` | Maa skills + MaaMCP + 隔离模式 Playwright MCP |
+| `authoring` | Core + create-maa-project 项目生命周期 MCP |
+| `full` | Authoring + 隔离模式 Playwright MCP |
 
 常用操作：
 
 ```bash
 npx everything-maa list
 npx everything-maa doctor
+npx everything-maa install --target codex --profile authoring
 npx everything-maa install --target codex --profile full --dry-run
 npx everything-maa uninstall --target codex
 ```
@@ -40,6 +42,7 @@ npx everything-maa uninstall --target codex
 
 | Skill | 用途 |
 | --- | --- |
+| `maa-project-create` | 通过 create-maa-project 创建、扩展、诊断和更新 Maa 项目。 |
 | `maa-project-init` | 扫描 Maa 项目并生成可复用的 `basic_info.md` 接力文档。 |
 | `maa-pipeline-guide` | 设计、修改和审查 MaaFramework Pipeline JSON。 |
 | `maa-pipeline-generate` | 生成识别/动作节点并扫描 OCR ROI。 |
@@ -56,6 +59,7 @@ npx everything-maa uninstall --target codex
 - `recipes/`：可选的项目或任务配方。
 - `evals/`：与安装载荷分离的 skill 评测用例。
 - `adapters/`：MaaHub 及后续 agent 平台的分发元数据。
+- `integrations/`：MCP 与可选 CLI 工具的运行时路由元数据。
 - `mcp/`：版本化 MCP 服务器目录与 profiles。
 - `.claude-plugin/` 与 `.codex-plugin/`：原生插件清单。
 - `packages/cli/`：无运行时依赖的 Node.js 安装器。
@@ -71,11 +75,17 @@ npm test
 npm pack --dry-run
 ```
 
+修改 create-maa-project 集成时，还需运行连接上游发行包的冒烟测试：
+
+```bash
+npm run smoke:create-project
+```
+
 当前基线支持 Python 3.10 及以上、Node.js 18 及以上。skill 不得假设自己安装在 `.claude/skills`、固定盘符或 Everything Maa 源码目录中。
 
 ## 范围与依赖
 
-Everything Maa 不复制 MaaMCP、Playwright MCP、MaaFramework 二进制或 OCR 模型。MCP 预设只调用官方上游发行包，并按 Everything Maa 版本锁定经过验证的版本。MaaMCP 需要 `uvx`，Playwright MCP 需要 `npx`。
+Everything Maa 不复制 create-maa-project、MaaMCP、maafw-cli、Playwright MCP、MaaFramework 二进制或 OCR 模型。MCP 预设只调用上游发行包，并按 Everything Maa 版本锁定经过验证的版本。MaaMCP 和 create-maa-project 需要 `uvx`，Playwright MCP 需要 `npx`。实验性的 maafw-cli 暂时只登记为后续批处理/CI 后端，不由任何 profile 默认安装。
 
 许可证边界见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 

@@ -1,0 +1,33 @@
+{
+  "skill_name": "maa-project-create",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "create-maintained-pipeline-project",
+      "prompt": "在 ./MaaExample 创建一个 Android Pipeline 项目，使用 MIT 许可证，带开发检查和 GitHub workflows。",
+      "expected_output": "收集或推导 slug/display name 后调用 create_project，template=pipeline、controller=Adb、license=MIT、add 包含 dev-tools 和 github；检查 report，随后从新项目根运行 doctor，并把项目交给 maa-project-init。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "agent-template-routing",
+      "prompt": "新建一个 Maa 项目，我需要用 Python 写 CustomRecognition，同时支持模拟器和 PC 窗口。",
+      "expected_output": "选择 agent 而不是 pipeline 模板，controller 包含 Adb 和 Win32；在许可证、目标路径或 Git 策略未明确时只询问这些会实质改变结果的选项，不复制 Agent 模板。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "resource-pack-requires-slug",
+      "prompt": "给当前 create-maa-project 项目增加一个国服资源包。",
+      "expected_output": "先确认 ASCII resourcePackSlug 和展示 label，再调用 add(resource-pack)；变更前运行 doctor/diff，不在缺少 slug 时猜测或直接调用。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "eval_name": "doctor-pending-is-not-create-failure",
+      "prompt": "项目创建 report 显示 ok=true，但 doctor 是失败状态，还有 OCR 下载 pending，我这个项目是不是创建失败了？",
+      "expected_output": "区分创建结果与健康检查，说明项目已创建但尚未完成依赖准备；展示 pending reason/command，不把 doctor 的非零状态误报成 create 失败，也不未经授权执行下载。",
+      "files": []
+    }
+  ]
+}
