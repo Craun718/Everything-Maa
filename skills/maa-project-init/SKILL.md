@@ -59,6 +59,7 @@ Do not run this skill against MaaMCP itself unless the user explicitly asks to a
 - `default_pipeline.json` under resource roots
 - all files under `assets/resource/**/image/**`
 - static string targets passed to `context.run_task()` and `context.run_recognition()` under `agent/**/*.py`
+- `@AgentServer.custom_action(...)` registrations under `agent/**/*.py`
 - `interface.json` `agent.child_args` 里每条 `.py` 的磁盘解析状态（与运行时 `maa_mcp/agent_supervisor._build_subprocess_cmd` 同步上溯 4 层）
 - project_root 与 4 层 ancestor 内 `agent/main.py`、`agent/server.py` 等约定入口的候选存在性（`AGENT_DIR_NAMES × AGENT_ENTRY_BASENAMES`，不递归子目录）
 
@@ -90,6 +91,10 @@ Generate bounded Mermaid flowcharts from each `interface.json` task entry. These
 - Preserve branch hints such as `JumpBack`, `jump_back`, and `anchor` in edge labels.
 - Limit depth and edge count so loops and shared utility nodes do not overwhelm `basic_info.md`.
 - Include a short primary path text summary for agents that cannot render Mermaid.
+- When a reachable node uses `action: Custom` (including v2 object form), add a
+  separate Python Agent block. Link the Pipeline node to the block as a
+  `CustomAction call`, link the block back as `returns`, and show the matched
+  `@AgentServer.custom_action(...)` handler and source location when available.
 
 ## Public Node Detection
 

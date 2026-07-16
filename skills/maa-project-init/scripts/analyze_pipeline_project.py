@@ -245,6 +245,14 @@ def node_action_params(node: dict) -> dict:
     return params if isinstance(params, dict) else action
 
 
+def node_custom_action_name(node: dict) -> str:
+    """Return the CustomAction registration name for v1 or v2 node syntax."""
+    if node_action_name(node).lower() != "custom":
+        return ""
+    value = node_action_params(node).get("custom_action")
+    return value if isinstance(value, str) else ""
+
+
 def node_recognition_name(node: dict) -> str:
     recognition = node.get("recognition", "<default>")
     if isinstance(recognition, str):
@@ -294,6 +302,7 @@ def analyze_pipeline_files(project_root: Path, pipeline_files: list[Path]) -> di
     templates: list[dict] = []
     ocr_expected: list[dict] = []
     roi_nodes: list[dict] = []
+    custom_action_nodes: list[dict] = []
 
     for path in pipeline_files:
         rel_file = rel(path, project_root)
@@ -318,6 +327,16 @@ def analyze_pipeline_files(project_root: Path, pipeline_files: list[Path]) -> di
                     "node": node,
                 }
             )
+
+            custom_action = node_custom_action_name(node)
+            if custom_action:
+                custom_action_nodes.append(
+                    {
+                        "node": name,
+                        "custom_action": custom_action,
+                        "file": rel_file,
+                    }
+                )
 
             for field in REFERENCE_FIELDS:
                 for target, attrs in iter_refs(node.get(field)):
@@ -419,6 +438,7 @@ def analyze_pipeline_files(project_root: Path, pipeline_files: list[Path]) -> di
         "templates": templates,
         "ocr_expected": ocr_expected,
         "roi_nodes": roi_nodes,
+        "custom_action_nodes": custom_action_nodes,
         "read_errors": read_errors,
     }
 
@@ -684,13 +704,40 @@ class PipelineCallVisitor(ast.NodeVisitor):
         self.scopes: list[str] = []
         self.calls: list[dict] = []
         self.dynamic_calls: list[dict] = []
+        self.custom_action_registrations: list[dict] = []
+
+    def collect_custom_action_registration(
+        self, node: ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+    ) -> None:
+        for decorator in node.decorator_list:
+            if not isinstance(decorator, ast.Call):
+                continue
+            func = decorator.func
+            if not isinstance(func, ast.Attribute) or func.attr != "custom_action":
+                continue
+            if not (
+                decorator.args
+                and isinstance(decorator.args[0], ast.Constant)
+                and isinstance(decorator.args[0].value, str)
+            ):
+                continue
+            self.custom_action_registrations.append(
+                {
+                    "name": decorator.args[0].value,
+                    "file": self.source_file,
+                    "line": decorator.lineno,
+                    "handler": ".".join([*self.scopes, node.name]),
+                }
+            )
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:  # noqa: N802 - ast API
+        self.collect_custom_action_registration(node)
         self.scopes.append(node.name)
         self.generic_visit(node)
         self.scopes.pop()
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802 - ast API
+        self.collect_custom_action_registration(node)
         self.scopes.append(node.name)
         self.generic_visit(node)
         self.scopes.pop()
@@ -727,12 +774,14 @@ def analyze_python_pipeline_calls(project_root: Path) -> dict:
             "calls": [],
             "call_summaries": [],
             "dynamic_calls": [],
+            "custom_action_registrations": [],
             "targets": [],
             "read_errors": [],
         }
 
     calls: list[dict] = []
     dynamic_calls: list[dict] = []
+    custom_action_registrations: list[dict] = []
     read_errors: list[dict] = []
     python_files = [
         path for path in agent_dir.rglob("*.py") if not should_skip(path)
@@ -748,6 +797,7 @@ def analyze_python_pipeline_calls(project_root: Path) -> dict:
         visitor.visit(tree)
         calls.extend(visitor.calls)
         dynamic_calls.extend(visitor.dynamic_calls)
+        custom_action_registrations.extend(visitor.custom_action_registrations)
 
     grouped_calls: dict[tuple[str, str], list[dict]] = defaultdict(list)
     for item in calls:
@@ -772,6 +822,10 @@ def analyze_python_pipeline_calls(project_root: Path) -> dict:
         "calls": calls,
         "call_summaries": call_summaries,
         "dynamic_calls": dynamic_calls,
+        "custom_action_registrations": sorted(
+            custom_action_registrations,
+            key=lambda item: (item["name"], item["file"], item["line"]),
+        ),
         "targets": sorted({item["target"] for item in calls}),
         "read_errors": read_errors,
     }
@@ -824,6 +878,11 @@ def build_task_flow_graphs(
     adjacency: dict[str, list[dict]] = defaultdict(list)
     for edge in pipeline.get("edges", []):
         adjacency[edge["source"]].append(edge)
+    registrations_by_name: dict[str, list[dict]] = defaultdict(list)
+    for item in (pipeline.get("python_pipeline") or {}).get(
+        "custom_action_registrations", []
+    ):
+        registrations_by_name[item["name"]].append(item)
 
     flows: list[dict] = []
     for task in tasks[:max_tasks]:
@@ -881,6 +940,19 @@ def build_task_flow_graphs(
                     if target in node_names and target not in expanded:
                         queue.append((target, depth + 1))
 
+        custom_actions = []
+        for item in pipeline.get("custom_action_nodes", []):
+            if item["node"] not in seen_nodes:
+                continue
+            custom_actions.append(
+                {
+                    **item,
+                    "registrations": registrations_by_name.get(
+                        item["custom_action"], []
+                    ),
+                }
+            )
+
         flows.append(
             {
                 "task": task.get("name") or "<unnamed>",
@@ -897,6 +969,7 @@ def build_task_flow_graphs(
                 "unresolved_refs": sorted(name for name in node_order if name in unresolved),
                 "nodes": node_order,
                 "edges": selected_edges,
+                "custom_actions": custom_actions,
             }
         )
     return flows
@@ -962,12 +1035,12 @@ def analyze_project(project_root: str | Path) -> dict:
         for item in interface.get("task", []) or []
         if isinstance(item, dict)
     ]
-    pipeline["task_flow_graphs"] = build_task_flow_graphs(tasks, pipeline)
     node_names = set(pipeline["node_names"])
     interface_entries = {task["entry"] for task in tasks if task["entry"]}
     python_targets = set(python_pipeline["targets"])
     externally_reached = interface_entries | python_targets
     pipeline["python_pipeline"] = python_pipeline
+    pipeline["task_flow_graphs"] = build_task_flow_graphs(tasks, pipeline)
     pipeline["external_entry_nodes"] = sorted(externally_reached & node_names)
     pipeline["external_unresolved_refs"] = sorted(externally_reached - node_names)
     pipeline["orphan_candidates"] = sorted(
@@ -1037,6 +1110,30 @@ def render_task_flow_mermaid(flow: dict) -> str:
         suffix = " (?)" if name in unresolved else ""
         lines.append(f'    {node_ids[name]}["{mermaid_label(name + suffix)}"]')
 
+    agent_ids: list[tuple[str, dict]] = []
+    for idx, custom in enumerate(flow.get("custom_actions") or []):
+        agent_id = f"A{idx}"
+        registrations = custom.get("registrations") or []
+        label_parts = [
+            "Python Agent",
+            f"CustomAction: {custom.get('custom_action') or '<unnamed>'}",
+        ]
+        if registrations:
+            registration = registrations[0]
+            label_parts.extend(
+                [
+                    registration.get("handler") or "<handler>",
+                    f"{registration.get('file')}:{registration.get('line')}",
+                ]
+            )
+        else:
+            label_parts.append("registration not found")
+        label = "<br/>".join(
+            mermaid_label(part, max_len=80) for part in label_parts
+        )
+        lines.append(f'    {agent_id}["{label}"]')
+        agent_ids.append((agent_id, custom))
+
     for edge in flow.get("edges", []):
         source_id = node_ids.get(edge["source"])
         target_id = node_ids.get(edge["target"])
@@ -1048,6 +1145,13 @@ def render_task_flow_mermaid(flow: dict) -> str:
         else:
             lines.append(f"    {source_id} -. {label} .-> {target_id}")
 
+    for agent_id, custom in agent_ids:
+        source_id = node_ids.get(custom.get("node"))
+        if not source_id:
+            continue
+        lines.append(f"    {source_id} -. CustomAction call .-> {agent_id}")
+        lines.append(f"    {agent_id} -. returns .-> {source_id}")
+
     if unresolved:
         lines.append("    classDef unresolved fill:#fff3cd,stroke:#b7791f,color:#1f2933")
         lines.append(
@@ -1055,6 +1159,10 @@ def render_task_flow_mermaid(flow: dict) -> str:
             + ",".join(node_ids[name] for name in flow["nodes"] if name in unresolved)
             + " unresolved"
         )
+
+    if agent_ids:
+        lines.append("    classDef agent fill:#e8f1ff,stroke:#2563eb,color:#172554")
+        lines.append("    class " + ",".join(item[0] for item in agent_ids) + " agent")
 
     lines.append("```")
     return "\n".join(lines) + "\n"
@@ -1069,6 +1177,12 @@ def render_task_flow_sections(flows: list[dict], max_flows: int = FLOW_MAX_TASKS
         task_name = flow.get("task") or "<unnamed>"
         entry = flow.get("entry") or "<missing>"
         path = " -> ".join(flow.get("primary_path") or []) or "None detected"
+        custom_action_count = len(flow.get("custom_actions") or [])
+        custom_action_suffix = (
+            f"，另含 {custom_action_count} 个 Agent CustomAction"
+            if custom_action_count
+            else ""
+        )
         lines.extend(
             [
                 f"#### {task_name} (`{entry}`)",
@@ -1079,6 +1193,7 @@ def render_task_flow_sections(flows: list[dict], max_flows: int = FLOW_MAX_TASKS
                     f"- 图规模: {flow.get('node_count', 0)} nodes / "
                     f"{flow.get('edge_count', 0)} edges"
                     + ("，已截断" if flow.get("truncated") else "")
+                    + custom_action_suffix
                 ),
                 f"- 未解析引用: {', '.join(flow.get('unresolved_refs') or []) or 'None detected'}",
                 "",

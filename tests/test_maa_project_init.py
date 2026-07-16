@@ -30,6 +30,21 @@ def write_json(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def test_custom_action_name_supports_v1_and_v2_syntax() -> None:
+    analyzer = load_analyzer()
+    assert analyzer.node_custom_action_name(
+        {"action": "Custom", "custom_action": "LegacyHandler"}
+    ) == "LegacyHandler"
+    assert analyzer.node_custom_action_name(
+        {
+            "action": {
+                "type": "Custom",
+                "param": {"custom_action": "ObjectHandler"},
+            }
+        }
+    ) == "ObjectHandler"
+
+
 def make_consumer_project(tmp_path: Path) -> Path:
     root = tmp_path / "MaaExampleGame"
     assets = root / "assets"
@@ -111,7 +126,13 @@ def make_consumer_project(tmp_path: Path) -> Path:
                 "recognition": "TemplateMatch",
                 "template": "task/Task.png",
                 "action": "Click",
-                "next": ["AndroidBackKey", "MissingNode"],
+                "next": ["AndroidBackKey", "MissingNode", "CustomDispatch"],
+            },
+            "CustomDispatch": {
+                "recognition": "DirectHit",
+                "action": "Custom",
+                "custom_action": "DemoDispatch",
+                "next": "ReturnHall",
             },
             "DailyTask": {
                 "recognition": "DirectHit",
@@ -165,6 +186,11 @@ def make_consumer_project(tmp_path: Path) -> Path:
     agent = root / "agent" / "action" / "example.py"
     agent.parent.mkdir(parents=True, exist_ok=True)
     agent.write_text(
+        "@AgentServer.custom_action('DemoDispatch')\n"
+        "class DemoDispatch:\n"
+        "    def run(self, context):\n"
+        "        return True\n"
+        "\n"
         "def run(context, dynamic_name):\n"
         "    context.run_task('V2OcrProbe')\n"
         "    context.run_recognition('CheckHall', None)\n"
@@ -211,6 +237,16 @@ def test_analyze_project_finds_entries_edges_common_nodes_and_images(tmp_path: P
     assert any(edge["field"] == "on_error" for edge in start_flow["edges"])
     assert any(edge["field"] == "interrupt" for edge in start_flow["edges"])
     assert any("JumpBack" in edge["attrs"] for edge in start_flow["edges"])
+    assert len(start_flow["custom_actions"]) == 1
+    custom_action = start_flow["custom_actions"][0]
+    assert custom_action["node"] == "CustomDispatch"
+    assert custom_action["custom_action"] == "DemoDispatch"
+    assert custom_action["file"].replace("\\", "/").endswith("pipeline/main.json")
+    registration = custom_action["registrations"][0]
+    assert registration["name"] == "DemoDispatch"
+    assert registration["file"].replace("\\", "/") == "agent/action/example.py"
+    assert registration["line"] == 1
+    assert registration["handler"] == "DemoDispatch"
     assert any(item["node"] == "V2OcrProbe" for item in pipeline["ocr_expected"])
     assert any(item["node"] == "V2BackKey" for item in pipeline["templates"])
     assert "V2BackKey" in return_names
@@ -220,6 +256,7 @@ def test_analyze_project_finds_entries_edges_common_nodes_and_images(tmp_path: P
         for item in pipeline["python_pipeline"]["call_summaries"]
     } == {("run_recognition", "CheckHall"): 1, ("run_task", "V2OcrProbe"): 1}
     assert len(pipeline["python_pipeline"]["dynamic_calls"]) == 1
+    assert len(pipeline["python_pipeline"]["custom_action_registrations"]) == 1
     assert "V2OcrProbe" in pipeline["external_entry_nodes"]
     assert "V2OcrProbe" not in pipeline["orphan_candidates"]
     assert "IsolatedProbe" in pipeline["orphan_candidates"]
@@ -239,6 +276,9 @@ def test_render_and_write_basic_info_refuses_existing_file(tmp_path: Path):
     assert "TemplateMatch" in content
     assert "入口主链路流程图" in content
     assert "flowchart TD" in content
+    assert "Python Agent" in content
+    assert "CustomAction call" in content
+    assert "DemoDispatch" in content
     assert "Maa Skills 接力协议" in content
     assert "Python / interface 外部入口" in content
     assert "V2OcrProbe" in content
