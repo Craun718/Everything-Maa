@@ -6,11 +6,11 @@ All notable changes to Everything Maa will be documented in this file. The proje
 
 ### Added
 
-- Nine MaaFramework lifecycle skills covering project creation and discovery, Pipeline authoring, generation, options, graphing, testing, history auditing, and CLI operation.
+- Ten MaaFramework lifecycle skills covering intent-to-workflow orchestration, project creation and discovery, Pipeline authoring, generation, options, graphing, testing, history auditing, and CLI operation.
 - Versioned `skills-only`, `core`, `authoring`, and `full` installation profiles for Codex and Claude Code.
 - External integrations for MaaMCP, create-maa-project, maafw-cli, and isolated Playwright MCP.
 - Dependency-free `everything-maa` installer with dry-run, doctor, managed uninstall, and conflict recovery.
 - Cross-platform tests, upstream contract smoke tests, native plugin manifests, and release validation.
-- Self-hosted Claude marketplace metadata, a complete nine-skill MaaHub adapter set, and a machine-readable distribution catalog.
+- Self-hosted Claude marketplace metadata, a complete ten-skill MaaHub adapter set, and a machine-readable distribution catalog.
 
 [Unreleased]: https://github.com/KhazixW2/Everything-Maa/commits/main
