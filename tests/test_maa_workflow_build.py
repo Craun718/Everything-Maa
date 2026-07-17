@@ -1,0 +1,106 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import yaml
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SKILL_DIR = ROOT / "skills" / "maa-workflow-build"
+
+
+def test_workflow_build_owns_the_end_to_end_control_loop():
+    text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+
+    for phase in (
+        "SPECIFY",
+        "DISCOVER",
+        "DESIGN",
+        "IMPLEMENT",
+        "VERIFY",
+        "COMPLETE",
+        "RECOVER",
+    ):
+        assert phase in text
+
+    for routed_skill in (
+        "$maa-project-init",
+        "$maa-pipeline-graph",
+        "$maa-pipeline-guide",
+        "$maa-pipeline-generate",
+        "$maa-pipeline-option",
+        "$maa-pipeline-testing",
+        "$maa-cli-operate",
+    ):
+        assert routed_skill in text
+
+    assert "Do not declare completion" in text
+    assert "references/task-contract.md" in text
+    assert "references/run-state.md" in text
+    assert "references/acceptance-protocol.md" in text
+    assert "references/recovery-policy.md" in text
+
+
+def test_workflow_contracts_define_state_feedback_and_exit_conditions():
+    task_contract = (SKILL_DIR / "references" / "task-contract.md").read_text(
+        encoding="utf-8"
+    )
+    run_state = (SKILL_DIR / "references" / "run-state.md").read_text(
+        encoding="utf-8"
+    )
+    acceptance = (SKILL_DIR / "references" / "acceptance-protocol.md").read_text(
+        encoding="utf-8"
+    )
+    recovery = (SKILL_DIR / "references" / "recovery-policy.md").read_text(
+        encoding="utf-8"
+    )
+
+    for field in (
+        "goal",
+        "start_states",
+        "success_states",
+        "constraints",
+        "acceptance_criteria",
+    ):
+        assert field in task_contract
+
+    for field in (
+        "status",
+        "summary",
+        "next_actions",
+        "artifacts",
+        "evidence",
+        "stop_reason",
+    ):
+        assert field in run_state
+
+    assert "observable evidence" in acceptance
+    assert "root cause" in recovery
+    assert "safe retry" in recovery
+    assert "stop condition" in recovery
+
+
+def test_workflow_build_metadata_adapter_docs_and_evals_are_discoverable():
+    metadata = yaml.safe_load(
+        (SKILL_DIR / "agents" / "openai.yaml").read_text(encoding="utf-8")
+    )
+    adapter = json.loads(
+        (
+            ROOT
+            / "adapters"
+            / "maahub"
+            / "skills"
+            / "maa-workflow-build.json"
+        ).read_text(encoding="utf-8")
+    )
+    evals = json.loads(
+        (ROOT / "evals" / "maa-workflow-build.json").read_text(encoding="utf-8")
+    )
+
+    assert "$maa-workflow-build" in metadata["interface"]["default_prompt"]
+    assert adapter["id"] == "KhazixW2/maa-workflow-build"
+    assert evals["skill_name"] == "maa-workflow-build"
+    assert len(evals["evals"]) >= 4
+    assert any("体力药剂" in case["prompt"] for case in evals["evals"])
+    assert (ROOT / "docs" / "skills" / "maa-workflow-build.md").is_file()
