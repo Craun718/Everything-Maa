@@ -9,7 +9,7 @@ description: "Test and validate MaaFramework Pipeline JSON, recognition nodes, a
 
 ## 项目初始化接力
 
-测试前先查目标项目根目录的 `basic_info.md`。存在且包含第 0 节时，读取“0. Maa Skills 接力协议”和第 2/5/7/8/9/10 节，用 task/resource、公共返回节点、OCR/模板/ROI 和风险清单规划测试；随后以当前截图、当前源码和 TaskDetail 为准。优先把公共 Click 节点复制成临时 `DoNothing` 探针做初始化 smoke test，完成后调用 `stop_pipeline` 并删除临时文件。文件缺失或没有第 0 节，且 `maa-project-init` 可用时先跑摘要模式；源码更新更晚时视为可能过期且不得静默覆盖。
+测试前先查目标项目根目录的 `basic_info.md`。存在且包含第 0 节时，读取“0. Maa Skills 接力协议”和第 2/5/7/8/9/10 节，用 task/resource、公共返回节点、OCR/模板/ROI 和风险清单规划测试；随后以当前截图、当前源码和 TaskDetail 为准。优先把公共 Click 节点复制成临时 `DoNothing` 探针做初始化 smoke test，完成后调用 `stop_pipeline` 并删除临时文件。文件缺失或没有第 0 节时按本 skill 直接发现测试所需上下文；不得自动调用 `$maa-project-init`，只有用户明确要求初始化或刷新时才调用。源码更新更晚时视为缓存可能过期并以源码为准，不自动刷新或覆盖。
 
 ## 概述
 

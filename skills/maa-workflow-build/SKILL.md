@@ -27,9 +27,13 @@ Treat start state as a set of observable states, not one ideal screen. Include s
 
 ### 2. DISCOVER
 
-Locate the target project and inspect `basic_info.md`. Run `$maa-project-init` in summary mode when the cache is missing or stale. Confirm current Pipeline files, task entries, resource groups, public return/recovery nodes, option surfaces, Python entries, device availability, and current UI evidence.
+Locate the target project and check for optional project-level context artifacts before broad discovery:
 
-Use `$maa-pipeline-graph` when the existing entry, cross-file relationships, return paths, or impact surface are unclear. Record unavailable runtime evidence as a verification gap; do not convert it into an assumption.
+- If `basic_info.md` exists and is current enough for the task, read its routed sections as a cache and verify every touched fact against current source.
+- If an ignored graph output such as `pipeline_overview.html`, `pipeline_external_entries.html`, or its `index.html` exists and is current enough, use it for orientation and verify affected edges against current Pipeline and Python files.
+- If either artifact is missing, incomplete, or stale, continue with targeted source discovery and record the optional context gap. Do not block the workflow or regenerate the artifact.
+
+Never invoke `$maa-project-init` or `$maa-pipeline-graph` automatically. Use those one-time or low-frequency project tools only when the user explicitly requests initialization, refresh, visualization, or graph regeneration. Confirm current Pipeline files, task entries, resource groups, public return/recovery nodes, option surfaces, Python entries, device availability, and current UI evidence directly from the project and environment.
 
 ### 3. DESIGN
 

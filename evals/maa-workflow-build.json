@@ -5,7 +5,7 @@
       "id": 1,
       "eval_name": "compile-fuzzy-stamina-recovery-intent",
       "prompt": "给我生成一个 Pipeline workflow，用于自动吃体力药剂。",
-      "expected_output": "先形成任务契约而不是直接生成节点；定义体力充足、体力不足弹窗、恢复弹窗和未知页面等起始状态，禁止购买与付费货币，设计使用后验证和安全停止路径，再编排 init、graph、guide、generate、option、testing 完成实现与验收。",
+      "expected_output": "先形成任务契约而不是直接生成节点；定义体力充足、体力不足弹窗、恢复弹窗和未知页面等起始状态，禁止购买与付费货币，设计使用后验证和安全停止路径；读取已有 basic_info/图谱产物但不自动调用 init 或 graph，再编排 guide、generate、option、testing 完成实现与验收。",
       "files": []
     },
     {
@@ -26,7 +26,7 @@
       "id": 4,
       "eval_name": "orchestrate-cross-skill-option-workflow",
       "prompt": "给现有自动战斗增加一个可选的失败后自动恢复流程，默认关闭，做完后确保关闭时原流程不变。",
-      "expected_output": "定义默认关闭、关闭时 no-op、开启时恢复、恢复失败和稳定返回等验收条件；发现现有图和 option surface，使用 guide/option/generate/testing，验证 disabled regression、Custom 或 override 接线、恢复路径和最终稳定态。",
+      "expected_output": "定义默认关闭、关闭时 no-op、开启时恢复、恢复失败和稳定返回等验收条件；读取已有图谱（若存在）并直接发现 option surface，不自动生成图谱，使用 guide/option/generate/testing 验证 disabled regression、Custom 或 override 接线、恢复路径和最终稳定态。",
       "files": []
     }
   ]

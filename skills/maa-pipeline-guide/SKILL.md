@@ -13,8 +13,8 @@ description: Universal Pipeline JSON 编写指南。基于 MaaFramework Pipeline
 
 1. 存在时先读其中“0. Maa Skills 接力协议”，再优先读第 3/4/5/7/8/9 节，获取主 Pipeline、公共节点、返回/弹窗、OCR、模板与 ROI 约定。
 2. 它只是 `maa-project-init` 生成的上下文缓存；待修改节点必须回到当前 JSON/Python 核实，设备相关结论必须用当前截图或识别结果核实。
-3. 文件缺失或没有第 0 节，且当前会话可用 `maa-project-init` 时，先运行摘要模式；不可用时按本 skill 正常发现项目结构并说明未使用新版初始化缓存。
-4. 相关 `interface.json`、Pipeline 或 Agent 文件晚于 `basic_info.md` 时视为可能过期，先重跑摘要；不得未经确认覆盖已有非空文件。
+3. 文件缺失或没有第 0 节时，按本 skill 正常发现项目结构并说明未使用初始化缓存；不得自动调用 `$maa-project-init`，只有用户明确要求初始化或刷新时才调用。
+4. 相关 `interface.json`、Pipeline 或 Agent 文件晚于 `basic_info.md` 时，将缓存视为可能过期并以当前源码为准；不得自动刷新或覆盖已有非空文件。
 
 ## 核心原则
 
