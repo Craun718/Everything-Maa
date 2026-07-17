@@ -50,6 +50,28 @@ def test_workflow_build_consumes_init_and_graph_artifacts_without_invoking_setup
     assert "continue with targeted source discovery" in text
 
 
+def test_specialist_roles_form_a_conditional_feedback_loop_not_a_fixed_pipeline():
+    text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+    recovery = (SKILL_DIR / "references" / "recovery-policy.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "owns state-machine assembly and integration" in text
+    assert "$maa-pipeline-guide" in text and "reference and constraint source" in text
+    assert "$maa-pipeline-generate" in text and "primary producer" in text
+    assert "Invoke `$maa-pipeline-option` only when" in text
+    assert "Run `$maa-pipeline-testing` after each coherent implementation increment" in text
+    assert "Do not treat the specialists as a fixed" in text
+
+    for failure_owner in (
+        "Recognition or action-node failure",
+        "Option-surface or override-wiring failure",
+        "State-model failure",
+        "Integration or control-flow failure",
+    ):
+        assert failure_owner in recovery
+
+
 def test_workflow_contracts_define_state_feedback_and_exit_conditions():
     task_contract = (SKILL_DIR / "references" / "task-contract.md").read_text(
         encoding="utf-8"
@@ -113,7 +135,24 @@ def test_workflow_build_metadata_adapter_docs_and_evals_are_discoverable():
     assert any("体力药剂" in case["prompt"] for case in evals["evals"])
     stamina_eval = next(case for case in evals["evals"] if "体力药剂" in case["prompt"])
     assert "不自动调用 init 或 graph" in stamina_eval["expected_output"]
+    feedback_eval = next(
+        case
+        for case in evals["evals"]
+        if case["eval_name"] == "route-specialist-failures-to-owner"
+    )
+    assert "guide 只作为规则来源" in feedback_eval["expected_output"]
+    assert "testing 的证据分类失败" in feedback_eval["expected_output"]
     assert (ROOT / "docs" / "skills" / "maa-workflow-build.md").is_file()
+
+
+def test_workflow_build_docs_show_the_non_linear_specialist_loop():
+    docs = (ROOT / "docs" / "skills" / "maa-workflow-build.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "flowchart TD" in docs
+    assert "guide 不是执行阶段" in docs
+    assert "负责整体组装" in docs
 
 
 def test_specialist_skills_route_uncompiled_end_to_end_requests_to_workflow_build():

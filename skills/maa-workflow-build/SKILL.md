@@ -17,6 +17,17 @@ Own an end-to-end Maa automation request from ambiguous intent through evidence-
 
 Read [references/task-contract.md](references/task-contract.md) before finalizing the goal. Read [references/run-state.md](references/run-state.md) before the first action and at every phase transition.
 
+## Specialist roles
+
+- Keep this orchestrator responsible for the task contract, state-machine design, failure routing, and final acceptance. The orchestrator owns state-machine assembly and integration; specialist outputs do not become a finished workflow until they are connected and verified against the contract.
+- Treat `$maa-pipeline-guide` as a reference and constraint source, not a sequential execution phase or node producer. Load only the sections needed to design, edit, or review the current control flow.
+- Treat `$maa-pipeline-generate` as the primary producer for recognition and action nodes, especially OCR, TemplateMatch, ColorMatch, ROI selection, and screenshot-derived snippets. Integrate its output into the designed state machine instead of treating generated nodes as task completion.
+- Invoke `$maa-pipeline-option` only when the task contract requires a user-facing toggle, selector, checkbox, switch, or input. Do not create options merely because the skill is available.
+- Run `$maa-pipeline-testing` after each coherent implementation increment and again against the integrated end-to-end flow. Use its evidence to route a failure back to the specialist or orchestrator phase that owns the defect.
+- Treat `$maa-cli-operate` as an execution backend for repeatable checks or guarded runtime operations, not a mandatory business phase.
+
+Do not treat the specialists as a fixed `guide -> generate -> option -> testing` sequence. Call only the capability required by the current task state, then return its artifacts and evidence to this control loop.
+
 ## Control loop
 
 ### 1. SPECIFY
@@ -53,11 +64,12 @@ Use `$maa-pipeline-guide` to choose Pipeline state transitions versus CustomActi
 
 Apply the smallest coherent change that can satisfy the task contract:
 
-- use `$maa-pipeline-generate` for recognition/action nodes and ROI sweeps;
-- use `$maa-pipeline-option` for user-facing controls and end-to-end option wiring;
-- use `$maa-pipeline-guide` while editing or reviewing Pipeline control flow;
+- assemble and edit the overall Pipeline control flow in this orchestrator according to the designed state machine;
+- consult `$maa-pipeline-guide` while designing, editing, or reviewing that control flow;
+- use `$maa-pipeline-generate` to produce recognition/action nodes and ROI sweeps;
+- use `$maa-pipeline-option` only for required user-facing controls and their end-to-end wiring;
 - use `$maa-cli-operate` for compact repeatable validation and guarded runtime operations;
-- use `$maa-pipeline-testing` for recognition, Custom wiring, and behavioral validation.
+- use `$maa-pipeline-testing` after each coherent increment for recognition, Custom wiring, and behavioral validation, then run the integrated verification ladder.
 
 Keep temporary probes distinguishable from deliverable nodes. Preserve the target project's existing schema and naming conventions. Update the run state after each meaningful observation, edit, or failed attempt.
 
