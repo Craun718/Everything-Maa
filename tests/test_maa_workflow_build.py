@@ -25,8 +25,6 @@ def test_workflow_build_owns_the_end_to_end_control_loop():
         assert phase in text
 
     for routed_skill in (
-        "$maa-project-init",
-        "$maa-pipeline-graph",
         "$maa-pipeline-guide",
         "$maa-pipeline-generate",
         "$maa-pipeline-option",
@@ -40,6 +38,16 @@ def test_workflow_build_owns_the_end_to_end_control_loop():
     assert "references/run-state.md" in text
     assert "references/acceptance-protocol.md" in text
     assert "references/recovery-policy.md" in text
+
+
+def test_workflow_build_consumes_init_and_graph_artifacts_without_invoking_setup():
+    text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "Never invoke `$maa-project-init` or `$maa-pipeline-graph` automatically" in text
+    assert "only when the user explicitly requests" in text
+    assert "basic_info.md" in text
+    assert "pipeline_overview.html" in text
+    assert "continue with targeted source discovery" in text
 
 
 def test_workflow_contracts_define_state_feedback_and_exit_conditions():
@@ -103,6 +111,8 @@ def test_workflow_build_metadata_adapter_docs_and_evals_are_discoverable():
     assert evals["skill_name"] == "maa-workflow-build"
     assert len(evals["evals"]) >= 4
     assert any("体力药剂" in case["prompt"] for case in evals["evals"])
+    stamina_eval = next(case for case in evals["evals"] if "体力药剂" in case["prompt"])
+    assert "不自动调用 init 或 graph" in stamina_eval["expected_output"]
     assert (ROOT / "docs" / "skills" / "maa-workflow-build.md").is_file()
 
 
@@ -117,3 +127,17 @@ def test_specialist_skills_route_uncompiled_end_to_end_requests_to_workflow_buil
             encoding="utf-8"
         )
         assert "$maa-workflow-build" in text, skill_name
+
+
+def test_specialist_skills_do_not_auto_invoke_project_init():
+    for skill_name in (
+        "maa-pipeline-guide",
+        "maa-pipeline-generate",
+        "maa-pipeline-graph",
+        "maa-pipeline-option",
+        "maa-pipeline-testing",
+    ):
+        text = (ROOT / "skills" / skill_name / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        assert "不得自动调用 `$maa-project-init`" in text, skill_name
