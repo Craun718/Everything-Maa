@@ -1,6 +1,6 @@
 # Everything Maa
 
-Everything Maa 是一个严格面向 MaaFramework 项目的 AI skills 工具集。核心范围包括项目创建与发现、Pipeline 编写与生成、选项接线、节点图谱、测试、历史审计和受控 CLI 操作。
+Everything Maa 是一个严格面向 MaaFramework 项目的 AI skills 工具集。核心范围包括从意图到工作流的编排、项目创建与发现、Pipeline 编写与生成、选项接线、节点图谱、测试、历史审计和受控 CLI 操作。
 
 > 当前状态：预发布开发基线。规范化 skills、原生插件清单、MCP profiles 和安装器均已在本地实现并通过测试；npm 包与 GitHub 仓库尚未发布。
 
@@ -22,7 +22,7 @@ GitHub 仓库公开后，Claude Code 也可以通过自托管 marketplace 安装
 /plugin install everything-maa@everything-maa
 ```
 
-默认 `core` profile 会安装全部 9 个 skills 并配置 MaaMCP。四个 profile 的边界是固定且版本化的：
+默认 `core` profile 会安装全部 10 个 skills 并配置 MaaMCP。四个 profile 的边界是固定且版本化的：
 
 | Profile | 安装内容 |
 | --- | --- |
@@ -49,6 +49,7 @@ npx everything-maa uninstall --target codex
 
 | Skill | 用途 |
 | --- | --- |
+| `maa-workflow-build` | 将模糊自动化需求编译为可验证的端到端 Maa 工作流。 |
 | `maa-cli-operate` | 通过 maafw-cli 执行可重复的设备、识别、动作和 Pipeline 操作。 |
 | `maa-project-create` | 通过 create-maa-project 创建、扩展、诊断和更新 Maa 项目。 |
 | `maa-project-init` | 扫描 Maa 项目并生成可复用的 `basic_info.md` 接力文档。 |

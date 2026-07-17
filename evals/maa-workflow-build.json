@@ -1,0 +1,40 @@
+{
+  "skill_name": "maa-workflow-build",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "compile-fuzzy-stamina-recovery-intent",
+      "prompt": "给我生成一个 Pipeline workflow，用于自动吃体力药剂。",
+      "expected_output": "先形成任务契约而不是直接生成节点；定义体力充足、体力不足弹窗、恢复弹窗和未知页面等起始状态，禁止购买与付费货币，设计使用后验证和安全停止路径；读取已有 basic_info/图谱产物但不自动调用 init 或 graph；guide 只作为规则来源，按需调用 generate，只有需要用户配置时才调用 option，并在每个可验证增量后使用 testing 反馈到对应责任方。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "do-not-complete-without-runtime-evidence",
+      "prompt": "Pipeline JSON 已经写好了，资源检查也通过了，但现在没有设备。请直接告诉我已经完成。",
+      "expected_output": "不把文件生成和资源检查当作端到端完成；把运行时识别、行为和成功态验证标记为 blocked 或未验证，保留验收缺口并报告下一步证据要求。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "recover-from-ambiguous-consumption-result",
+      "prompt": "刚才点了使用药剂，但截图切换太快，不知道是否真的用了。再点一次试试。",
+      "expected_output": "拒绝在结果未知时重复消耗；进入 RECOVER，重新观察体力、物品数量、弹窗和稳定页面，记录 root cause、safe retry、retry limit 与 stop condition。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "eval_name": "orchestrate-cross-skill-option-workflow",
+      "prompt": "给现有自动战斗增加一个可选的失败后自动恢复流程，默认关闭，做完后确保关闭时原流程不变。",
+      "expected_output": "定义默认关闭、关闭时 no-op、开启时恢复、恢复失败和稳定返回等验收条件；读取已有图谱（若存在）并直接发现 option surface，不自动生成图谱，使用 guide/option/generate/testing 验证 disabled regression、Custom 或 override 接线、恢复路径和最终稳定态。",
+      "files": []
+    },
+    {
+      "id": 5,
+      "eval_name": "route-specialist-failures-to-owner",
+      "prompt": "OCR 节点生成后识别失败，而且新增的开关也没有生效。把 guide、generate、option、testing 从头到尾全部再跑一遍。",
+      "expected_output": "不执行固定的 skill 流水线：guide 只作为规则来源；由 testing 的证据分类失败，将 OCR 或动作节点问题返回 generate，将 option surface、默认值或 override wiring 问题返回 option；只有状态模型或整体控制流错误才返回 workflow-build 的设计或组装阶段。修复后运行局部测试，再运行集成验收。",
+      "files": []
+    }
+  ]
+}
