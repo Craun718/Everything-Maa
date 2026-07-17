@@ -1,0 +1,18 @@
+{
+  "id": "KhazixW2/maa-workflow-build",
+  "title": "Maa Workflow Build",
+  "description": "Orchestrate ambiguous Maa automation requests into stateful, recoverable, evidence-verified workflows.",
+  "author": "KhazixW2",
+  "source": "MaaHub",
+  "sourceGithub": "https://github.com/MaaXYZ/MaaHub",
+  "tags": ["workflow", "orchestration", "pipeline", "testing", "skill"],
+  "createdAt": "2026-07-17",
+  "updatedAt": "2026-07-17",
+  "version": "0.1.0",
+  "mfwVersion": "5.10.4",
+  "entry": "../../../skills/maa-workflow-build/SKILL.md",
+  "readme": "../../../docs/skills/maa-workflow-build.md",
+  "status": "beta",
+  "type": "skill",
+  "category": "pipeline"
+}

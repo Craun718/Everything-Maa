@@ -1,0 +1,33 @@
+{
+  "skill_name": "maa-workflow-build",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "compile-fuzzy-stamina-recovery-intent",
+      "prompt": "给我生成一个 Pipeline workflow，用于自动吃体力药剂。",
+      "expected_output": "先形成任务契约而不是直接生成节点；定义体力充足、体力不足弹窗、恢复弹窗和未知页面等起始状态，禁止购买与付费货币，设计使用后验证和安全停止路径，再编排 init、graph、guide、generate、option、testing 完成实现与验收。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "do-not-complete-without-runtime-evidence",
+      "prompt": "Pipeline JSON 已经写好了，资源检查也通过了，但现在没有设备。请直接告诉我已经完成。",
+      "expected_output": "不把文件生成和资源检查当作端到端完成；把运行时识别、行为和成功态验证标记为 blocked 或未验证，保留验收缺口并报告下一步证据要求。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "recover-from-ambiguous-consumption-result",
+      "prompt": "刚才点了使用药剂，但截图切换太快，不知道是否真的用了。再点一次试试。",
+      "expected_output": "拒绝在结果未知时重复消耗；进入 RECOVER，重新观察体力、物品数量、弹窗和稳定页面，记录 root cause、safe retry、retry limit 与 stop condition。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "eval_name": "orchestrate-cross-skill-option-workflow",
+      "prompt": "给现有自动战斗增加一个可选的失败后自动恢复流程，默认关闭，做完后确保关闭时原流程不变。",
+      "expected_output": "定义默认关闭、关闭时 no-op、开启时恢复、恢复失败和稳定返回等验收条件；发现现有图和 option surface，使用 guide/option/generate/testing，验证 disabled regression、Custom 或 override 接线、恢复路径和最终稳定态。",
+      "files": []
+    }
+  ]
+}

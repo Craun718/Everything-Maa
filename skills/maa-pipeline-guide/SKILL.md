@@ -5,6 +5,8 @@ description: Universal Pipeline JSON 编写指南。基于 MaaFramework Pipeline
 
 # Universal Pipeline 编写指南
 
+如果用户提出的是尚未定义起始状态、安全边界和验收条件的端到端自动化目标，先交给 `$maa-workflow-build` 建立任务契约与状态机；已有契约时，再用本 skill 处理 Pipeline 设计、修改或审查。
+
 ## 项目初始化接力
 
 开始广泛扫描仓库前，先在目标项目根目录查找 `basic_info.md`：

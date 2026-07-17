@@ -5,6 +5,8 @@ description: "Add runtime UI options (select/checkbox/switch/input) to MaaFramew
 
 # Pipeline Option 工作流
 
+如果选项属于一个尚未定义起始状态、安全边界和验收条件的端到端自动化目标，先交给 `$maa-workflow-build` 建立任务契约；已有契约时，再用本 skill 完成选项接线与局部验证。
+
 ## 项目初始化接力
 
 新增选项前先查目标项目根目录的 `basic_info.md`。存在且包含第 0 节时，读取“0. Maa Skills 接力协议”和第 1/2/3/6 节，先确认 interface、resource/task entry、目标节点与 Python 外部调用，再按本 skill 查实际 option surface 和读取路径。文档只是缓存：`pipeline_override`、`context.get_node_data()` 和 Custom 参数路径必须在当前文件中闭环核实。文件缺失或没有第 0 节，且 `maa-project-init` 可用时先跑摘要模式；相关源码比文档新时视为可能过期，不得静默覆盖已有非空文档。
