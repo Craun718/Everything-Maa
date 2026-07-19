@@ -1,6 +1,6 @@
 {
   "name": "everything-maa",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Install MaaFramework lifecycle skills and versioned MCP profiles for Claude Code and Codex.",
   "type": "module",
   "bin": {
