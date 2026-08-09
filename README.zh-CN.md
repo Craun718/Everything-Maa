@@ -1,6 +1,6 @@
 # Everything Maa
 
-Everything Maa 是一个严格面向 MaaFramework 项目的 AI skills 工具集。核心范围包括从意图到工作流的编排、项目创建与发现、Pipeline 编写与生成、选项接线、节点图谱、测试、历史审计和受控 CLI 操作。
+Everything Maa 是一个严格面向 MaaFramework 项目的 AI skills 工具集。核心范围包括从意图到工作流的编排、项目创建与发现、Project Interface 维护、Pipeline 编写与生成、选项接线、节点图谱、测试、历史审计和受控 CLI 操作。
 
 > 当前状态：预发布开发基线。规范化 skills、原生插件清单、MCP profiles 和安装器均已在本地实现并通过测试；npm 包与 GitHub 仓库尚未发布。
 
@@ -22,7 +22,7 @@ GitHub 仓库公开后，Claude Code 也可以通过自托管 marketplace 安装
 /plugin install everything-maa@everything-maa
 ```
 
-默认 `core` profile 会安装全部 10 个 skills 并配置 MaaMCP。四个 profile 的边界是固定且版本化的：
+默认 `core` profile 会安装全部 11 个 skills 并配置 MaaMCP。四个 profile 的边界是固定且版本化的：
 
 | Profile | 安装内容 |
 | --- | --- |
@@ -53,6 +53,7 @@ npx everything-maa uninstall --target codex
 | `maa-cli-operate` | 通过 maafw-cli 执行可重复的设备、识别、动作和 Pipeline 操作。 |
 | `maa-project-create` | 通过 create-maa-project 创建、扩展、诊断和更新 Maa 项目。 |
 | `maa-project-init` | 扫描 Maa 项目并生成可复用的 `basic_info.md` 接力文档。 |
+| `maa-interface-guide` | 审查、诊断和修改已有的 Project Interface V2。 |
 | `maa-pipeline-guide` | 设计、修改和审查 MaaFramework Pipeline JSON。 |
 | `maa-pipeline-generate` | 生成识别/动作节点并扫描 OCR ROI。 |
 | `maa-pipeline-option` | 贯通 UI、Pipeline 与 Python 的运行时选项。 |

@@ -1,6 +1,6 @@
 # Everything Maa
 
-Everything Maa is a focused toolkit of reusable AI skills for MaaFramework projects. Its canonical content covers intent-to-workflow orchestration, project creation and discovery, Pipeline authoring and generation, option wiring, graph analysis, testing, history auditing, and guarded CLI operation.
+Everything Maa is a focused toolkit of reusable AI skills for MaaFramework projects. Its canonical content covers intent-to-workflow orchestration, project creation and discovery, Project Interface maintenance, Pipeline authoring and generation, option wiring, graph analysis, testing, history auditing, and guarded CLI operation.
 
 > Status: pre-release development baseline. The canonical skills, native plugin manifests, MCP profiles, and installer are implemented and tested locally; the npm package and GitHub repository have not been published yet.
 
@@ -22,7 +22,7 @@ After the GitHub repository is public, Claude Code can also install the native p
 /plugin install everything-maa@everything-maa
 ```
 
-The default `core` profile installs all ten skills and configures MaaMCP. Profiles are explicit and versioned:
+The default `core` profile installs all eleven skills and configures MaaMCP. Profiles are explicit and versioned:
 
 | Profile | Installed components |
 | --- | --- |
@@ -53,6 +53,7 @@ The installer records exactly what it owns. Uninstall removes an installed skill
 | `maa-cli-operate` | Run repeatable device, recognition, action, and Pipeline operations through maafw-cli. |
 | `maa-project-create` | Create, extend, diagnose, and update Maa projects through create-maa-project. |
 | `maa-project-init` | Scan a Maa project and produce a reusable `basic_info.md` handoff. |
+| `maa-interface-guide` | Review, diagnose, and modify an existing Project Interface V2. |
 | `maa-pipeline-guide` | Design and review MaaFramework Pipeline JSON. |
 | `maa-pipeline-generate` | Generate recognition/action nodes and sweep OCR ROIs. |
 | `maa-pipeline-option` | Wire runtime options across UI, Pipeline, and Python. |

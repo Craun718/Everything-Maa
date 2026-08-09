@@ -4,6 +4,10 @@ All notable changes to Everything Maa will be documented in this file. The proje
 
 ## [Unreleased]
 
+### Added
+
+- Added `maa-interface-guide` for reviewing, diagnosing, and modifying existing MaaFramework Project Interface V2 files with project-first schema resolution and guarded `maa-tools` validation.
+
 ## [0.1.1] - 2026-07-19
 
 ### Added
