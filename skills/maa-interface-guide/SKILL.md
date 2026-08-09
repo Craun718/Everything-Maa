@@ -55,9 +55,9 @@ description: 解释、审查、诊断和修改已有 MaaFramework Project Interf
 
 ## 验证与完成标准
 
-按 [references/validation.md](references/validation.md) 从低成本到高成本验证：JSON/JSONC 解析、项目 schema、路径与引用、项目已有检查命令、可选的 `maa-tools` 语义诊断。静态编辑不得自动连接设备或执行 Pipeline。解释或只读审查中，若检查命令会写日志、缓存或其他文件，必须先取得用户许可。
+按 [references/validation.md](references/validation.md) 从低成本到高成本验证：JSON/JSONC 解析、项目 schema、路径与引用、项目已有检查命令、可选的 `maa-tools` 语义诊断。运行 `maa-tools` 前先检查 `package.json` 中已有的脚本和项目实际使用的包管理器；有项目脚本或已安装依赖时使用项目锁定命令，禁止直接执行 `node_modules` 内文件。静态编辑不得自动连接设备或执行 Pipeline。解释或只读审查中，若检查命令会写日志、缓存或其他文件，必须先取得用户许可。
 
-若项目未安装 `@nekosu/maa-tools`，必须先询问用户是否允许通过 `npx` 临时执行；未获许可不得运行、安装或下载。用户拒绝时继续完成其余静态检查，并明确记录缺失的诊断层。
+若项目未安装 `@nekosu/maa-tools`，先按项目 lockfile 对应的包管理器确认临时执行方式，并必须先询问用户是否允许下载或执行；未获许可不得运行、安装或下载。用户拒绝时继续完成其余静态检查，并明确记录缺失的诊断层。
 
 完成条件：
 

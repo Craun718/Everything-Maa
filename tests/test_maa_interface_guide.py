@@ -20,7 +20,7 @@ def test_interface_guide_enforces_scope_and_handoffs():
     assert "Pipeline、Python Agent、图片和构建配置只读" in text
 
 
-def test_interface_guide_prioritizes_project_evidence_and_asks_before_npx():
+def test_interface_guide_prioritizes_project_evidence_and_uses_project_tooling():
     text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
     validation = (SKILL_DIR / "references" / "validation.md").read_text(
         encoding="utf-8"
@@ -29,7 +29,12 @@ def test_interface_guide_prioritizes_project_evidence_and_asks_before_npx():
     assert "项目内证据优先" in text
     assert "https://github.com/MaaXYZ/MaaFramework" in text
     assert "必须先询问用户" in text
+    assert "`package.json`" in text
+    assert "禁止直接执行 `node_modules`" in text
     assert "会写日志、缓存或其他文件" in text
+    assert "packageManager" in validation
+    assert "lockfile 一致的包管理器" in validation
+    assert "node_modules/.bin" in validation
     assert "npx --no-install @nekosu/maa-tools check" in validation
     assert "只读审查不授权这些写入" in validation
     assert "不以 `npx ... init` 创建配置" in validation
