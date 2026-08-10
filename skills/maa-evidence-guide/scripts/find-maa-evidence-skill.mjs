@@ -8,7 +8,9 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
-const GUIDE_ROOT = path.resolve(SCRIPT_DIR, "..");
+const GUIDE_ROOT = path.resolve(
+  process.env.MAA_EVIDENCE_GUIDE_ROOT ?? path.join(SCRIPT_DIR, ".."),
+);
 const UPSTREAM_SKILL = path.join("skills", "maa-evidence", "SKILL.md");
 
 function parseArgs(argv) {

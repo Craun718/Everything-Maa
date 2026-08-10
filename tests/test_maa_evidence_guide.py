@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -12,11 +13,21 @@ SKILL_DIR = ROOT / "skills" / "maa-evidence-guide"
 LOCATOR = SKILL_DIR / "scripts" / "find-maa-evidence-skill.mjs"
 
 
-def run_locator(*args: Path) -> dict[str, object]:
+def run_locator_process(
+    *args: Path | str, guide_root: Path | None = None
+) -> subprocess.CompletedProcess[str]:
     command = ["node", str(LOCATOR)]
     for candidate in args:
         command.extend(["--root", str(candidate)])
-    result = subprocess.run(command, check=True, capture_output=True, text=True)
+    environment = os.environ.copy()
+    if guide_root is not None:
+        environment["MAA_EVIDENCE_GUIDE_ROOT"] = str(guide_root)
+    return subprocess.run(command, check=False, capture_output=True, text=True, env=environment)
+
+
+def run_locator(*args: Path, guide_root: Path | None = None) -> dict[str, object]:
+    result = run_locator_process(*args, guide_root=guide_root)
+    result.check_returncode()
     return json.loads(result.stdout)
 
 
@@ -52,6 +63,39 @@ def test_locator_prefers_an_explicit_upstream_skill(tmp_path: Path):
     assert Path(str(result["skillPath"])).resolve() == expected.resolve()
 
 
+def test_locator_rejects_an_incomplete_root_argument():
+    result = subprocess.run(
+        ["node", str(LOCATOR), "--root"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert "Usage: find-maa-evidence-skill.mjs" in result.stderr
+
+
+def test_locator_prefers_an_explicit_skill_over_an_explicit_package(
+    tmp_path: Path,
+):
+    package = tmp_path / "maa-evidence-kit"
+    package.mkdir()
+    (package / "package.json").write_text(
+        json.dumps({"name": "maa-evidence-kit", "version": "1.2.3"}),
+        encoding="utf-8",
+    )
+    write_upstream_skill(package)
+    standalone_skill = write_upstream_skill(tmp_path / "standalone")
+
+    for roots in ((package, standalone_skill.parent), (standalone_skill.parent, package)):
+        result = run_locator(*roots)
+
+        assert result["status"] == "found"
+        assert result["source"] == "explicit"
+        assert Path(str(result["skillPath"])).resolve() == standalone_skill.resolve()
+
+
 def test_locator_reads_a_package_skill_and_version(tmp_path: Path):
     package = tmp_path / "maa-evidence-kit"
     package.mkdir()
@@ -82,4 +126,25 @@ def test_locator_reports_a_package_without_a_skill(tmp_path: Path):
         "skillPath": None,
         "packageRoot": str(tmp_path.resolve()),
         "packageVersion": "2.0.0",
+    }
+
+
+def test_locator_excludes_a_package_skill_under_the_guide_root(tmp_path: Path):
+    guide_root = tmp_path / "maa-evidence-guide"
+    package = guide_root / "maa-evidence-kit"
+    package.mkdir(parents=True)
+    (package / "package.json").write_text(
+        json.dumps({"name": "maa-evidence-kit", "version": "1.2.3"}),
+        encoding="utf-8",
+    )
+    write_upstream_skill(package)
+
+    result = run_locator(package, guide_root=guide_root)
+
+    assert result == {
+        "status": "package-without-skill",
+        "source": "explicit-package",
+        "skillPath": None,
+        "packageRoot": str(package.resolve()),
+        "packageVersion": "1.2.3",
     }
