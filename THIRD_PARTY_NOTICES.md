@@ -7,7 +7,7 @@ Everything Maa keeps third-party runtimes separate from its MIT-licensed source 
 | [create-maa-project](https://github.com/Windsland52/create-maa-project) | AGPL-3.0-or-later | `create-maa-project==2.0.0`; referenced as an external project lifecycle CLI/MCP runtime and not vendored. |
 | [MaaMCP](https://github.com/MaaXYZ/MaaMCP) | AGPL-3.0-or-later | `maa-mcp==1.2.3`; referenced as an external Python/uv runtime and not vendored. |
 | [maafw-cli](https://github.com/otowa-kotori/maafw-cli) | MIT | `maafw-cli==0.1.6`; cataloged as an optional experimental CLI and not vendored or installed by default. |
-| [MaaEvidenceKit](https://github.com/Windsland52/MaaEvidenceKit) (formerly MaaDiagnosticExpert) | MIT | `maa-evidence-kit@0.3.2`; discovered at runtime by the `maa-diagnose` skill as an optional user-managed npm CLI, never vendored, installed, or updated by Everything Maa. |
+| [MaaEvidenceKit](https://github.com/Windsland52/MaaEvidenceKit) (formerly MaaDiagnosticExpert) | MIT | `maa-evidence-kit@0.3.2`; its optional user-managed npm runtime and external `maa-evidence` Skill are discovered at use time by `maa-diagnose` and `maa-evidence-guide`, never vendored, installed, or updated by Everything Maa. |
 | [MaaLogAnalyzer](https://github.com/MaaXYZ/MaaLogAnalyzer) | MIT | Consumed only through MaaEvidenceKit's log adapter; its packages are not vendored or invoked directly by Everything Maa. |
 | [Playwright MCP](https://github.com/microsoft/playwright-mcp) | Apache-2.0 | `@playwright/mcp@0.0.78`; referenced as an external npm runtime and not vendored. |
 | [MaaFramework](https://github.com/MaaXYZ/MaaFramework) | LGPL-3.0 | Used through its public protocol/runtime; binaries are not bundled here. |
