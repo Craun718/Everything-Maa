@@ -6,7 +6,7 @@ All notable changes to Everything Maa will be documented in this file. The proje
 
 ### Added
 
-`maa-evidence-guide`, a thin entry Skill that locates the authoritative MaaEvidenceKit Skill locally or on GitHub before handling MaaFramework evidence tasks.
+- Added `maa-evidence-guide`, a thin entry Skill that locates the authoritative MaaEvidenceKit Skill locally or on GitHub before handling MaaFramework evidence tasks.
 - `maa-wiki` skill that routes MaaFramework knowledge questions and other Maa skills to authoritative official documentation, schemas, APIs, bindings, releases, and semantic changes through the MaaLLMWiki catalog.
 - Added `maa-interface-guide` for reviewing, diagnosing, and modifying existing MaaFramework Project Interface V2 files with project-first schema resolution and guarded `maa-tools` validation.
 - Added `maa-diagnose`, a read-only diagnostic skill that discovers and drives the external MaaEvidenceKit runtime (formerly MaaDiagnosticExpert) over local logs, project sources, and run-state context instead of implementing another log parser or diagnostic engine. It resolves the runtime surface dynamically, applies one MCP-then-CLI-then-local-checkout precedence policy, consumes only the structured JSON contract, and normalizes results into findings, evidence, artifacts, next actions, and one bounded `failure_owner`.

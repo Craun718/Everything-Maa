@@ -7,7 +7,6 @@ from pathlib import Path
 
 import yaml
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT / "skills" / "maa-evidence-guide"
 LOCATOR = SKILL_DIR / "scripts" / "find-maa-evidence-skill.mjs"
@@ -22,7 +21,9 @@ def run_locator_process(
     environment = os.environ.copy()
     if guide_root is not None:
         environment["MAA_EVIDENCE_GUIDE_ROOT"] = str(guide_root)
-    return subprocess.run(command, check=False, capture_output=True, text=True, env=environment)
+    return subprocess.run(
+        command, check=False, capture_output=True, text=True, env=environment
+    )
 
 
 def run_locator(*args: Path, guide_root: Path | None = None) -> dict[str, object]:
@@ -88,7 +89,10 @@ def test_locator_prefers_an_explicit_skill_over_an_explicit_package(
     write_upstream_skill(package)
     standalone_skill = write_upstream_skill(tmp_path / "standalone")
 
-    for roots in ((package, standalone_skill.parent), (standalone_skill.parent, package)):
+    for roots in (
+        (package, standalone_skill.parent),
+        (standalone_skill.parent, package),
+    ):
         result = run_locator(*roots)
 
         assert result["status"] == "found"
