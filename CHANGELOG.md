@@ -4,6 +4,10 @@ All notable changes to Everything Maa will be documented in this file. The proje
 
 ## [Unreleased]
 
+### Added
+
+- `maa-wiki` skill that routes MaaFramework knowledge questions and other Maa skills to authoritative official documentation, schemas, APIs, bindings, releases, and semantic changes through the MaaLLMWiki catalog.
+
 ## [0.1.1] - 2026-07-19
 
 ### Added

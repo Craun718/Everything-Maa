@@ -36,6 +36,7 @@ function tempProject(t) {
 test("list reports all skills and MCP profiles", () => {
   const output = run(["list"], REPO_ROOT);
   assert.match(output, /maa-project-init/);
+  assert.match(output, /maa-wiki/);
   assert.match(output, /skills-only/);
   assert.match(output, /authoring: maa-mcp, create-maa-project/);
   assert.match(output, /full: maa-mcp, create-maa-project, playwright/);
