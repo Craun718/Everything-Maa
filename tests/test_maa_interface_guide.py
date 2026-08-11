@@ -57,3 +57,11 @@ def test_interface_guide_metadata_adapter_and_evals_are_discoverable():
     assert adapter["entry"] == "../../../skills/maa-interface-guide/SKILL.md"
     assert evals["skill_name"] == "maa-interface-guide"
     assert len(evals["evals"]) >= 4
+
+
+def test_interface_guide_documents_maa_tools_in_readmes():
+    english = (ROOT / "README.md").read_text(encoding="utf-8")
+    chinese = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
+
+    assert "@nekosu/maa-tools" in english
+    assert "@nekosu/maa-tools" in chinese

@@ -53,7 +53,7 @@ The installer records exactly what it owns. Uninstall removes an installed skill
 | `maa-cli-operate` | Run repeatable device, recognition, action, and Pipeline operations through maafw-cli. |
 | `maa-project-create` | Create, extend, diagnose, and update Maa projects through create-maa-project. |
 | `maa-project-init` | Scan a Maa project and produce a reusable `basic_info.md` handoff. |
-| `maa-interface-guide` | Review, diagnose, and modify an existing Project Interface V2. |
+| `maa-interface-guide` | Review, diagnose, and modify an existing Project Interface V2 with optional `@nekosu/maa-tools` validation. |
 | `maa-pipeline-guide` | Design and review MaaFramework Pipeline JSON. |
 | `maa-pipeline-generate` | Generate recognition/action nodes and sweep OCR ROIs. |
 | `maa-pipeline-option` | Wire runtime options across UI, Pipeline, and Python. |
@@ -106,7 +106,7 @@ The current baseline supports Python 3.10 and later and Node.js 18 and later. Do
 
 ## Scope and dependencies
 
-Everything Maa does not vendor create-maa-project, MaaMCP, maafw-cli, Playwright MCP, MaaFramework binaries, or OCR models. MCP and CLI launch contracts reference upstream packages and pin versions per Everything Maa release. MaaMCP, create-maa-project, and the experimental maafw-cli skill require `uvx`; Playwright MCP requires `npx`. maafw-cli runs on demand and is not installed persistently by a profile.
+Everything Maa does not vendor create-maa-project, MaaMCP, maafw-cli, Playwright MCP, MaaFramework binaries, OCR models, or `@nekosu/maa-tools`. MCP and CLI launch contracts reference upstream packages and pin versions per Everything Maa release. MaaMCP, create-maa-project, and the experimental maafw-cli skill require `uvx`; Playwright MCP and `@nekosu/maa-tools` require `npx`. maafw-cli runs on demand and is not installed persistently by a profile.
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for license boundaries and [README.zh-CN.md](README.zh-CN.md) for Chinese documentation.
 

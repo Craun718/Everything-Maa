@@ -53,7 +53,7 @@ npx everything-maa uninstall --target codex
 | `maa-cli-operate` | 通过 maafw-cli 执行可重复的设备、识别、动作和 Pipeline 操作。 |
 | `maa-project-create` | 通过 create-maa-project 创建、扩展、诊断和更新 Maa 项目。 |
 | `maa-project-init` | 扫描 Maa 项目并生成可复用的 `basic_info.md` 接力文档。 |
-| `maa-interface-guide` | 审查、诊断和修改已有的 Project Interface V2。 |
+| `maa-interface-guide` | 审查、诊断和修改已有的 Project Interface V2，并可通过 `@nekosu/maa-tools` 校验。 |
 | `maa-pipeline-guide` | 设计、修改和审查 MaaFramework Pipeline JSON。 |
 | `maa-pipeline-generate` | 生成识别/动作节点并扫描 OCR ROI。 |
 | `maa-pipeline-option` | 贯通 UI、Pipeline 与 Python 的运行时选项。 |
@@ -106,7 +106,7 @@ npm run smoke:maafw-cli
 
 ## 范围与依赖
 
-Everything Maa 不复制 create-maa-project、MaaMCP、maafw-cli、Playwright MCP、MaaFramework 二进制或 OCR 模型。MCP 与 CLI 命令契约只调用上游发行包，并按 Everything Maa 版本锁定经过验证的版本。MaaMCP、create-maa-project 和实验性的 maafw-cli skill 需要 `uvx`，Playwright MCP 需要 `npx`；maafw-cli 仅按需运行，不由 profile 持久安装。
+Everything Maa 不复制 create-maa-project、MaaMCP、maafw-cli、Playwright MCP、MaaFramework 二进制、OCR 模型或 `@nekosu/maa-tools`。MCP 与 CLI 命令契约只调用上游发行包，并按 Everything Maa 版本锁定经过验证的版本。MaaMCP、create-maa-project 和实验性的 maafw-cli skill 需要 `uvx`，Playwright MCP 和 `@nekosu/maa-tools` 需要 `npx`；maafw-cli 仅按需运行，不由 profile 持久安装。
 
 许可证边界见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
