@@ -7,6 +7,7 @@ All notable changes to Everything Maa will be documented in this file. The proje
 ### Added
 
 - `maa-wiki` skill that routes MaaFramework knowledge questions and other Maa skills to authoritative official documentation, schemas, APIs, bindings, releases, and semantic changes through the MaaLLMWiki catalog.
+- Added `maa-interface-guide` for reviewing, diagnosing, and modifying existing MaaFramework Project Interface V2 files with project-first schema resolution and guarded `maa-tools` validation.
 
 ## [0.1.1] - 2026-07-19
 

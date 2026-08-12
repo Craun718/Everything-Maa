@@ -22,7 +22,7 @@
     },
     "maahub": {
       "adapterRoot": "adapters/maahub/skills",
-      "adapterCount": 11,
+      "adapterCount": 12,
       "status": "adapter-ready"
     },
     "github-release": {
