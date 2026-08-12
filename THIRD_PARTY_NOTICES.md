@@ -9,5 +9,6 @@ Everything Maa keeps third-party runtimes separate from its MIT-licensed source 
 | [maafw-cli](https://github.com/otowa-kotori/maafw-cli) | MIT | `maafw-cli==0.1.6`; cataloged as an optional experimental CLI and not vendored or installed by default. |
 | [Playwright MCP](https://github.com/microsoft/playwright-mcp) | Apache-2.0 | `@playwright/mcp@0.0.78`; referenced as an external npm runtime and not vendored. |
 | [MaaFramework](https://github.com/MaaXYZ/MaaFramework) | LGPL-3.0 | Used through its public protocol/runtime; binaries are not bundled here. |
+| [MaaLLMWiki](https://github.com/Windsland52/MaaLLMWiki) | No upstream license declared | Referenced through raw GitHub URLs by the `maa-wiki` skill; catalog content is not vendored or downloaded by Everything Maa. |
 
 MaaHub adapter metadata records distribution information only. Do not copy third-party MaaHub content into this repository without confirming its license and provenance.
