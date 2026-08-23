@@ -83,9 +83,9 @@ The completed six-phase roadmap and remaining public-release gate are documented
 ## Development
 
 ```bash
-python -m pip install -r requirements-dev.txt
-python -m pytest
-python scripts/validate_skills.py
+uv sync
+uv run python -m pytest
+uv run python scripts/validate_skills.py
 npm test
 npm run release:check
 npm pack --dry-run

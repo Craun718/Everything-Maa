@@ -35,8 +35,9 @@ Trusted publishing requires a public GitHub-hosted workflow with OIDC. The relea
 4. Run:
 
 ```bash
-python -m pytest
-python scripts/validate_skills.py
+uv sync
+uv run python -m pytest
+uv run python scripts/validate_skills.py
 npm test
 npm run release:check
 npm run smoke:create-project
