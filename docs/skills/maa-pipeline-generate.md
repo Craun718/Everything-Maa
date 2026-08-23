@@ -14,7 +14,7 @@
 ### 生成单个节点
 
 ```bash
-python "<skill-dir>/scripts/generate_node.py" "目标文字" NodeName path/to/pipeline.json --expand 20 --overwrite
+python "<skill-dir>/scripts/generate_node.py" "目标文字" NodeName resource/base/pipeline/main.json --expand 20 --overwrite
 ```
 
 ### 扫描 expand 值
@@ -27,4 +27,4 @@ python "<skill-dir>/scripts/generate_sweep.py" "目标文字" "x,y,w,h" 0,5,10,1
 
 - `generate_node.py` 将根据 OCR 识别结果生成节点并将其写入 pipeline。
 - `generate_sweep.py` 生成一个 sweep pipeline，用于通过 run_pipeline 验证不同 expand 值的效果。
-- 目标 pipeline 支持相对路径和绝对路径。
+- 目标 pipeline 支持相对路径和绝对路径；实际资源根应以主 Interface 的 `resource[].path` 为准，`assets/resource/base` 是 boilerplate-family 项目示例。

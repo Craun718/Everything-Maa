@@ -75,7 +75,7 @@ def _val(r, key):
 
 
 def resolve_pipeline_path(pipeline_file: str) -> Path:
-    """解析 pipeline 路径。绝对路径直接用；相对路径基于项目根目录的 assets/resource/base/pipeline/ 解析。"""
+    """解析 pipeline 路径；裸文件名仅回退到打包布局。"""
     path = Path(pipeline_file)
     if path.is_absolute():
         return path
@@ -199,7 +199,7 @@ def main():
     global PROJECT_ROOT
     PROJECT_ROOT = find_project_root()
 
-    # 解析 pipeline 路径：相对路径基于项目根目录的 assets/resource/base/pipeline/
+    # 显式项目相对路径优先；裸文件名保留打包布局兼容。
     path = resolve_pipeline_path(args.pipeline_file)
     print(f"目标 pipeline: {path}")
 
