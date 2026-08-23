@@ -164,7 +164,7 @@ def _strip_jsonc_trailing_commas(text: str) -> str:
 def load_interface_bundle(interface_path: Path | None) -> tuple[dict, dict]:
     """Load the main Interface and merge its direct import declarations."""
     diagnostics: dict = {
-        "main_path": str(interface_path) if interface_path else "",
+        "main_path": portable_path(interface_path) if interface_path else "",
         "declared": [],
         "loaded": [],
         "missing": [],
@@ -225,9 +225,13 @@ def load_interface_bundle(interface_path: Path | None) -> tuple[dict, dict]:
 
 def rel(path: Path, root: Path) -> str:
     try:
-        return str(path.relative_to(root))
+        return portable_path(path.relative_to(root))
     except ValueError:
-        return str(path)
+        return portable_path(path)
+
+
+def portable_path(path: Path) -> str:
+    return path.as_posix()
 
 
 def should_skip(path: Path) -> bool:
@@ -271,8 +275,8 @@ def resolve_resource_dirs(project_root: Path, interface_path: Path | None, inter
             {
                 "name": group.get("name") or "<unnamed>",
                 "raw_paths": list(raw_paths),
-                "paths": [str(p) for p in resolved],
-                "existing_paths": [str(p) for p in resolved if p.is_dir()],
+                "paths": [portable_path(p) for p in resolved],
+                "existing_paths": [portable_path(p) for p in resolved if p.is_dir()],
             }
         )
     return groups

@@ -422,7 +422,7 @@ def test_analyze_project_counts_imported_tasks_in_assets_interface_bundle(tmp_pa
     ]
     assert all(flow["entry_found"] for flow in result["pipeline"]["task_flow_graphs"])
     assert result["resource_groups"][0]["paths"] == [
-        str((assets / "resource" / "base").resolve())
+        (assets / "resource" / "base").resolve().as_posix()
     ]
     assert result["agent_scripts"]["declared_resolved_count"] == 1
     assert [Path(item).resolve() for item in result["agent_scripts"]["declared_resolved"]] == [
