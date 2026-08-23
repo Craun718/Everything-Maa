@@ -42,7 +42,7 @@ Pipeline 由 Node 组成。本 skill 针对**OCR 文本识别节点**，按 Pipe
 |------|------|------|------|
 | `target_text` | ✅ | — | 要识别的目标中文文字 |
 | `node_name` | ✅ | — | 节点名（PascalCase） |
-| `pipeline_file` | ✅ | — | 目标 pipeline 路径（相对 `assets/resource/base/pipeline/xxx.json` 或绝对路径） |
+| `pipeline_file` | ✅ | — | 目标 pipeline 路径（推荐传主 Interface 声明资源根下的项目相对或绝对路径；`assets/resource/base/pipeline/xxx.json` 是 boilerplate-family 项目示例） |
 | `action_type` | ❌ | `Click` | Click / DoNothing / LongPress / Swipe / ClickKey / InputText |
 | `expand_offset` | ❌ | `20` | ROI 扩边像素（**推荐先用 sweep 找最佳**） |
 | `post_delay` | ❌ | `500` | |
@@ -84,10 +84,10 @@ roi = [
 from maa_mcp.pipeline_tools import load_pipeline, save_pipeline
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-pipeline_path = Path(pipeline_file)
-if not pipeline_path.is_absolute():
-    pipeline_path = PROJECT_ROOT / "assets" / "resource" / "base" / "pipeline" / pipeline_file
+# Read resource[].path from the project's main Interface and resolve the
+# supplied path against that project root before reading or writing it.
+project_root = find_project_root()
+pipeline_path = resolve_pipeline_path(pipeline_file)
 
 existing = load_pipeline(str(pipeline_path)) or {}
 if node_name in existing and not overwrite:
@@ -136,7 +136,7 @@ python "<skill-dir>/scripts/generate_sweep.py" "角色" "46,1248,50,30" 0,5,10,1
 ### 步骤 2: 正式生成节点
 
 ```bash
-python "<skill-dir>/scripts/generate_node.py" "角色" UI_RoleListPage main_ui.json --expand 20 --overwrite
+python "<skill-dir>/scripts/generate_node.py" "角色" UI_RoleListPage resource/base/pipeline/main_ui.json --expand 20 --overwrite
 ```
 
 ## 关键经验
@@ -167,7 +167,7 @@ python "<skill-dir>/scripts/generate_node.py" "角色" UI_RoleListPage main_ui.j
 
 13. **跨页面流程用 `next` 状态机而非 Python orchestration**：当一个流程涉及多个页面跳转（如：大地图 → 活动入口 → 难度选择 → 队伍 → 战斗），用 MaaFramework 的 `next` + `[JumpBack]` 串节点。**不要**写 Python `for/while` 调 `context.run_task()` 模拟状态机。详见 [option 反模式](../maa-pipeline-option/references/anti-patterns.md) 和 [maa-pipeline-guide](../maa-pipeline-guide/SKILL.md) 的「跨页面状态机」。
 
-14. **跨文件节点引用在 `run_pipeline` 测试中会失败**：MaaFramework 全局加载时所有 `assets/resource/base/pipeline/*.json` 合并到同一命名空间，`[JumpBack]OtherFileNode` 能解析。但 `run_pipeline` **只加载单文件**，跨文件引用会报"加载 Pipeline 失败"。**应对**：
+14. **跨文件节点引用在 `run_pipeline` 测试中会失败**：MaaFramework 全局加载同一声明 resource bundle 时，`pipeline/` 目录下各 JSON 合并到同一命名空间，`[JumpBack]OtherFileNode` 能解析。但 `run_pipeline` **只加载单文件**，跨文件引用会报"加载 Pipeline 失败"。**应对**：
     - 单元测试每个节点用 `run_pipeline`（无跨文件依赖的子流程）是 OK 的
     - 含跨文件引用的状态机流程，集成测试必须用 MaaFramework GUI/CLI 触发
     - 调试时可考虑 `MaaCli` 命令行运行全 bundle

@@ -15,13 +15,17 @@ description: "Test and validate MaaFramework Pipeline JSON, recognition nodes, a
 
 测试前先查目标项目根目录的 `basic_info.md`。存在且包含第 0 节时，读取“0. Maa Skills 接力协议”和第 2/5/7/8/9/10 节，用 task/resource、公共返回节点、OCR/模板/ROI 和风险清单规划测试；随后以当前截图、当前源码和 TaskDetail 为准。优先把公共 Click 节点复制成临时 `DoNothing` 探针做初始化 smoke test，完成后调用 `stop_pipeline` 并删除临时文件。文件缺失或没有第 0 节时按本 skill 直接发现测试所需上下文；不得自动调用 `$maa-project-init`，只有用户明确要求初始化或刷新时才调用。源码更新更晚时视为缓存可能过期并以源码为准，不自动刷新或覆盖。
 
+## 测试对象发现规则
+
+从主 `interface.json` / `interface.jsonc` 读取 task entry、`import[]` 和 `resource[].path`。`import[]` 与资源路径都相对主 Interface 目录解析；测试只针对声明资源根内的 Pipeline、图片和项目声明的 agent 入口。`assets/...` 是常见打包布局示例，但不是可以脱离 Interface 声明猜测的协议默认值。
+
 ## 概述
 
 测试 MaaFramework Pipeline JSON 中的 node，验证识别和操作是否正常工作。
 
 ## 历史审查后的测试边界
 
-- **资源加载检查是 smoke test，不是端到端证明**：`python tools/ci/check_resource.py assets/resource/base` 能证明资源包可加载，但不能证明 CustomAction/CustomRecognition 名称存在、参数路径正确、`run_task()` 分支判断正确。
+- **资源加载检查是 smoke test，不是端到端证明**：目标项目锁定的 Interface / resource 检查（例如 M9A 的 `pnpm check`）能证明声明和资源包可加载，但不能证明 CustomAction/CustomRecognition 名称存在、参数路径正确、`run_task()` 分支判断正确。
 - **Custom 映射必须单独查**：所有 `action: Custom` / `action.type = Custom` 的 `custom_action` 都要能映射到 `@AgentServer.custom_action(...)`；所有 `recognition.type = Custom` 的 `custom_recognition` 都要能映射到 `@AgentServer.custom_recognition(...)`。
 - **CustomRecognition 也要测**：M9A 证明复杂 OCR/list/image 逻辑经常放在 CustomRecognition，不要只测 CustomAction。
 - **高风险链路要复测稳定态**：购买、消耗、战斗开始、继续挑战、结算确认等动作后，先识别稳定页面或完成态，再继续危险动作。
@@ -30,7 +34,7 @@ description: "Test and validate MaaFramework Pipeline JSON, recognition nodes, a
 ### Custom 映射快速检查
 
 ```powershell
-rg -n '"Custom"|custom_action|custom_recognition' assets/resource -g '*.json'
+rg -n '"Custom"|custom_action|custom_recognition' <declared-resource-root> -g '*.json'
 rg -n '@AgentServer\.custom_action|@AgentServer\.custom_recognition' agent -g '*.py'
 ```
 
@@ -46,8 +50,8 @@ controller_id = connect_adb_device(device_name="xxx")
 controller_id = connect_window(window_name="xxx")
 
 # 2. 加载 pipeline
-load_pipeline(pipeline_path="<pipeline_json>")
-RESOURCE_PATH = "<resource_base_path>"
+load_pipeline(pipeline_path="<declared-pipeline-json>")
+RESOURCE_PATH = "<declared-resource-root>"
 
 # 3. 逐个测试
 for node_name in pipeline_nodes:
@@ -142,7 +146,7 @@ run_pipeline(..., entry="BackButton_500ms", ...)
 run_pipeline(..., entry="NodeB", ...)
 ```
 
-**BackButton_500ms** 在 main_ui.json 里，DirectHit 识别返回箭头，定位精确可靠。
+以下示例中的 `BackButton_500ms` 来自某个历史项目的 `main_ui.json`；实际测试应使用当前项目 Interface / Pipeline 图中确认存在的安全返回节点。
 
 ## ROI Sweep 测试方法
 
@@ -263,9 +267,9 @@ Agent 启动失败: Agent 启动失败 (identifier=12345): connect() 返回 Fals
 # 不开 agent,直接测某个节点
 result = run_pipeline(
     controller_id=cid,
-    pipeline_path="<project-root>/assets/resource/base/pipeline/example.json",
+    pipeline_path="<project-root>/<declared-resource-root>/pipeline/example.json",
     entry="AutoSky_BagConfig",   # 任意节点名
-    resource_path="<project-root>/assets/resource/base",
+    resource_path="<project-root>/<declared-resource-root>",
     start_agent=False,          # ← 关键:false
 )
 ```
@@ -301,7 +305,7 @@ from maa.controller import AdbController
 from maa.tasker import Tasker
 
 Toolkit.init_option("./")
-res = Resource(); res.post_bundle("./assets/resource/base").wait()
+res = Resource(); res.post_bundle("./<declared-resource-root>").wait()
 ctrl = AdbController(adb_path="adb", address="127.0.0.1:16384"); ctrl.post_connection().wait()
 tasker = Tasker(); tasker.bind(res, ctrl)
 
