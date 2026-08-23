@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -291,6 +292,54 @@ def test_analyze_project_loads_interface_imports_and_agent_array(tmp_path: Path)
     assert interface["preset"][0]["name"] == "Default"
 
 
+def test_analyze_project_expands_wildcard_interface_imports(tmp_path: Path):
+    analyzer = load_analyzer()
+    root = tmp_path / "M9AStyleProject"
+    write_json(
+        root / "interface.json",
+        {
+            "resource": [{"name": "default", "path": ["./resource/base"]}],
+            "import": ["tasks/**/*.json"],
+        },
+    )
+    write_json(
+        root / "tasks" / "feature.json",
+        {"task": [{"name": "Feature", "entry": "Start"}]},
+    )
+    write_json(
+        root / "tasks" / "daily" / "login.json",
+        {"task": [{"name": "Login", "entry": "Login"}]},
+    )
+    write_json(
+        root / "resource" / "base" / "pipeline" / "main.json",
+        {
+            "Start": {"recognition": "DirectHit"},
+            "Login": {"recognition": "DirectHit"},
+        },
+    )
+
+    result = analyzer.analyze_project(root)
+
+    assert result["interface_imports"]["declared"] == ["tasks/**/*.json"]
+    assert result["interface_imports"]["loaded"] == [
+        "tasks/daily/login.json",
+        "tasks/feature.json",
+    ]
+    assert [task["name"] for task in result["tasks"]] == ["Login", "Feature"]
+    assert all(flow["entry_found"] for flow in result["pipeline"]["task_flow_graphs"])
+
+
+def test_empty_wildcard_interface_import_is_diagnosed(tmp_path: Path):
+    analyzer = load_analyzer()
+    root = tmp_path / "EmptyWildcard"
+    write_json(root / "interface.json", {"import": ["tasks/**/*.json"]})
+
+    result = analyzer.analyze_project(root)
+
+    assert result["interface_imports"]["missing"] == ["tasks/**/*.json"]
+    assert any("没有匹配到任何文件" in warning for warning in result["interface_imports"]["warnings"])
+
+
 def test_analyze_project_prefers_root_interface_and_declared_resources(tmp_path: Path):
     analyzer = load_analyzer()
     root = make_standard_interface_project(tmp_path)
@@ -485,6 +534,44 @@ def test_malformed_interface_import_is_reported_without_stopping_analysis(tmp_pa
     assert "Start" in result["pipeline"]["node_names"]
 
 
+def test_malformed_main_interface_shapes_are_diagnosed_without_crashing(tmp_path: Path):
+    analyzer = load_analyzer()
+    root = tmp_path / "MalformedInterfaceShapes"
+    write_json(
+        root / "interface.json",
+        {
+            "task": "not-an-array",
+            "preset": "not-an-array",
+            "option": ["not-an-object"],
+            "resource": [
+                "not-an-object",
+                {"name": 42, "path": [123, "./resource/base"]},
+            ],
+            "import": ["tasks/feature.json"],
+        },
+    )
+    write_json(
+        root / "tasks" / "feature.json",
+        {"task": [{"name": "Feature", "entry": "Start"}]},
+    )
+    write_json(
+        root / "resource" / "base" / "pipeline" / "main.json",
+        {"Start": {"recognition": "DirectHit"}},
+    )
+
+    result = analyzer.analyze_project(root)
+    warnings = result["interface_imports"]["warnings"]
+
+    assert [task["name"] for task in result["tasks"]] == ["Feature"]
+    assert result["resource_groups"][0]["raw_paths"] == ["./resource/base"]
+    assert any("task 字段不是数组" in warning for warning in warnings)
+    assert any("preset 字段不是数组" in warning for warning in warnings)
+    assert any("option 字段不是 object" in warning for warning in warnings)
+    assert any("resource[0] 不是 JSON object" in warning for warning in warnings)
+    assert any("resource[1].path 不是字符串或字符串数组" in warning for warning in warnings)
+    assert "Start" in result["pipeline"]["node_names"]
+
+
 def test_missing_interface_import_is_reported_without_stopping_analysis(tmp_path: Path):
     analyzer = load_analyzer()
     root = tmp_path / "BrokenImport"
@@ -511,6 +598,26 @@ def test_missing_interface_import_is_reported_without_stopping_analysis(tmp_path
     assert result["interface_imports"]["missing"] == ["tasks/missing.json"]
     assert any("tasks/missing.json" in warning for warning in result["interface_imports"]["warnings"])
     assert "Start" in result["pipeline"]["node_names"]
+
+
+def test_unique_existing_resource_dirs_preserves_case_sensitive_paths():
+    analyzer = load_analyzer()
+    groups = [
+        {"existing_paths": ["/tmp/MaaProject/Resource/Base"]},
+        {"existing_paths": ["/tmp/MaaProject/resource/base"]},
+    ]
+
+    result = analyzer.unique_existing_resource_dirs(groups)
+
+    if os.name == "posix":
+        assert [path.as_posix() for path in result] == [
+            "/tmp/MaaProject/Resource/Base",
+            "/tmp/MaaProject/resource/base",
+        ]
+    else:
+        assert [path.as_posix() for path in result] == [
+            "/tmp/MaaProject/Resource/Base",
+        ]
 
 
 def test_analyze_project_finds_entries_edges_common_nodes_and_images(tmp_path: Path):
@@ -774,6 +881,32 @@ class TestAnalyzeAgentScripts:
         assert result["discovered"] == []
         assert result["declared_resolved"] == []
         assert result["warnings"] == []
+
+    def test_malformed_agent_array_entries_are_reported(self, tmp_path: Path):
+        analyzer = load_analyzer()
+        root = _build_minimal_project(
+            tmp_path,
+            [{"child_args": ["agent/main.py"]}, "not-an-object"],
+        )
+        interface_path = root / "assets" / "interface.json"
+        interface = json.loads(interface_path.read_text(encoding="utf-8"))
+
+        result = analyzer.analyze_agent_scripts(root, interface_path, interface["agent"])
+
+        assert result["agent_block_present"] is True
+        assert result["agent_config_count"] == 1
+        assert any("agent[1] 不是 JSON object" in warning for warning in result["warnings"])
+
+    def test_empty_agent_array_remains_a_present_block(self, tmp_path: Path):
+        analyzer = load_analyzer()
+        root = _build_minimal_project(tmp_path, [])
+        interface_path = root / "assets" / "interface.json"
+
+        result = analyzer.analyze_agent_scripts(root, interface_path, [])
+
+        assert result["agent_block_present"] is True
+        assert result["agent_config_count"] == 0
+        assert any("agent 数组为空" in warning for warning in result["warnings"])
 
     def test_unresolved_when_file_missing(self, tmp_path: Path):
         analyzer = load_analyzer()

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import os
 import re
 import sys
 from collections import Counter, defaultdict, deque
@@ -60,6 +61,7 @@ INTERFACE_IMPORT_LIST_FIELDS = (
     "preset",
 )
 INTERFACE_IMPORT_MAP_FIELDS = ("option",)
+WILDCARD_IMPORT_CHARS = ("*", "?", "[")
 
 
 @dataclass(frozen=True)
@@ -184,6 +186,7 @@ def load_interface_bundle(interface_path: Path | None) -> tuple[dict, dict]:
         diagnostics["warnings"].append("主 Interface 顶层不是 JSON object")
         return interface, diagnostics
     interface = loaded
+    _normalize_interface_shapes(interface, diagnostics)
 
     imports = interface.get("import") or []
     if not isinstance(imports, list):
@@ -198,29 +201,128 @@ def load_interface_bundle(interface_path: Path | None) -> tuple[dict, dict]:
             continue
 
         diagnostics["declared"].append(raw_path)
-        import_path = (base_dir / raw_path).resolve()
         try:
-            imported = load_json(import_path)
-        except (OSError, json.JSONDecodeError, ValueError) as error:
-            diagnostics["missing"].append(raw_path)
-            diagnostics["warnings"].append(f"无法读取 Interface import `{raw_path}`: {error}")
-            continue
-        if not isinstance(imported, dict):
+            import_paths = _expand_interface_import(base_dir, raw_path)
+        except ValueError as error:
             diagnostics["invalid"].append(raw_path)
-            diagnostics["warnings"].append(f"Interface import `{raw_path}` 顶层不是 JSON object")
+            diagnostics["warnings"].append(f"Interface import `{raw_path}` 无效: {error}")
             continue
 
-        diagnostics["loaded"].append(raw_path)
-        for field in INTERFACE_IMPORT_LIST_FIELDS:
-            values = imported.get(field) or []
-            if isinstance(values, list):
+        if not import_paths:
+            diagnostics["missing"].append(raw_path)
+            diagnostics["warnings"].append(f"Interface import `{raw_path}` 没有匹配到任何文件")
+            continue
+
+        for import_path in import_paths:
+            loaded_name = _import_diagnostic_name(base_dir, import_path, raw_path)
+            try:
+                imported = load_json(import_path)
+            except (OSError, json.JSONDecodeError, ValueError) as error:
+                diagnostics["missing"].append(loaded_name)
+                diagnostics["warnings"].append(
+                    f"无法读取 Interface import `{loaded_name}`: {error}"
+                )
+                continue
+            if not isinstance(imported, dict):
+                diagnostics["invalid"].append(loaded_name)
+                diagnostics["warnings"].append(
+                    f"Interface import `{loaded_name}` 顶层不是 JSON object"
+                )
+                continue
+
+            diagnostics["loaded"].append(loaded_name)
+            for field in INTERFACE_IMPORT_LIST_FIELDS:
+                values = imported.get(field) or []
+                if not isinstance(values, list):
+                    diagnostics["warnings"].append(
+                        f"Interface import `{loaded_name}` 的 {field} 字段不是数组"
+                    )
+                    continue
                 interface.setdefault(field, []).extend(values)
-        for field in INTERFACE_IMPORT_MAP_FIELDS:
-            values = imported.get(field) or {}
-            if isinstance(values, dict):
+            for field in INTERFACE_IMPORT_MAP_FIELDS:
+                values = imported.get(field) or {}
+                if not isinstance(values, dict):
+                    diagnostics["warnings"].append(
+                        f"Interface import `{loaded_name}` 的 {field} 字段不是 object"
+                    )
+                    continue
                 interface.setdefault(field, {}).update(values)
 
     return interface, diagnostics
+
+
+def _normalize_interface_shapes(interface: dict, diagnostics: dict) -> None:
+    for field in INTERFACE_IMPORT_LIST_FIELDS:
+        value = interface.get(field)
+        if value is not None and not isinstance(value, list):
+            diagnostics["warnings"].append(f"主 Interface 的 {field} 字段不是数组")
+            interface[field] = []
+    for field in INTERFACE_IMPORT_MAP_FIELDS:
+        value = interface.get(field)
+        if value is not None and not isinstance(value, dict):
+            diagnostics["warnings"].append(f"主 Interface 的 {field} 字段不是 object")
+            interface[field] = {}
+
+    resources = interface.get("resource")
+    if resources is None:
+        return
+    if not isinstance(resources, list):
+        diagnostics["warnings"].append("主 Interface 的 resource 字段不是数组")
+        interface["resource"] = []
+        return
+
+    valid_groups: list[dict] = []
+    for index, group in enumerate(resources):
+        if not isinstance(group, dict):
+            diagnostics["warnings"].append(
+                f"主 Interface 的 resource[{index}] 不是 JSON object"
+            )
+            continue
+
+        raw_paths = group.get("path")
+        if isinstance(raw_paths, str):
+            raw_paths = [raw_paths]
+        if not isinstance(raw_paths, list):
+            diagnostics["warnings"].append(
+                f"主 Interface 的 resource[{index}].path 不是字符串或字符串数组"
+            )
+            raw_paths = []
+        else:
+            valid_paths = [
+                path for path in raw_paths if isinstance(path, str) and bool(path)
+            ]
+            if len(valid_paths) != len(raw_paths):
+                diagnostics["warnings"].append(
+                    f"主 Interface 的 resource[{index}].path 不是字符串或字符串数组"
+                )
+            raw_paths = valid_paths
+        name = group.get("name")
+        normalized_name = name if isinstance(name, str) and name else "<unnamed>"
+        group = {**group, "name": normalized_name, "path": raw_paths}
+        valid_groups.append(group)
+    interface["resource"] = valid_groups
+
+
+def _expand_interface_import(base_dir: Path, raw_path: str) -> list[Path]:
+    candidate = Path(raw_path)
+    if candidate.is_absolute():
+        raise ValueError("import 必须是相对于主 Interface 的路径")
+    if not any(char in raw_path for char in WILDCARD_IMPORT_CHARS):
+        return [(base_dir / candidate).resolve()]
+    return sorted(
+        path.resolve()
+        for path in base_dir.glob(raw_path)
+        if path.is_file()
+    )
+
+
+def _import_diagnostic_name(base_dir: Path, import_path: Path, raw_path: str) -> str:
+    if not any(char in raw_path for char in WILDCARD_IMPORT_CHARS):
+        return raw_path
+    try:
+        return portable_path(import_path.relative_to(base_dir))
+    except ValueError:
+        return portable_path(import_path)
 
 
 def rel(path: Path, root: Path) -> str:
@@ -265,15 +367,25 @@ def resolve_resource_dirs(project_root: Path, interface_path: Path | None, inter
         return []
 
     base_dir = interface_path.parent
+    resources = interface.get("resource") or []
+    if not isinstance(resources, list):
+        return []
+
     groups: list[dict] = []
-    for group in interface.get("resource", []) or []:
+    for group in resources:
+        if not isinstance(group, dict):
+            continue
         raw_paths = group.get("path") or []
         if isinstance(raw_paths, str):
             raw_paths = [raw_paths]
+        if not isinstance(raw_paths, list):
+            raw_paths = []
+        raw_paths = [path for path in raw_paths if isinstance(path, str) and bool(path)]
         resolved = [(base_dir / p).resolve() for p in raw_paths]
+        name = group.get("name")
         groups.append(
             {
-                "name": group.get("name") or "<unnamed>",
+                "name": name if isinstance(name, str) and name else "<unnamed>",
                 "raw_paths": list(raw_paths),
                 "paths": [portable_path(p) for p in resolved],
                 "existing_paths": [portable_path(p) for p in resolved if p.is_dir()],
@@ -288,8 +400,16 @@ def unique_existing_resource_dirs(resource_groups: list[dict]) -> list[Path]:
     for group in resource_groups:
         for value in group.get("existing_paths", []):
             path = Path(value)
-            key = str(path).lower()
+            key = os.path.normcase(str(path))
             if key not in seen:
+                try:
+                    duplicate = path.is_dir() and any(
+                        path.samefile(existing) for existing in result if existing.is_dir()
+                    )
+                except OSError:
+                    duplicate = False
+                if duplicate:
+                    continue
                 seen.add(key)
                 result.append(path)
     return result
@@ -735,8 +855,18 @@ def discover_agent_candidates(root: Path) -> list[dict]:
                     normalized = str(candidate.resolve())
                 except OSError:
                     normalized = str(candidate)
-                key = normalized.lower()
+                key = os.path.normcase(normalized)
                 if key in seen:
+                    continue
+                try:
+                    duplicate = candidate.is_file() and any(
+                        candidate.samefile(Path(existing["candidate"]))
+                        for existing in results
+                        if existing["exists"]
+                    )
+                except OSError:
+                    duplicate = False
+                if duplicate:
                     continue
                 seen.add(key)
                 try:
@@ -760,10 +890,8 @@ def analyze_agent_scripts(
 ) -> dict:
     """组合 declared（child_args 解析）+ discovered（约定入口枚举）视图。
 
-    返回空骨架的场景：
-    - 无 interface.json
-    - 无 agent 块
-    - child_args 不是列表
+    返回空骨架的场景是无 interface.json 或无 agent 块。agent 块存在但
+    内容为空/非法时保留 agent_block_present，并输出 warnings。
 
     返回的 dict 永远是完整字段集合，便于 render_basic_info / render_summary 直接索引。
     """
@@ -782,15 +910,34 @@ def analyze_agent_scripts(
         "warnings": [],
     }
 
+    if not interface_path:
+        return empty
+
+    warnings: list[str] = []
+    if agent_block is None:
+        return empty
+
     if isinstance(agent_block, list):
-        agent_configs = [item for item in agent_block if isinstance(item, dict)]
-    elif isinstance(agent_block, dict) and agent_block:
+        agent_configs = []
+        for index, item in enumerate(agent_block):
+            if isinstance(item, dict):
+                agent_configs.append(item)
+            else:
+                warnings.append(f"interface.json 的 agent[{index}] 不是 JSON object")
+        if not agent_block:
+            warnings.append("interface.json 的 agent 数组为空")
+    elif isinstance(agent_block, dict):
         agent_configs = [agent_block]
     else:
         agent_configs = []
+        warnings.append("interface.json 的 agent 字段既不是 object 也不是数组")
 
     if not interface_path or not agent_configs:
-        return empty
+        return {
+            **empty,
+            "agent_block_present": True,
+            "warnings": warnings,
+        }
 
     root = interface_path.parent
     child_args: list[Any] = []
@@ -820,8 +967,6 @@ def analyze_agent_scripts(
     unused_candidates = sorted(discovered_existing_set - declared_resolved_set)
     unresolved_args = [item["arg"] for item in declared if item.get("status") == "unresolved"]
     script_count = sum(1 for item in declared if item.get("is_py"))
-
-    warnings: list[str] = []
 
     if malformed_child_args:
         warnings.append("interface.json 的某个 agent 配置里 child_args 不是数组")
@@ -1209,7 +1354,7 @@ def analyze_project(project_root: str | Path) -> dict:
         "controllers": controllers,
         "agent": interface.get("agent") or {},
         "agent_scripts": analyze_agent_scripts(
-            root, interface_path, interface.get("agent") or {}
+            root, interface_path, interface.get("agent")
         ),
         "resource_groups": resource_groups,
         "tasks": tasks,
