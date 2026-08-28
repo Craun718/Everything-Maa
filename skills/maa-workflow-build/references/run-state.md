@@ -45,7 +45,7 @@ stop_reason: null
 ## Transition rules
 
 - Move forward only when the current phase has produced its required artifact or evidence.
-- Move to `EXPLORE` when any required start or success state is still `evidence_status: guessed`, and keep `exploration.gate: open` until every one of them is observed.
+- Move to `EXPLORE` when any required start or success state is still `evidence_status: guessed` or lacks a non-empty `evidence_artifact`, and keep `exploration.gate: open` until every one of them is `evidence_status: observed` with a non-empty `evidence_artifact`.
 - Leave `EXPLORE` for `DESIGN` only with `exploration.gate: closed` and `round_trip_complete: true`. Nodes and Custom code are written after that transition, never before it.
 - Move to `RECOVER` when an expected observation, tool call, edit, or test fails.
 - Return from `RECOVER` to the phase that owns the failed result after re-observation or replanning.
