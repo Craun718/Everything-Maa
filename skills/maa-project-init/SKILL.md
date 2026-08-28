@@ -97,6 +97,17 @@ Support these node reference forms:
 
 Strip bracket prefixes when resolving the target node, but preserve the prefix in summaries where useful.
 
+### Node-level `anchor` declarations
+
+A node's own top-level `anchor` field (`string | list | object`) is a distinct concept from the `next`-element `anchor` attribute above: it declares an anchor *name* that `[Anchor]X` references resolve against, not a reference itself.
+
+- `"anchor": "Cooking"` — anchor `Cooking` now targets this node.
+- `"anchor": ["A", "B"]` — several anchors now target this node.
+- `"anchor": { "Cooking": "TargetNode" }` — object form: explicit target, which need not be this node.
+- `"anchor": { "Cooking": "" }` — clears the anchor; the name stays declared with no current target.
+
+Resolve every `[Anchor]X` / `{"anchor": true}` reference through the anchor name → target node table built from these declarations (case-insensitive on the `anchor` attr) before computing unresolved references, in-degree, isolated nodes, and orphan candidates — otherwise every anchor reference is misreported as a dangling node reference. One anchor name may legitimately map to many target nodes (whichever node declared it last wins at runtime); treat that as normal, not a conflict. Report an anchor name that is never declared (`unresolved_anchor_refs`) separately from a declared anchor whose explicit object-form target does not exist (`dangling_anchor_targets`) — they indicate different problems.
+
 ## Entry Flowcharts
 
 Generate bounded Mermaid flowcharts from each `interface.json` task entry. These diagrams are meant to orient MaaMCP and future skills quickly, not to replace a full graph database.

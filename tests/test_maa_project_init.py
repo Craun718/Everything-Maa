@@ -1061,3 +1061,213 @@ def test_analyze_project_includes_agent_scripts_field(tmp_path: Path):
     assert "agent_scripts" in result
     assert result["agent_scripts"]["agent_block_present"] is True
     assert result["agent_scripts"]["declared_unresolved_count"] == 1
+
+
+# ---------------------------------------------------------------------------
+# Node-level `anchor` field resolution (regression test for issue #8)
+# ---------------------------------------------------------------------------
+
+
+def test_collect_anchor_defs_parses_string_list_object_and_clear_forms():
+    analyzer = load_analyzer()
+
+    assert analyzer.collect_anchor_defs("Cook", {"anchor": "Cooking"}) == [
+        {"anchor": "Cooking", "target": "Cook", "cleared": False}
+    ]
+    assert analyzer.collect_anchor_defs("Cook", {"anchor": ["A", "B"]}) == [
+        {"anchor": "A", "target": "Cook", "cleared": False},
+        {"anchor": "B", "target": "Cook", "cleared": False},
+    ]
+    assert analyzer.collect_anchor_defs("Cook", {"anchor": {"Cooking": "TargetNode"}}) == [
+        {"anchor": "Cooking", "target": "TargetNode", "cleared": False}
+    ]
+    assert analyzer.collect_anchor_defs("Cook", {"anchor": {"Cooking": ""}}) == [
+        {"anchor": "Cooking", "target": None, "cleared": True}
+    ]
+    assert analyzer.collect_anchor_defs("Cook", {"anchor": {"Cooking": None}}) == [
+        {"anchor": "Cooking", "target": None, "cleared": True}
+    ]
+    assert analyzer.collect_anchor_defs("Cook", {}) == []
+    assert analyzer.collect_anchor_defs("Cook", {"anchor": ""}) == []
+
+
+def test_anchor_string_and_list_forms_resolve_multi_target_without_conflict(tmp_path: Path):
+    analyzer = load_analyzer()
+    write_json(
+        tmp_path / "pipeline" / "main.json",
+        {
+            "CookNodeA": {"recognition": "DirectHit", "anchor": "Cooking"},
+            "CookNodeB": {"recognition": "DirectHit", "anchor": ["Cooking", "Prep"]},
+            "Chef": {
+                "recognition": "DirectHit",
+                "next": ["[Anchor]Cooking", "[Anchor]Prep"],
+            },
+        },
+    )
+
+    result = analyzer.analyze_pipeline_files(tmp_path, [tmp_path / "pipeline" / "main.json"])
+
+    assert result["unresolved_refs"] == []
+    assert result["unresolved_anchor_refs"] == []
+    assert result["dangling_anchor_targets"] == []
+    edge_targets = {(edge["source"], edge["target"]) for edge in result["edges"]}
+    # "Cooking" has two targets (CookNodeA and CookNodeB); both edges are kept,
+    # not flagged as a conflict. "Prep" independently also targets CookNodeB.
+    assert ("Chef", "CookNodeA") in edge_targets
+    assert ("Chef", "CookNodeB") in edge_targets
+    assert "CookNodeA" not in result["isolated_nodes"]
+    assert "CookNodeB" not in result["isolated_nodes"]
+    assert "CookNodeA" not in result["zero_in_degree_nodes"]
+    assert "CookNodeB" not in result["zero_in_degree_nodes"]
+
+
+def test_anchor_object_form_next_attr_is_also_redirected(tmp_path: Path):
+    analyzer = load_analyzer()
+    write_json(
+        tmp_path / "pipeline" / "main.json",
+        {
+            "CookNodeA": {"recognition": "DirectHit", "anchor": "Cooking"},
+            "Chef": {
+                "recognition": "DirectHit",
+                "next": [{"name": "Cooking", "anchor": True}],
+            },
+        },
+    )
+
+    result = analyzer.analyze_pipeline_files(tmp_path, [tmp_path / "pipeline" / "main.json"])
+
+    edge_targets = {(edge["source"], edge["target"]) for edge in result["edges"]}
+    assert ("Chef", "CookNodeA") in edge_targets
+    assert result["unresolved_refs"] == []
+
+
+def test_anchor_object_form_explicit_target_and_dangling_target(tmp_path: Path):
+    analyzer = load_analyzer()
+    write_json(
+        tmp_path / "pipeline" / "main.json",
+        {
+            "Kitchen": {
+                "recognition": "DirectHit",
+                "anchor": {"Cooking": "CookNodeA", "Ghost": "MissingTarget"},
+            },
+            "CookNodeA": {"recognition": "DirectHit"},
+            "Chef": {
+                "recognition": "DirectHit",
+                "next": ["[Anchor]Cooking", "[Anchor]Ghost"],
+            },
+        },
+    )
+
+    result = analyzer.analyze_pipeline_files(tmp_path, [tmp_path / "pipeline" / "main.json"])
+
+    edge_targets = {(edge["source"], edge["target"]) for edge in result["edges"]}
+    assert ("Chef", "CookNodeA") in edge_targets
+    assert not any(target == "MissingTarget" for _, target in edge_targets)
+    # "Ghost" IS declared (it just points at a missing node), so it must not
+    # show up as an undeclared anchor reference.
+    assert result["unresolved_anchor_refs"] == []
+    assert "MissingTarget" not in result["unresolved_refs"]
+    assert result["dangling_anchor_targets"] == [
+        {"anchor": "Ghost", "target": "MissingTarget", "file": "pipeline/main.json"}
+    ]
+
+
+def test_anchor_object_form_clear_declares_name_without_target(tmp_path: Path):
+    analyzer = load_analyzer()
+    write_json(
+        tmp_path / "pipeline" / "main.json",
+        {
+            "Kitchen": {"recognition": "DirectHit", "anchor": {"Cooking": ""}},
+            "Chef": {"recognition": "DirectHit", "next": ["[Anchor]Cooking"]},
+        },
+    )
+
+    result = analyzer.analyze_pipeline_files(tmp_path, [tmp_path / "pipeline" / "main.json"])
+
+    assert "Cooking" in result["anchor_names"]
+    # The name is declared (just currently cleared), so referencing it is
+    # neither an undeclared anchor reference nor a dangling target -- it
+    # simply resolves to no edge at all.
+    assert result["unresolved_anchor_refs"] == []
+    assert result["dangling_anchor_targets"] == []
+    assert result["edges"] == []
+
+
+def test_anchor_undeclared_name_is_reported_as_dangling_reference(tmp_path: Path):
+    analyzer = load_analyzer()
+    write_json(
+        tmp_path / "pipeline" / "main.json",
+        {"Chef": {"recognition": "DirectHit", "next": ["[Anchor]NeverDeclared"]}},
+    )
+
+    result = analyzer.analyze_pipeline_files(tmp_path, [tmp_path / "pipeline" / "main.json"])
+
+    assert result["unresolved_anchor_refs"] == ["NeverDeclared"]
+    assert "NeverDeclared" not in result["unresolved_refs"]
+    assert result["edges"] == []
+
+
+def test_anchor_resolution_removes_node_from_orphan_candidates(tmp_path: Path):
+    analyzer = load_analyzer()
+    root = tmp_path / "AnchorProject"
+    write_json(
+        root / "interface.json",
+        {
+            "resource": [{"name": "default", "path": ["./resource/base"]}],
+            "task": [{"name": "Entry", "entry": "Chef"}],
+        },
+    )
+    write_json(
+        root / "resource" / "base" / "pipeline" / "main.json",
+        {
+            "Chef": {"recognition": "DirectHit", "next": ["[Anchor]Cooking"]},
+            "CookNodeA": {"recognition": "DirectHit", "anchor": "Cooking"},
+        },
+    )
+
+    result = analyzer.analyze_project(root)
+    pipeline = result["pipeline"]
+
+    assert "CookNodeA" not in pipeline["orphan_candidates"]
+    assert "CookNodeA" not in pipeline["zero_in_degree_nodes"]
+    assert "CookNodeA" not in pipeline["isolated_nodes"]
+
+
+# ---------------------------------------------------------------------------
+# Windows console encoding + async visitor typing (issue #8 minor extras)
+# ---------------------------------------------------------------------------
+
+
+def test_main_handles_non_ascii_node_names_without_unicode_error(tmp_path: Path, capsys):
+    analyzer = load_analyzer()
+    root = tmp_path / "NonAsciiProject"
+    write_json(
+        root / "interface.json",
+        {"resource": [{"name": "default", "path": ["./resource/base"]}]},
+    )
+    write_json(
+        root / "resource" / "base" / "pipeline" / "main.json",
+        {"烹饪": {"recognition": "DirectHit"}},
+    )
+
+    exit_code = analyzer.main([str(root), "--json"])
+
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert "烹饪" in captured.out
+
+
+def test_python_pipeline_calls_are_collected_from_async_functions(tmp_path: Path):
+    analyzer = load_analyzer()
+    root = tmp_path / "AsyncAgentProject"
+    agent = root / "agent" / "async_action.py"
+    agent.parent.mkdir(parents=True, exist_ok=True)
+    agent.write_text(
+        "async def run(context):\n"
+        "    await context.run_task('AsyncTarget')\n",
+        encoding="utf-8",
+    )
+
+    result = analyzer.analyze_python_pipeline_calls(root)
+
+    assert result["targets"] == ["AsyncTarget"]
