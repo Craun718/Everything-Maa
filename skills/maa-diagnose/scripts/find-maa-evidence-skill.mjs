@@ -8,8 +8,8 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
-const GUIDE_ROOT = path.resolve(
-  process.env.MAA_EVIDENCE_GUIDE_ROOT ?? path.join(SCRIPT_DIR, ".."),
+const DIAGNOSE_ROOT = path.resolve(
+  process.env.MAA_DIAGNOSE_ROOT ?? path.join(SCRIPT_DIR, ".."),
 );
 const UPSTREAM_SKILL = path.join("skills", "maa-evidence", "SKILL.md");
 const PACKAGE_NAME = "maa-evidence-kit";
@@ -132,7 +132,7 @@ function skillFromExplicitRoot(root) {
 
 function isUpstreamSkill(candidate) {
   if (!isFile(candidate)) return false;
-  if (canonical(candidate).startsWith(`${canonical(GUIDE_ROOT)}${path.sep}`)) return false;
+  if (canonical(candidate).startsWith(`${canonical(DIAGNOSE_ROOT)}${path.sep}`)) return false;
   const head = fs.readFileSync(candidate, "utf8").slice(0, 4096);
   return /^---\r?\n[\s\S]*?^name:\s*["']?maa-evidence["']?\s*$/m.test(head);
 }

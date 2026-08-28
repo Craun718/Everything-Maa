@@ -44,6 +44,21 @@ def test_skill_discovers_the_runtime_before_invoking_it():
     assert "Re-run discovery every session; never cache a command catalog" in discovery
 
 
+def test_authoritative_upstream_skill_is_loaded_before_runtime_use():
+    skill = read("SKILL.md")
+    discovery = read("references", "runtime-discovery.md")
+
+    assert "## Load the authoritative upstream Skill" in skill
+    assert "node scripts/find-maa-evidence-skill.mjs" in skill
+    assert 'For `status: "found"`, read `skillPath` completely' in skill
+    assert "Do not improvise MaaEvidenceKit commands from this Skill alone" in skill
+    assert "does not broaden this Skill into an entry point" in skill
+    assert "## Authoritative Skill handoff" in discovery
+    assert "`package-without-skill`" in discovery
+    assert (SKILL_DIR / "scripts" / "find-maa-evidence-skill.mjs").is_file()
+    assert not (ROOT / "skills" / "maa-evidence-guide").exists()
+
+
 def test_precedence_policy_orders_mcp_then_cli_then_local_checkout():
     discovery = read("references", "runtime-discovery.md")
 
@@ -180,7 +195,7 @@ def test_metadata_docs_and_evals_are_discoverable():
 
     assert "$maa-diagnose" in metadata["interface"]["default_prompt"]
     assert evals["skill_name"] == "maa-diagnose"
-    assert len(evals["evals"]) >= 6
+    assert len(evals["evals"]) >= 10
     assert adapter["id"] == "KhazixW2/maa-diagnose"
     assert (ROOT / "docs" / "skills" / "maa-diagnose.md").is_file()
 

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Maa Evidence Guide"
-  short_description: "Load the authoritative MaaEvidenceKit skill"
-  default_prompt: "Use $maa-evidence-guide to load MaaEvidenceKit guidance and investigate these MaaFramework logs."

@@ -10,20 +10,20 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL_DIR = ROOT / "skills" / "maa-evidence-guide"
+SKILL_DIR = ROOT / "skills" / "maa-diagnose"
 LOCATOR = SKILL_DIR / "scripts" / "find-maa-evidence-skill.mjs"
 
 
 def run_locator_process(
     *args: Path | str,
-    guide_root: Path | None = None,
+    diagnose_root: Path | None = None,
     cwd: Path | None = None,
     environment: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     command = ["node", str(LOCATOR), *map(str, args)]
     process_environment = os.environ.copy()
-    if guide_root is not None:
-        process_environment["MAA_EVIDENCE_GUIDE_ROOT"] = str(guide_root)
+    if diagnose_root is not None:
+        process_environment["MAA_DIAGNOSE_ROOT"] = str(diagnose_root)
     if environment is not None:
         process_environment.update(environment)
     return subprocess.run(
@@ -38,7 +38,7 @@ def run_locator_process(
 
 def run_locator(
     *args: Path | str,
-    guide_root: Path | None = None,
+    diagnose_root: Path | None = None,
     cwd: Path | None = None,
     environment: dict[str, str] | None = None,
     ambient: bool = False,
@@ -46,7 +46,7 @@ def run_locator(
     result = run_locator_process(
         *(("--no-ambient",) if not ambient else ()),
         *args,
-        guide_root=guide_root,
+        diagnose_root=diagnose_root,
         cwd=cwd,
         environment=environment,
     )
@@ -64,7 +64,7 @@ def write_upstream_skill(root: Path) -> Path:
     return skill
 
 
-def test_guide_is_a_thin_upstream_handoff():
+def test_diagnose_loads_authoritative_upstream_guidance():
     text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
     metadata = yaml.safe_load(
         (SKILL_DIR / "agents" / "openai.yaml").read_text(encoding="utf-8")
@@ -72,9 +72,10 @@ def test_guide_is_a_thin_upstream_handoff():
 
     assert "maafw.bak.<timestamp>.log" in text
     assert "another `maafw.*.log`" in text
-    assert "read it completely" in text
+    assert 'read `skillPath` completely' in text
+    assert "find-maa-evidence-skill.mjs" in text
     assert "Do not improvise" in text
-    assert "$maa-evidence-guide" in metadata["interface"]["default_prompt"]
+    assert "$maa-diagnose" in metadata["interface"]["default_prompt"]
 
 
 def test_locator_prefers_an_explicit_upstream_skill(tmp_path: Path):
@@ -157,9 +158,11 @@ def test_locator_reports_a_package_without_a_skill(tmp_path: Path):
     }
 
 
-def test_locator_excludes_a_package_skill_under_the_guide_root(tmp_path: Path):
-    guide_root = tmp_path / "maa-evidence-guide"
-    package = guide_root / "maa-evidence-kit"
+def test_locator_excludes_a_package_skill_under_the_diagnose_root(
+    tmp_path: Path,
+):
+    diagnose_root = tmp_path / "maa-diagnose"
+    package = diagnose_root / "maa-evidence-kit"
     package.mkdir(parents=True)
     (package / "package.json").write_text(
         json.dumps({"name": "maa-evidence-kit", "version": "1.2.3"}),
@@ -167,7 +170,7 @@ def test_locator_excludes_a_package_skill_under_the_guide_root(tmp_path: Path):
     )
     write_upstream_skill(package)
 
-    result = run_locator("--root", package, guide_root=guide_root)
+    result = run_locator("--root", package, diagnose_root=diagnose_root)
 
     assert result == {
         "status": "package-without-skill",
