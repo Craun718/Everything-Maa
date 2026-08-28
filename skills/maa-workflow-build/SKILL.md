@@ -25,6 +25,7 @@ Read [references/task-contract.md](references/task-contract.md) before finalizin
 - Invoke `$maa-pipeline-option` only when the task contract requires a user-facing toggle, selector, checkbox, switch, or input. Do not create options merely because the skill is available.
 - Run `$maa-pipeline-testing` after each coherent implementation increment and again against the integrated end-to-end flow. Use its evidence to route a failure back to the specialist or orchestrator phase that owns the defect.
 - Treat `$maa-cli-operate` as an execution backend for repeatable checks or guarded runtime operations, not a mandatory business phase.
+- Invoke `$maa-diagnose` only from `RECOVER`, and only when a failure exists whose owner is still unknown after focused testing. It is a read-only evidence producer, never a routine phase, and never a repair actor.
 - Treat `$maa-wiki` as an official-knowledge reference provider. Use it when the task contract, design, or acceptance criteria depend on MaaFramework documentation, schema, API, binding, release, or semantic-change facts; navigate to original sources before treating those facts as authoritative.
 
 Do not treat the specialists as a fixed `guide -> generate -> option -> testing` sequence. Call only the capability required by the current task state, then return its artifacts and evidence to this control loop.
@@ -98,6 +99,8 @@ Do not declare completion based only on generated JSON, a clean resource load, a
 Read [references/recovery-policy.md](references/recovery-policy.md) whenever an observation, tool call, edit, or test fails. Record the root cause or best bounded hypothesis, a safe retry, retry count, evidence needed from the retry, and an explicit stop condition.
 
 Re-observe after navigation or unexpected output. Replan when the state model is wrong. Stop instead of repeating ambiguous clicks, resource-consuming actions, or an unchanged failing attempt.
+
+When the failure class itself is unknown, request evidence from `$maa-diagnose` before choosing a route, then decide retry, replan, delegate a repair, request user action, or stop from its normalized result. This orchestrator owns that decision; the diagnostic skill only supplies evidence and a bounded owner.
 
 ## Phase output
 

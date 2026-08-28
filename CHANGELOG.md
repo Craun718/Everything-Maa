@@ -8,6 +8,9 @@ All notable changes to Everything Maa will be documented in this file. The proje
 
 - `maa-wiki` skill that routes MaaFramework knowledge questions and other Maa skills to authoritative official documentation, schemas, APIs, bindings, releases, and semantic changes through the MaaLLMWiki catalog.
 - Added `maa-interface-guide` for reviewing, diagnosing, and modifying existing MaaFramework Project Interface V2 files with project-first schema resolution and guarded `maa-tools` validation.
+- Added `maa-diagnose`, a read-only diagnostic skill that discovers and drives the external MaaEvidenceKit runtime (formerly MaaDiagnosticExpert) over local logs, project sources, and run-state context instead of implementing another log parser or diagnostic engine. It resolves the runtime surface dynamically, applies one MCP-then-CLI-then-local-checkout precedence policy, consumes only the structured JSON contract, and normalizes results into findings, evidence, artifacts, next actions, and one bounded `failure_owner`.
+- Added orchestration routing so `maa-workflow-build` `RECOVER` requests diagnostic evidence only when the failure owner is unknown, keeps focused recognition failures with `maa-pipeline-generate` and `maa-pipeline-testing`, and decides retry, replan, delegation, user action, or stop from the returned owner.
+- Cataloged `maa-evidence-kit@0.3.2` as an optional user-managed external diagnostic runtime with its supported version range, structured schema ids, and third-party notices; `everything-maa doctor` now reports external runtimes alongside MCP and optional CLI integrations.
 
 ## [0.1.1] - 2026-07-19
 

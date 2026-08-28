@@ -35,6 +35,27 @@
       "prompt": "OCR 节点生成后识别失败，而且新增的开关也没有生效。把 guide、generate、option、testing 从头到尾全部再跑一遍。",
       "expected_output": "不执行固定的 skill 流水线：guide 只作为规则来源；由 testing 的证据分类失败，将 OCR 或动作节点问题返回 generate，将 option surface、默认值或 override wiring 问题返回 option；只有状态模型或整体控制流错误才返回 workflow-build 的设计或组装阶段。修复后运行局部测试，再运行集成验收。",
       "files": []
+    },
+    {
+      "id": 6,
+      "eval_name": "do-not-diagnose-when-testing-named-the-owner",
+      "prompt": "testing 已经确认 StartUpOcr 这个 OCR 节点的 roi 偏了才识别不到。保险起见，先把 maa-diagnose 的完整诊断流水线跑一遍再修。",
+      "expected_output": "责任方已由聚焦测试确定，不进入广义诊断：说明 $maa-diagnose 只在失败责任方未知时于 RECOVER 中调用；直接把该聚焦识别失败委派给 $maa-pipeline-generate 调整 roi，然后重跑聚焦测试，再做集成验收，不为已归属的失败收集跨工具证据。",
+      "files": []
+    },
+    {
+      "id": 7,
+      "eval_name": "request-diagnosis-only-for-unknown-failure-class",
+      "prompt": "端到端跑挂了，日志几万行，看不出是资源没加载、设备掉了还是我们自己节点写错了。",
+      "expected_output": "失败类别未知且原因可能落在日志、静态定义、环境或 harness 多处，进入 RECOVER 并请求 $maa-diagnose 的只读证据；按返回的 failure_owner 决定重试、回 DESIGN 重规划、委派 generate/option/project-create 修复、请求用户操作还是停止；不自动应用 next_actions，不因诊断而改动项目、安装依赖或重跑有副作用的任务。",
+      "files": []
+    },
+    {
+      "id": 8,
+      "eval_name": "continue-recovery-when-diagnostic-runtime-missing",
+      "prompt": "诊断工具没装上，那就先当作项目代码没问题继续验收吧。",
+      "expected_output": "诊断返回 status: error 与 stop_reason: diagnostic-runtime-unavailable 时视为诊断未发生：原始失败保持未归属，不把“无法诊断”当作通过；不自动安装诊断运行时，给出最小解阻请求，并在没有诊断证据的情况下继续用安全观察推进 RECOVER，验收缺口保持开放。",
+      "files": []
     }
   ]
 }

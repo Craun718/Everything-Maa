@@ -488,6 +488,10 @@ function doctor(catalog, integrations) {
       console.log(`  [mcp] ${name}: ${server.package}@${server.version}`);
     } else if (tool.cli) {
       console.log(`  [optional cli] ${name}: ${tool.package}@${tool.version} (${tool.status || "stable"})`);
+    } else if (tool.package) {
+      console.log(
+        `  [external runtime] ${name}: ${tool.package}@${tool.version} (${tool.status || "stable"}, ${tool.install || "user-managed"})`,
+      );
     }
   }
   if (!checks.every(Boolean)) process.exitCode = 1;
