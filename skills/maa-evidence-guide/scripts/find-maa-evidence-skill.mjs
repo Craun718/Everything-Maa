@@ -12,17 +12,26 @@ const GUIDE_ROOT = path.resolve(
   process.env.MAA_EVIDENCE_GUIDE_ROOT ?? path.join(SCRIPT_DIR, ".."),
 );
 const UPSTREAM_SKILL = path.join("skills", "maa-evidence", "SKILL.md");
+const PACKAGE_NAME = "maa-evidence-kit";
 
 function parseArgs(argv) {
   const roots = [];
+  let ambient = true;
   for (let index = 0; index < argv.length; index += 1) {
-    if (argv[index] !== "--root" || !argv[index + 1]) {
-      throw new Error("Usage: find-maa-evidence-skill.mjs [--root PATH ...]");
+    const argument = argv[index];
+    if (argument === "--no-ambient") {
+      ambient = false;
+      continue;
+    }
+    if (argument !== "--root" || !argv[index + 1] || argv[index + 1].startsWith("--")) {
+      throw new Error(
+        "Usage: find-maa-evidence-skill.mjs [--no-ambient] [--root PATH ...]",
+      );
     }
     roots.push(path.resolve(argv[index + 1]));
     index += 1;
   }
-  return roots;
+  return { roots, ambient };
 }
 
 function canonical(candidate) {
@@ -65,23 +74,49 @@ function packageInfo(candidate) {
   if (!isFile(packageJson)) return undefined;
   try {
     const metadata = JSON.parse(fs.readFileSync(packageJson, "utf8"));
-    if (metadata.name !== "maa-evidence-kit") return undefined;
+    if (metadata.name !== PACKAGE_NAME) return undefined;
     return { root: canonical(candidate), version: metadata.version ?? null };
   } catch {
     return undefined;
   }
 }
 
-function packageManagerRoot(command) {
+function runPackageManager(command, args) {
   try {
     const executable = process.platform === "win32" ? `${command}.cmd` : command;
-    return execFileSync(executable, ["root", "-g"], {
+    return execFileSync(executable, args, {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
       timeout: 5000,
-    }).trim();
+    });
   } catch {
     return undefined;
+  }
+}
+
+function globalPackagePaths(manager) {
+  if (manager === "npm") {
+    const root = runPackageManager(manager, ["root", "-g"])?.trim();
+    return root ? [path.join(root, PACKAGE_NAME)] : [];
+  }
+
+  const output = runPackageManager(manager, [
+    "list",
+    "-g",
+    "--json",
+    PACKAGE_NAME,
+  ]);
+  if (!output) return [];
+
+  try {
+    const report = JSON.parse(output);
+    const entries = Array.isArray(report) ? report : [report];
+    return entries
+      .flatMap((entry) => Object.values(entry.dependencies ?? {}))
+      .filter((dependency) => dependency.path)
+      .map((dependency) => dependency.path);
+  } catch {
+    return [];
   }
 }
 
@@ -103,7 +138,7 @@ function isUpstreamSkill(candidate) {
 }
 
 function main() {
-  const explicitRoots = parseArgs(process.argv.slice(2));
+  const { roots: explicitRoots, ambient } = parseArgs(process.argv.slice(2));
   const skillCandidates = [];
   const packageCandidates = [];
   const seenSkills = new Set();
@@ -120,6 +155,35 @@ function main() {
     }
   }
 
+  skillCandidates.sort((left, right) => left.precedence - right.precedence);
+  for (const candidate of skillCandidates) {
+    if (isUpstreamSkill(candidate.path)) {
+      console.log(JSON.stringify({ status: "found", source: candidate.source, skillPath: candidate.path, packageRoot: null, packageVersion: null }, null, 2));
+      return;
+    }
+  }
+
+  packageCandidates.sort((left, right) => left.precedence - right.precedence);
+  let explicitPackageWithoutSkill;
+  for (const candidate of packageCandidates) {
+    const info = packageInfo(candidate.path);
+    if (!info) continue;
+    const skillPath = path.join(info.root, UPSTREAM_SKILL);
+    if (isUpstreamSkill(skillPath)) {
+      console.log(JSON.stringify({ status: "found", source: candidate.source, skillPath, packageRoot: info.root, packageVersion: info.version }, null, 2));
+      return;
+    }
+    explicitPackageWithoutSkill ??= { candidate, info };
+  }
+  if (explicitPackageWithoutSkill) {
+    console.log(JSON.stringify({ status: "package-without-skill", source: explicitPackageWithoutSkill.candidate.source, skillPath: null, packageRoot: explicitPackageWithoutSkill.info.root, packageVersion: explicitPackageWithoutSkill.info.version }, null, 2));
+    return;
+  }
+  if (!ambient) {
+    console.log(JSON.stringify({ status: "not-found", source: null, skillPath: null, packageRoot: null, packageVersion: null }, null, 2));
+    return;
+  }
+
   const home = os.homedir();
   const projectRoots = ancestors(process.cwd());
   const skillRoots = [];
@@ -134,11 +198,12 @@ function main() {
   }
 
   for (const root of projectRoots) {
-    addCandidate(packageCandidates, seenPackages, path.join(root, "node_modules", "maa-evidence-kit"), "project-package", 2);
+    addCandidate(packageCandidates, seenPackages, path.join(root, "node_modules", PACKAGE_NAME), "project-package", 2);
   }
   for (const manager of ["npm", "pnpm"]) {
-    const root = packageManagerRoot(manager);
-    if (root) addCandidate(packageCandidates, seenPackages, path.join(root, "maa-evidence-kit"), `${manager}-global-package`, 3);
+    for (const root of globalPackagePaths(manager)) {
+      addCandidate(packageCandidates, seenPackages, root, `${manager}-global-package`, 3);
+    }
   }
 
   skillCandidates.sort((left, right) => left.precedence - right.precedence);
