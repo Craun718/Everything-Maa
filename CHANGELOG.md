@@ -9,6 +9,11 @@ All notable changes to Everything Maa will be documented in this file. The proje
 - `maa-wiki` skill that routes MaaFramework knowledge questions and other Maa skills to authoritative official documentation, schemas, APIs, bindings, releases, and semantic changes through the MaaLLMWiki catalog.
 - Added `maa-interface-guide` for reviewing, diagnosing, and modifying existing MaaFramework Project Interface V2 files with project-first schema resolution and guarded `maa-tools` validation.
 
+### Fixed
+
+- `maa-project-init`'s `analyze_pipeline_project.py` now parses node-level `anchor` declarations (`string | list | object` forms) into an anchor-name -> target-node table and redirects `[Anchor]X` references through it, instead of reporting every anchor reference as an unresolved node reference. This also corrects the derived `zero_in_degree_nodes`, `isolated_nodes`, and `orphan_candidates` stats, which previously misclassified anchor-only-reachable nodes as unreachable. An anchor name that is never declared and a declared anchor whose explicit target node does not exist are now reported separately (`unresolved_anchor_refs` vs. `dangling_anchor_targets`), and a single anchor name mapping to multiple target nodes is treated as normal rather than a conflict.
+- `analyze_pipeline_project.py` no longer crashes with `UnicodeEncodeError` on Windows consoles (cp1252/cp936) when pipeline node names contain non-ASCII characters.
+
 ## [0.1.1] - 2026-07-19
 
 ### Added

@@ -476,6 +476,55 @@ def iter_refs(value: Any) -> list[tuple[str, tuple[str, ...]]]:
     return refs
 
 
+def collect_anchor_defs(node_name: str, node: dict) -> list[dict]:
+    """Parse a node-level `anchor` field into anchor-name declarations.
+
+    Distinct from the `next` element's boolean `anchor` attribute (handled by
+    `iter_refs`), the Pipeline protocol's node-level `anchor` field declares an
+    anchor *name* that `[Anchor]X` references resolve against at runtime.
+    It is `string | list | object`:
+
+    - `"anchor": "Cooking"` — anchor `Cooking` now targets this node.
+    - `"anchor": ["A", "B"]` — several anchors now target this node.
+    - `"anchor": {"Cooking": "TargetNode"}` — object form (v5.7+): explicit
+      target, which need not be this node.
+    - `"anchor": {"Cooking": ""}` — clears the anchor; the name stays declared
+      but currently has no target.
+    """
+    raw = node.get("anchor")
+    if raw is None:
+        return []
+    defs: list[dict] = []
+    if isinstance(raw, str):
+        if raw:
+            defs.append({"anchor": raw, "target": node_name, "cleared": False})
+    elif isinstance(raw, list):
+        for item in raw:
+            if isinstance(item, str) and item:
+                defs.append({"anchor": item, "target": node_name, "cleared": False})
+    elif isinstance(raw, dict):
+        for anchor_name, target in raw.items():
+            if not isinstance(anchor_name, str) or not anchor_name:
+                continue
+            if isinstance(target, str) and target:
+                defs.append({"anchor": anchor_name, "target": target, "cleared": False})
+            else:
+                # Empty string / null clears the anchor; the name is still declared.
+                defs.append({"anchor": anchor_name, "target": None, "cleared": True})
+    return defs
+
+
+def is_anchor_attr(attrs: tuple[str, ...]) -> bool:
+    """True when a reference's attrs flag it as anchor-routed.
+
+    Case-insensitive: the `[Anchor]` prefix yields the attr `"Anchor"` (see
+    `strip_prefixed_ref`), while the `next` element object form
+    `{"name": ..., "anchor": true}` yields the attr `"anchor"`. Both mean the
+    reference's target string is an anchor *name*, not a literal node name.
+    """
+    return any(attr.lower() == "anchor" for attr in attrs)
+
+
 def display_value(value: Any, max_len: int = 96) -> str:
     if value is None:
         return ""
@@ -568,6 +617,7 @@ def analyze_pipeline_files(project_root: Path, pipeline_files: list[Path]) -> di
     ocr_expected: list[dict] = []
     roi_nodes: list[dict] = []
     custom_action_nodes: list[dict] = []
+    anchor_defs: list[dict] = []
 
     for path in pipeline_files:
         rel_file = rel(path, project_root)
@@ -607,6 +657,10 @@ def analyze_pipeline_files(project_root: Path, pipeline_files: list[Path]) -> di
                 for target, attrs in iter_refs(node.get(field)):
                     edges.append(Edge(name, target, field, rel_file, attrs))
 
+            anchor_defs.extend(
+                {**entry, "file": rel_file} for entry in collect_anchor_defs(name, node)
+            )
+
             if "template" in recognition_params:
                 templates.append(
                     {
@@ -635,6 +689,53 @@ def analyze_pipeline_files(project_root: Path, pipeline_files: list[Path]) -> di
                 )
 
     node_names = set(node_defs)
+
+    # Node-level `anchor` declarations: anchor name -> set of target nodes.
+    # One anchor name may legitimately map to many targets (whichever node
+    # declared it last wins at runtime), so this is name -> set(targets), not
+    # a 1:1 mapping, and a multi-target anchor is never a conflict.
+    anchor_names = {entry["anchor"] for entry in anchor_defs}
+    anchor_targets: dict[str, set[str]] = defaultdict(set)
+    for entry in anchor_defs:
+        if not entry["cleared"]:
+            anchor_targets[entry["anchor"]].add(entry["target"])
+
+    # Failure mode (b): a declared anchor's explicit (object-form) target does
+    # not exist as a node. String/list forms always self-target the declaring
+    # node, so they can never be dangling by construction.
+    dangling_target_keys = sorted(
+        {
+            (entry["anchor"], entry["target"], entry["file"])
+            for entry in anchor_defs
+            if not entry["cleared"] and entry["target"] not in node_names
+        }
+    )
+    dangling_anchor_targets = [
+        {"anchor": anchor, "target": target, "file": file}
+        for anchor, target, file in dangling_target_keys
+    ]
+
+    # Redirect anchor-flagged edges (`[Anchor]X` / `{"anchor": true}`) through
+    # the anchor table so they connect to their declared target node(s).
+    # Failure mode (a): the anchor name itself was never declared anywhere.
+    resolved_edges: list[Edge] = []
+    unresolved_anchor_ref_names: set[str] = set()
+    for edge in edges:
+        if not is_anchor_attr(edge.attrs):
+            resolved_edges.append(edge)
+            continue
+        anchor_name = edge.target
+        if anchor_name not in anchor_names:
+            unresolved_anchor_ref_names.add(anchor_name)
+            continue
+        for target in sorted(anchor_targets.get(anchor_name, ())):
+            if target in node_names:
+                resolved_edges.append(
+                    Edge(edge.source, target, edge.field, edge.source_file, edge.attrs)
+                )
+    edges = resolved_edges
+    unresolved_anchor_refs = sorted(unresolved_anchor_ref_names)
+
     in_degree = Counter(edge.target for edge in edges)
     out_degree = Counter(edge.source for edge in edges)
     edge_type_counts = Counter(edge.field for edge in edges)
@@ -690,6 +791,9 @@ def analyze_pipeline_files(project_root: Path, pipeline_files: list[Path]) -> di
         "edge_type_counts": dict(edge_type_counts),
         "cross_file_edges": cross_file_edges,
         "unresolved_refs": unresolved,
+        "anchor_names": sorted(anchor_names),
+        "unresolved_anchor_refs": unresolved_anchor_refs,
+        "dangling_anchor_targets": dangling_anchor_targets,
         "zero_in_degree_nodes": zero_in_degree,
         "isolated_nodes": isolated,
         "cycle_candidates": cycles,
@@ -1036,7 +1140,7 @@ class PipelineCallVisitor(ast.NodeVisitor):
         self.generic_visit(node)
         self.scopes.pop()
 
-    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802 - ast API
+    def visit_FunctionDef(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:  # noqa: N802 - ast API
         self.collect_custom_action_registration(node)
         self.scopes.append(node.name)
         self.generic_visit(node)
@@ -1665,6 +1769,8 @@ def render_summary(analysis: dict) -> str:
         ),
         "## Risks",
         f"- Unresolved refs: {len(pipeline['unresolved_refs'])}",
+        f"- Unresolved anchor refs: {len(pipeline['unresolved_anchor_refs'])}",
+        f"- Dangling anchor targets: {len(pipeline['dangling_anchor_targets'])}",
         f"- Zero-in-degree nodes: {len(pipeline['zero_in_degree_nodes'])}",
         f"- Graph-isolated nodes: {len(pipeline['isolated_nodes'])}",
         f"- External entry nodes: {len(pipeline['external_entry_nodes'])}",
@@ -1680,6 +1786,10 @@ def render_summary(analysis: dict) -> str:
         lines.append(f"- Interface import warning: {warning}")
     if pipeline["unresolved_refs"]:
         lines.append(f"- Unresolved sample: {', '.join(pipeline['unresolved_refs'][:20])}")
+    if pipeline["unresolved_anchor_refs"]:
+        lines.append(
+            f"- Unresolved anchor refs sample: {', '.join(pipeline['unresolved_anchor_refs'][:20])}"
+        )
     return "\n".join(lines) + "\n"
 
 
@@ -1815,6 +1925,8 @@ def render_basic_info(analysis: dict) -> str:
         f"- 边类型: `{display_value(pipeline['edge_type_counts'])}`",
         f"- 跨文件引用数: {len(pipeline['cross_file_edges'])}",
         f"- 未解析引用数: {len(pipeline['unresolved_refs'])}",
+        f"- 未声明 anchor 引用数: {len(pipeline['unresolved_anchor_refs'])}",
+        f"- anchor 目标缺失数: {len(pipeline['dangling_anchor_targets'])}",
         f"- 孤立节点数: {len(pipeline['isolated_nodes'])}",
         f"- 重复节点名数: {len(pipeline['duplicate_nodes'])}",
         f"- 疑似循环/SCC 数: {len(pipeline['cycle_candidates'])}",
@@ -1869,6 +1981,11 @@ def render_basic_info(analysis: dict) -> str:
         "## 10. 风险清单与待确认项",
         "",
         f"- 未解析引用: {', '.join(pipeline['unresolved_refs'][:30]) or 'None detected'}",
+        f"- 未声明的 anchor 引用: {', '.join(pipeline['unresolved_anchor_refs'][:30]) or 'None detected'}",
+        (
+            "- 目标节点缺失的 anchor 声明样例: "
+            + (display_value(pipeline['dangling_anchor_targets'][:10]) or 'None detected')
+        ),
         f"- 图内孤立节点样例: {', '.join(pipeline['isolated_nodes'][:30]) or 'None detected'}",
         f"- 排除外部入口后的无入边候选: {', '.join(pipeline['orphan_candidates'][:30]) or 'None detected'}",
         f"- Python 动态目标调用数: {len(pipeline['python_pipeline']['dynamic_calls'])}",
@@ -1896,6 +2013,13 @@ def write_basic_info(analysis: dict, overwrite: bool = False) -> Path:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Pipeline node names in consumer projects are frequently non-ASCII;
+    # avoid UnicodeEncodeError on consoles defaulting to cp1252/cp936 (Windows).
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project_root", nargs="?", default=".", help="MaaFramework consumer project root")
     parser.add_argument("--json", action="store_true", help="print machine-readable analysis JSON")
