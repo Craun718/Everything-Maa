@@ -126,6 +126,10 @@ test("doctor reports pinned MCP and optional CLI integrations", () => {
   const output = result.stdout;
   assert.match(output, /create-maa-project@2\.0\.0/);
   assert.match(output, /maafw-cli@0\.1\.6 \(experimental\)/);
+  assert.match(
+    output,
+    /\[external runtime\] maa-evidence-kit: maa-evidence-kit@0\.3\.2 \(external-optional, user-managed\)/,
+  );
 });
 
 test("uninstall preserves a locally modified skill and keeps recovery state", (t) => {

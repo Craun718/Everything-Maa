@@ -47,6 +47,34 @@
         "jsonFlag": "--json"
       }
     },
+    "maa-evidence-kit": {
+      "role": "diagnostic-runtime",
+      "description": "Use for read-only cross-tool MaaFramework failure diagnosis over local logs and project sources when the failure owner is unknown.",
+      "status": "external-optional",
+      "verifiedAt": "2026-08-28",
+      "capabilities": [
+        "runtime-discovery",
+        "cross-tool-inspection",
+        "log-evidence",
+        "static-project-evidence",
+        "local-corpus-inventory",
+        "structured-json"
+      ],
+      "package": "maa-evidence-kit",
+      "version": "0.3.2",
+      "supportedRange": ">=0.3.0 <0.4.0",
+      "license": "MIT",
+      "upstream": "https://github.com/Windsland52/MaaEvidenceKit",
+      "formerName": "MaaDiagnosticExpert",
+      "executable": "maa-evidence",
+      "schemas": [
+        "maa-evidence/v1",
+        "maa-evidence-batch/v1",
+        "maa-evidence-profile/v1"
+      ],
+      "install": "user-managed",
+      "mcpSurface": "none-at-0.3.x"
+    },
     "playwright": {
       "role": "optional-web-runtime",
       "description": "Use only when Maa work requires browser-side documentation, UI observation, or web testing.",

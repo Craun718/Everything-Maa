@@ -22,7 +22,7 @@ GitHub 仓库公开后，Claude Code 也可以通过自托管 marketplace 安装
 /plugin install everything-maa@everything-maa
 ```
 
-默认 `core` profile 会安装全部 12 个 skills 并配置 MaaMCP。四个 profile 的边界是固定且版本化的：
+默认 `core` profile 会安装全部 13 个 skills 并配置 MaaMCP。四个 profile 的边界是固定且版本化的：
 
 | Profile | 安装内容 |
 | --- | --- |
@@ -59,6 +59,7 @@ npx everything-maa uninstall --target codex
 | `maa-pipeline-generate` | 生成识别/动作节点并扫描 OCR ROI。 |
 | `maa-pipeline-option` | 贯通 UI、Pipeline 与 Python 的运行时选项。 |
 | `maa-pipeline-testing` | 验证资源、识别、Custom 映射和端到端流程。 |
+| `maa-diagnose` | 责任方未知时，通过外部 MaaEvidenceKit 运行时只读诊断失败并给出唯一失败责任方。 |
 | `maa-pipeline-graph` | 梳理 Pipeline 状态关系与 Python 外部入口。 |
 | `maa-pipeline-history-audit` | 从 Git 历史学习 Pipeline 与 Custom 约定。 |
 

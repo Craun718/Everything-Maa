@@ -11,6 +11,10 @@ description: "Test and validate MaaFramework Pipeline JSON, recognition nodes, a
 
 如果用户要求验收一个尚未定义目标状态和完成条件的端到端自动化需求，先交给 `$maa-workflow-build` 建立任务契约；已有契约时，再用本 skill 为其中的验收条件收集测试证据。
 
+## 诊断边界
+
+本 skill 的测试证据已经能定位责任方时，直接把证据交回对应 skill：识别或动作节点问题回 `$maa-pipeline-generate`，option 与 override 接线问题回 `$maa-pipeline-option`，状态模型或集成问题回 `$maa-workflow-build`。**不要**因为聚焦识别失败就触发 `$maa-diagnose` 的广义诊断流水线。只有失败已经发生、且聚焦测试仍无法归属责任方（原因可能同时落在运行日志、静态定义、环境或 harness）时，才由 `$maa-workflow-build` 的 `RECOVER` 请求 `$maa-diagnose` 收集只读证据。
+
 ## 项目初始化接力
 
 测试前先查目标项目根目录的 `basic_info.md`。存在且包含第 0 节时，读取“0. Maa Skills 接力协议”和第 2/5/7/8/9/10 节，用 task/resource、公共返回节点、OCR/模板/ROI 和风险清单规划测试；随后以当前截图、当前源码和 TaskDetail 为准。优先把公共 Click 节点复制成临时 `DoNothing` 探针做初始化 smoke test，完成后调用 `stop_pipeline` 并删除临时文件。文件缺失或没有第 0 节时按本 skill 直接发现测试所需上下文；不得自动调用 `$maa-project-init`，只有用户明确要求初始化或刷新时才调用。源码更新更晚时视为缓存可能过期并以源码为准，不自动刷新或覆盖。

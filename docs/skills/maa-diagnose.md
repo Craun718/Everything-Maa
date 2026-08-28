@@ -1,0 +1,46 @@
+# Maa Diagnose
+
+在失败原因仍然未知时，只读地驱动外部诊断运行时（[MaaEvidenceKit](https://github.com/Windsland52/MaaEvidenceKit)，原名 MaaDiagnosticExpert），把 MaaFramework 日志、项目静态定义和运行上下文汇聚成规范化证据与唯一失败责任方。
+
+## 适用场景
+
+- 运行、任务或测试已经失败，但责任方尚未确定。
+- 资源或 schema 加载失败、环境或依赖问题、设备错误、运行超时、分支走错、Custom 异常。
+- 大体量 MaaFramework 日志需要时间线与节点级关联。
+- 需要在重新规划前检索本地 MaaFramework 文档与仓库说明。
+
+## 不适用场景
+
+- `$maa-pipeline-testing` 已经定位到责任方时，直接把证据交给该责任方，不要再触发广义诊断。
+- 项目脚手架与受管文件健康检查属于 `$maa-project-create` 的 doctor。
+- Project Interface schema 审查属于 `$maa-interface-guide`。
+- 日志解析、可视化与统计属于 MaaLogAnalyzer，本仓库通过诊断运行时消费，不重复实现。
+
+## 名称选择
+
+最终名称为 `maa-diagnose`，与 `maa-project-create` 的 `doctor` 用语不重叠：`doctor` 面向项目脚手架健康，`maa-diagnose` 面向失败后的跨工具取证与责任归属。
+
+## 运行时契约
+
+- 每次会话先执行发现（`--version` 与 `--help`），不缓存命令目录；上游已经改名并变更过命令名。
+- 单一优先级策略：受支持的本地 MCP 面 → `PATH` 上的打包 CLI → 用户指定的本地 checkout。
+- 只解析结构化 JSON 输出，不把人类可读文本或图形渲染当作主契约。
+- 运行时缺失或契约不兼容时安全失败，不安装、不构建、不升级。
+- 已验证版本、支持范围与契约变更行为见 `skills/maa-diagnose/references/runtime-discovery.md`。
+
+## 输出
+
+```yaml
+status: success | warning | error
+summary: one-line diagnostic result
+findings: []
+evidence: []
+artifacts: []
+next_actions: []
+failure_owner: generate | option | testing | workflow-design | workflow-implement | project-create | user
+stop_reason: null
+```
+
+结果返回 `$maa-workflow-build` 的 `RECOVER` 阶段，由其决定重试、重新设计、委派修复、请求用户操作还是停止。本 skill 只给出建议，绝不自动执行修复。
+
+实现位于 `skills/maa-diagnose/SKILL.md`，责任映射位于 `skills/maa-diagnose/references/failure-map.md`，MaaHub 发布元信息位于 `adapters/maahub/skills/maa-diagnose.json`。

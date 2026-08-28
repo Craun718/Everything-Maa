@@ -1,0 +1,4 @@
+interface:
+  display_name: "Maa Diagnose"
+  short_description: "Diagnose unexplained Maa failures read-only"
+  default_prompt: "Use $maa-diagnose to turn this failed Maa run into normalized evidence and one failure owner."
