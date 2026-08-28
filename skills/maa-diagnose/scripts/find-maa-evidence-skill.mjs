@@ -86,6 +86,7 @@ function runPackageManager(command, args) {
     const executable = process.platform === "win32" ? `${command}.cmd` : command;
     return execFileSync(executable, args, {
       encoding: "utf8",
+      shell: process.platform === "win32",
       stdio: ["ignore", "pipe", "ignore"],
       timeout: 5000,
     });
