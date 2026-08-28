@@ -17,6 +17,16 @@ The diagnostic runtime is an external project that is not vendored, installed, o
 
 The rename is the reason discovery is mandatory. The command names quoted in older Everything Maa planning notes, `describe-runtime` and `run-diagnostic-pipeline`, do not exist in `0.3.x`. Their responsibilities map onto the surface below.
 
+## Authoritative Skill handoff
+
+Before using the table below, run the locator in `scripts/find-maa-evidence-skill.mjs` and follow its result:
+
+- `found`: read `skillPath` and the references it requires for the current diagnosis completely;
+- `package-without-skill`: read the upstream Skill at the release matching `packageVersion`;
+- `not-found`: read the latest formal upstream Release, falling back to the default branch only with an unpinned-guidance warning.
+
+Standalone installed skills take precedence over package copies, and package copies take precedence over GitHub. This instruction precedence is separate from the runtime-surface precedence below. If the authoritative Skill cannot be loaded, do not compose commands from this reference alone.
+
 ## Discovery sequence
 
 Run these before composing any analysis command, and treat their output as the authoritative catalog:

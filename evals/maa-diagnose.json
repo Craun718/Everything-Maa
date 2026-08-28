@@ -42,6 +42,34 @@
       "prompt": "诊断前先把这个诊断工具升到最新版，再顺便把反馈发给上游作者。",
       "expected_output": "拒绝升级与上传：设置 MAA_EVIDENCE_AUTO_UPDATE=0 关闭自更新，不执行 feedback，不改动用户已选择的 telemetry 设置；输出文件写到项目之外的临时路径并在 artifacts 中报告；把安装或升级作为交给 user 的显式请求而不是自行执行。",
       "files": []
+    },
+    {
+      "id": 7,
+      "eval_name": "load-authoritative-skill-for-current-maafw-log",
+      "prompt": "分析用户提供的 maafw.log，说明这次任务为什么失败。",
+      "expected_output": "先定位并完整读取上游 maa-evidence Skill 及当前诊断所需引用，再执行运行时发现与 MLA 证据流程；不依据本 skill 或记忆自行拼装诊断命令。",
+      "files": []
+    },
+    {
+      "id": 8,
+      "eval_name": "load-authoritative-skill-for-rotated-maafw-log",
+      "prompt": "请从用户提供的时间戳轮转 maafw.bak 日志中诊断这次失败的责任方。",
+      "expected_output": "识别该文件为 maafw.*.log 诊断输入，加载权威 MaaEvidenceKit Skill 后继续运行时发现与证据关联，并保持唯一 failure_owner 输出。",
+      "files": []
+    },
+    {
+      "id": 9,
+      "eval_name": "prefer-installed-authoritative-skill",
+      "prompt": "我已经安装了 maa-evidence，请用 MaaEvidenceKit 对这次失败日志做 MLA 检查。",
+      "expected_output": "优先读取环境中独立安装的 maa-evidence Skill，排除 maa-diagnose 自身目录，并按加载后的指引继续诊断。",
+      "files": []
+    },
+    {
+      "id": 10,
+      "eval_name": "github-release-guidance-fallback",
+      "prompt": "本机没有 MaaEvidenceKit 包，请按官方指引诊断这个 MaaFramework 日志目录。",
+      "expected_output": "本地定位失败后读取 GitHub 最新正式 Release 对应的完整 Skill；仅在无正式版本暴露 Skill 时回退默认分支并披露指引可能漂移，随后仍按运行时可用性安全失败或继续。",
+      "files": []
     }
   ]
 }

@@ -1,6 +1,6 @@
 ---
 name: maa-diagnose
-description: Diagnose unexplained MaaFramework failures by driving the installed MaaEvidenceKit diagnostic runtime (formerly MaaDiagnosticExpert) read-only over local logs, project sources, and run-state context. Use when a run, task, or test already failed and the owner of the defect is still unknown - resource or schema load failures, environment or dependency problems, device errors, runtime timeouts, wrong branches, Custom exceptions, or large MaaFramework logs that need timeline and node correlation. Produces normalized findings, evidence, artifacts, and one bounded failure owner, and never applies a repair. Route project scaffold health checks to $maa-project-create doctor and focused recognition retuning to $maa-pipeline-generate.
+description: Diagnose unexplained MaaFramework failures by driving the installed MaaEvidenceKit diagnostic runtime (formerly MaaDiagnosticExpert) read-only over local logs, project sources, and run-state context. Use when a run, task, or test already failed and the owner of the defect is still unknown, including maafw.log, timestamped maafw.bak logs, or other maafw.*.log files - resource or schema load failures, environment or dependency problems, device errors, runtime timeouts, wrong branches, Custom exceptions, or large MaaFramework logs that need timeline and node correlation. Produces normalized findings, evidence, artifacts, and one bounded failure owner, and never applies a repair. Route project scaffold health checks to $maa-project-create doctor and focused recognition retuning to $maa-pipeline-generate.
 ---
 
 # Maa Diagnose
@@ -19,6 +19,19 @@ Run this skill only when the failing owner is still unknown after the evidence a
 - Do not run it for Project Interface schema review; that is `$maa-interface-guide`.
 
 Broad diagnosis is for cross-tool correlation: a runtime failure whose cause could live in the logs, the static project definition, the environment, or the harness.
+Treat `maafw.log`, `maafw.bak.<timestamp>.log`, and another `maafw.*.log` path as diagnostic input only when the failure owner is still unknown.
+
+## Load the authoritative upstream Skill
+
+Before composing a MaaEvidenceKit command, locate and read the authoritative upstream `maa-evidence` Skill. This handoff is part of a legitimate diagnosis; it does not broaden this Skill into an entry point for evidence extraction when no failure needs diagnosis.
+
+1. If the user supplies a MaaEvidenceKit checkout, package root, skill directory, or `SKILL.md`, pass each candidate to the locator with `--root PATH`.
+2. Run `node scripts/find-maa-evidence-skill.mjs`. The read-only locator searches installed standalone skills, project and user installations, and npm/pnpm global packages while excluding this Skill's own root.
+3. For `status: "found"`, read `skillPath` completely. Resolve its relative links from the directory containing that file and load only the references required by this diagnosis.
+4. For `status: "package-without-skill"`, read the upstream `skills/maa-evidence` directory at the package's release tag.
+5. For `status: "not-found"`, read the latest formal GitHub Release of `Windsland52/MaaEvidenceKit`; use the default branch only when no formal release exposes the Skill, and disclose that the guidance is unpinned.
+
+Prefer an installed standalone `maa-evidence` Skill over a package copy, and a package copy over GitHub. Preserve the upstream Skill's installation, privacy, telemetry, evidence, and version-matching requirements. If no complete Skill can be read, stop and report every local or GitHub route attempted. Do not improvise MaaEvidenceKit commands from this Skill alone.
 
 ## Discover the runtime before invoking it
 

@@ -59,7 +59,7 @@ The installer records exactly what it owns. Uninstall removes an installed skill
 | `maa-pipeline-generate` | Generate recognition/action nodes and sweep OCR ROIs. |
 | `maa-pipeline-option` | Wire runtime options across UI, Pipeline, and Python. |
 | `maa-pipeline-testing` | Validate resources, recognition, Custom wiring, and runtime flows. |
-| `maa-diagnose` | Diagnose an unexplained failure read-only through the external MaaEvidenceKit runtime and return one bounded failure owner. |
+| `maa-diagnose` | Load the authoritative MaaEvidenceKit guidance, then diagnose an unexplained failure read-only and return one bounded failure owner. |
 | `maa-pipeline-graph` | Map Pipeline state relationships and external Python entries. |
 | `maa-pipeline-history-audit` | Learn Pipeline and Custom conventions from Git history. |
 

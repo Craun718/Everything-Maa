@@ -59,7 +59,7 @@ npx everything-maa uninstall --target codex
 | `maa-pipeline-generate` | 生成识别/动作节点并扫描 OCR ROI。 |
 | `maa-pipeline-option` | 贯通 UI、Pipeline 与 Python 的运行时选项。 |
 | `maa-pipeline-testing` | 验证资源、识别、Custom 映射和端到端流程。 |
-| `maa-diagnose` | 责任方未知时，通过外部 MaaEvidenceKit 运行时只读诊断失败并给出唯一失败责任方。 |
+| `maa-diagnose` | 责任方未知时，加载权威 MaaEvidenceKit 指引，只读诊断失败并给出唯一失败责任方。 |
 | `maa-pipeline-graph` | 梳理 Pipeline 状态关系与 Python 外部入口。 |
 | `maa-pipeline-history-audit` | 从 Git 历史学习 Pipeline 与 Custom 约定。 |
 

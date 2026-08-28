@@ -20,6 +20,14 @@
 
 最终名称为 `maa-diagnose`，与 `maa-project-create` 的 `doctor` 用语不重叠：`doctor` 面向项目脚手架健康，`maa-diagnose` 面向失败后的跨工具取证与责任归属。
 
+## 权威指引定位
+
+- 诊断命令拼装前，先运行 `skills/maa-diagnose/scripts/find-maa-evidence-skill.mjs`。
+- 显式提供的 checkout、包根目录或 Skill 路径优先；随后查找已安装的独立 `maa-evidence` Skill、项目/用户安装与 npm/pnpm 全局包。
+- 找到本地 Skill 时完整读取 `SKILL.md`，并只加载当前诊断需要的相对引用。
+- 包内缺少 Skill 时读取对应 release tag 的上游目录；本地均未找到时读取最新正式 Release，只有无正式版本才回退默认分支并说明指引未固定版本。
+- 无法读取完整权威指引时安全停止，不根据记忆拼装 MaaEvidenceKit 命令。
+
 ## 运行时契约
 
 - 每次会话先执行发现（`--version` 与 `--help`），不缓存命令目录；上游已经改名并变更过命令名。
@@ -43,4 +51,4 @@ stop_reason: null
 
 结果返回 `$maa-workflow-build` 的 `RECOVER` 阶段，由其决定重试、重新设计、委派修复、请求用户操作还是停止。本 skill 只给出建议，绝不自动执行修复。
 
-实现位于 `skills/maa-diagnose/SKILL.md`，责任映射位于 `skills/maa-diagnose/references/failure-map.md`，MaaHub 发布元信息位于 `adapters/maahub/skills/maa-diagnose.json`。
+实现位于 `skills/maa-diagnose/SKILL.md`，权威 Skill 定位器位于 `skills/maa-diagnose/scripts/find-maa-evidence-skill.mjs`，责任映射位于 `skills/maa-diagnose/references/failure-map.md`，MaaHub 发布元信息位于 `adapters/maahub/skills/maa-diagnose.json`。
