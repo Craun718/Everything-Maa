@@ -11,6 +11,13 @@ All notable changes to Everything Maa will be documented in this file. The proje
 - Added `maa-diagnose`, a read-only diagnostic skill that discovers and drives the external MaaEvidenceKit runtime (formerly MaaDiagnosticExpert) over local logs, project sources, and run-state context instead of implementing another log parser or diagnostic engine. It resolves the runtime surface dynamically, applies one MCP-then-CLI-then-local-checkout precedence policy, consumes only the structured JSON contract, and normalizes results into findings, evidence, artifacts, next actions, and one bounded `failure_owner`.
 - Added orchestration routing so `maa-workflow-build` `RECOVER` requests diagnostic evidence only when the failure owner is unknown, keeps focused recognition failures with `maa-pipeline-generate` and `maa-pipeline-testing`, and decides retry, replan, delegation, user action, or stop from the returned owner.
 - Cataloged `maa-evidence-kit@0.3.2` as an optional user-managed external diagnostic runtime with its supported version range, structured schema ids, and third-party notices; `everything-maa doctor` now reports external runtimes alongside MCP and optional CLI integrations.
+- Added an `EXPLORE` phase to `maa-workflow-build` that gates DESIGN behind observed UI evidence: start and success states now carry an `evidence_status`, a guessed state opens an exploration-first gate, and the run state records the round-trip observations that close it.
+- Added coordinate-hygiene guidance to `maa-pipeline-guide` covering the `DirectHit` plus hardcoded `target` and recognized-then-offset anti-patterns, OCR- and TemplateMatch-based click replacements, and the conditions under which an anchored offset is still acceptable.
+
+### Changed
+
+- Pipeline node authoring now derives click targets from recognition results across `maa-pipeline-guide`, `maa-pipeline-generate`, and `maa-workflow-build`, instead of presenting a hardcoded `target_offset` as a default pattern.
+- `maa-pipeline-testing` documents that recognition success does not prove the click landed, and records the current lack of an ROI-limited `run_pipeline` in MaaMCP together with the ways to keep single-node verification cheap.
 
 ### Fixed
 

@@ -56,6 +56,20 @@
       "prompt": "诊断工具没装上，那就先当作项目代码没问题继续验收吧。",
       "expected_output": "诊断返回 status: error 与 stop_reason: diagnostic-runtime-unavailable 时视为诊断未发生：原始失败保持未归属，不把“无法诊断”当作通过；不自动安装诊断运行时，给出最小解阻请求，并在没有诊断证据的情况下继续用安全观察推进 RECOVER，验收缺口保持开放。",
       "files": []
+    },
+    {
+      "id": 9,
+      "eval_name": "explore-unknown-scene-before-planning",
+      "prompt": "游戏刚上线一个「海盗袭击庄园」限时活动，我没截图也没描述界面。直接给我完整的 pipeline 节点和 custom_action 代码。",
+      "expected_output": "不先写节点和 custom_action：把起始状态与成功状态标为 evidence_status: guessed，说明 exploration-first 闸门打开并进入 EXPLORE 阶段；先用 screencap/ocr/click 走通至少一个完整 round-trip（活动入口 → 中间页面 → 成功态 → 稳定返回态），逐跳记录截图、识别文本与 box；闸门关闭后才用实测到的状态、ROI 和文本设计节点。",
+      "files": []
+    },
+    {
+      "id": 10,
+      "eval_name": "observe-reused-processor-entry-precondition",
+      "prompt": "活动战斗直接调用现成的 AutoFightProcessor 就行了吧？它在别的任务里能跑通。",
+      "expected_output": "把该处理器的入口前提当作一个必须被观测的状态：先确认它期望「已经在战斗中」，再探明从活动横幅到准备页、进入战斗、确认、战斗开始的整串 UI 入口，并把这些中间态记进 run state；未观测前不把它当作活动入口，也不据此写实现计划。",
+      "files": []
     }
   ]
 }
