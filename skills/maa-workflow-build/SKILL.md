@@ -55,8 +55,8 @@ Never invoke `$maa-project-init` or `$maa-pipeline-graph` automatically. Use tho
 
 Check the exploration gate before leaving DISCOVER. The gate is a condition, not a judgement call:
 
-- **open** — at least one required `start_states` or `success_states` entry is still `evidence_status: guessed`;
-- **closed** — every required state is `evidence_status: observed` and names the artifact that shows it.
+- **open** — at least one `start_states` or `success_states` entry is still `evidence_status: guessed`;
+- **closed** — every `start_states` and `success_states` entry is `evidence_status: observed` and names the artifact that shows it.
 
 While the gate is open, the task is in exploration-first mode. Drive the real UI with the MaaMCP tools (`screencap`, `ocr`, `click`, `swipe`) and observe at least one complete round-trip: from an observed start state, through every intermediate state, to the observed success state, and back to a stable return state. Record every hop as an observation with its screenshot, recognized text, box, and the action that caused the transition.
 
