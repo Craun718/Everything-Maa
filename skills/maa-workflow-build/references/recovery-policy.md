@@ -20,6 +20,7 @@ fallback: replan | use-another-tool | request-user | stop
 - Do not retry a resource-consuming or destructive action when its outcome is unknown.
 - Use a non-mutating probe before retrying a click, confirmation, purchase, battle, or item consumption.
 - Replan when observed states contradict the designed state machine.
+- Explore instead of retrying when the failure shows the flow was never observed: a node aimed at a screen that does not exist, or a reused component called from a state it does not accept, is an exploration gap, not a tuning problem.
 - Request user input when a material product or safety decision cannot be inferred.
 - Stop when the retry limit is reached, no safe observation is available, or the next action would cross the task's authority boundary.
 
@@ -31,6 +32,7 @@ Classify test evidence before retrying. Do not restart every specialist for a lo
 |---|---|---|
 | Recognition or action-node failure | `$maa-pipeline-generate` | Adjust the recognition/action node, ROI, asset, or screenshot-derived evidence, then rerun the focused test. |
 | Option-surface or override-wiring failure | `$maa-pipeline-option` | Repair the user-facing option, default, override path, or Python parameter wiring, then test enabled and disabled behavior. |
+| Unexplored-scene or assumed-precondition failure | `EXPLORE` in `$maa-workflow-build` | Reset the state's `evidence_status` to `guessed`, reopen the exploration gate, and observe the real screens and the reused component's entry precondition before writing more nodes or Custom code. |
 | State-model failure | `DESIGN` in `$maa-workflow-build` | Add or correct start, success, no-op, failure, recovery, or stop states before changing more nodes. |
 | Integration or control-flow failure | `IMPLEMENT` in `$maa-workflow-build` | Repair cross-node links, file placement, Custom registration, or specialist-output assembly, then rerun structural checks. |
 | Environment, device, permission, or authority failure | `RECOVER` or user handoff | Gather a safe observation, use an authorized fallback, or stop with the smallest explicit unblock request. |

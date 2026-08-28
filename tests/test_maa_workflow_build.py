@@ -16,6 +16,7 @@ def test_workflow_build_owns_the_end_to_end_control_loop():
     for phase in (
         "SPECIFY",
         "DISCOVER",
+        "EXPLORE",
         "DESIGN",
         "IMPLEMENT",
         "VERIFY",
@@ -36,6 +37,7 @@ def test_workflow_build_owns_the_end_to_end_control_loop():
     assert "Do not declare completion" in text
     assert "references/task-contract.md" in text
     assert "references/run-state.md" in text
+    assert "references/exploration-first.md" in text
     assert "references/acceptance-protocol.md" in text
     assert "references/recovery-policy.md" in text
 
@@ -111,6 +113,67 @@ def test_workflow_contracts_define_state_feedback_and_exit_conditions():
     assert "stop condition" in recovery
 
 
+def test_guessed_states_open_an_exploration_gate_before_design():
+    text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+    contract = (SKILL_DIR / "references" / "task-contract.md").read_text(
+        encoding="utf-8"
+    )
+    run_state = (SKILL_DIR / "references" / "run-state.md").read_text(encoding="utf-8")
+
+    assert "### 3. EXPLORE" in text
+    assert "### 4. DESIGN" in text
+    assert "Enter DESIGN only when the exploration gate is closed" in text
+    assert "evidence_status: observed" in text
+    assert "evidence_status: guessed" in text
+    assert "Do not write Pipeline nodes, CustomAction code, or a full implementation plan" in text
+    assert "Never write a node first and match it to the UI afterwards." in text
+
+    assert "evidence_status: observed | guessed" in contract
+    assert "evidence_artifact" in contract
+    assert "opens the exploration gate" in contract
+    assert "entry precondition of every reused node" in contract
+
+    assert "EXPLORE" in run_state
+    assert "exploration:" in run_state
+    assert "gate: open | closed" in run_state
+    assert "round_trip_complete" in run_state
+    assert "observed_transitions" in run_state
+    assert "unreachable_states" in run_state
+
+
+def test_exploration_first_reference_defines_a_checkable_round_trip():
+    exploration = (SKILL_DIR / "references" / "exploration-first.md").read_text(
+        encoding="utf-8"
+    )
+    acceptance = (SKILL_DIR / "references" / "acceptance-protocol.md").read_text(
+        encoding="utf-8"
+    )
+    recovery = (SKILL_DIR / "references" / "recovery-policy.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "at least one complete round-trip" in exploration
+    for required in (
+        "screencap",
+        "ocr",
+        "click",
+        "exit criteria",
+        "Reused components have preconditions",
+        "When exploration cannot run",
+    ):
+        assert required.lower() in exploration.lower(), required
+
+    assert "write or edit Pipeline nodes" in exploration
+    assert "write CustomAction or CustomRecognition code" in exploration
+    assert "stay `guessed`" in exploration
+
+    assert "exploration-trace" in acceptance
+    assert "no criterion depends on a state that is still `evidence_status: guessed`" in acceptance
+
+    assert "Unexplored-scene or assumed-precondition failure" in recovery
+    assert "`EXPLORE` in `$maa-workflow-build`" in recovery
+
+
 def test_workflow_build_metadata_adapter_docs_and_evals_are_discoverable():
     metadata = yaml.safe_load(
         (SKILL_DIR / "agents" / "openai.yaml").read_text(encoding="utf-8")
@@ -142,6 +205,13 @@ def test_workflow_build_metadata_adapter_docs_and_evals_are_discoverable():
     )
     assert "guide 只作为规则来源" in feedback_eval["expected_output"]
     assert "testing 的证据分类失败" in feedback_eval["expected_output"]
+    exploration_eval = next(
+        case
+        for case in evals["evals"]
+        if case["eval_name"] == "explore-unknown-scene-before-planning"
+    )
+    assert "exploration-first" in exploration_eval["expected_output"]
+    assert "round-trip" in exploration_eval["expected_output"]
     assert (ROOT / "docs" / "skills" / "maa-workflow-build.md").is_file()
 
 
@@ -153,6 +223,9 @@ def test_workflow_build_docs_show_the_non_linear_specialist_loop():
     assert "flowchart TD" in docs
     assert "guide 不是执行阶段" in docs
     assert "负责整体组装" in docs
+    assert "EXPLORE" in docs
+    assert "round-trip" in docs
+    assert "evidence_status" in docs
 
 
 def test_specialist_skills_route_uncompiled_end_to_end_requests_to_workflow_build():

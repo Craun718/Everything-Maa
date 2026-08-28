@@ -34,6 +34,18 @@ description: "Test and validate MaaFramework Pipeline JSON, recognition nodes, a
 - **CustomRecognition 也要测**：M9A 证明复杂 OCR/list/image 逻辑经常放在 CustomRecognition，不要只测 CustomAction。
 - **高风险链路要复测稳定态**：购买、消耗、战斗开始、继续挑战、结算确认等动作后，先识别稳定页面或完成态，再继续危险动作。
 - **关闭节点不能继续调用**：当 option 把可执行节点的 `enable`/`enabled` 设为 false 时，Python 必须先短路，不能再调用该节点的 `run_recognition()`/`run_task()`；同时验证关闭可选分支后，同级战斗/调查分支仍会继续识别。
+- **识别成功不等于点对位置**：识别命中只证明找到了元素。带 `target` / `target_offset` 的节点必须在点击后再截一次图确认落点，否则写死的坐标会在换设备后静默点错。审查写法见 [coordinate-hygiene](../maa-pipeline-guide/references/coordinate-hygiene.md)。
+
+### 单节点验证的工具限制
+
+当前 MaaMCP 的 `run_pipeline` 没有「只截 ROI 区域验证」的参数，整屏 OCR 扫描慢且容易触发超时。在工具侧支持之前，用以下方式压缩验证成本，不要因为验证慢就跳过验证：
+
+- 在**节点自身的 `roi`** 上收敛识别范围，再跑单节点；ROI 越准，单次识别越快。
+- 用 `start_agent=False` + 指定 `entry` 只测识别，不拉起 CustomAction 链。
+- 探索阶段直接用 `ocr()` 读全屏拿 box，不要用 `run_pipeline` 反复试探未成形的节点。
+- 超过约 10 秒不返回就主动停止，先 `screencap` 看实际画面，再改 `roi`/`expected`。
+
+工具本身的增强（ROI 限定的 `run_pipeline`、轻量 explore 工具）属于 MaaMCP 上游，不在本仓库范围内。
 
 ### Custom 映射快速检查
 
