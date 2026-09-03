@@ -136,8 +136,12 @@ function isUpstreamSkill(candidate) {
   ) {
     return false;
   }
-  const head = fs.readFileSync(candidate, "utf8").slice(0, 4096);
-  return /^---\r?\n[\s\S]*?^name:\s*["']?create-maa-project["']?\s*$/m.test(head);
+  try {
+    const head = fs.readFileSync(candidate, "utf8").slice(0, 4096);
+    return /^---\r?\n[\s\S]*?^name:\s*["']?create-maa-project["']?\s*$/m.test(head);
+  } catch {
+    return false;
+  }
 }
 
 function emit(result) {
