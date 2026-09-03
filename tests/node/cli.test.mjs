@@ -78,10 +78,13 @@ test("Claude project install is idempotent, preserves unrelated MCP, and uninsta
   ]);
   assert.deepEqual(installedMcp.mcpServers["create-maa-project"].args, [
     "--from",
-    "create-maa-project==2.0.0",
+    "create-maa-project==3.2.0",
     "create-maa-project",
     "--mcp",
   ]);
+  assert.deepEqual(installedMcp.mcpServers["create-maa-project"].env, {
+    CREATE_MAA_PROJECT_AUTO_UPDATE: "0",
+  });
   assert.equal(installedMcp.mcpServers.playwright.args.at(-1), "--isolated");
 
   run(["uninstall", "--target", "claude"], root);
@@ -103,6 +106,7 @@ test("Codex project install uses a managed TOML block and preserves other config
   assert.match(installed, /# BEGIN EVERYTHING-MAA MCP/);
   assert.match(installed, /\[mcp_servers\.maa-mcp\]/);
   assert.match(installed, /\[mcp_servers\.create-maa-project\]/);
+  assert.match(installed, /"CREATE_MAA_PROJECT_AUTO_UPDATE" = "0"/);
   assert.match(installed, /@playwright\/mcp@0\.0\.78/);
 
   run(["uninstall", "--target", "codex"], root);
@@ -124,7 +128,7 @@ test("doctor reports pinned MCP and optional CLI integrations", () => {
   });
   assert.ok([0, 1].includes(result.status), result.stderr);
   const output = result.stdout;
-  assert.match(output, /create-maa-project@2\.0\.0/);
+  assert.match(output, /create-maa-project@3\.2\.0/);
   assert.match(output, /maafw-cli@0\.1\.6 \(experimental\)/);
   assert.match(
     output,

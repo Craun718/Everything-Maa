@@ -14,7 +14,7 @@
         "command": "uvx",
         "args": [
           "--from",
-          "create-maa-project==2.0.0",
+          "create-maa-project==3.2.0",
           "create-maa-project"
         ],
         "reportFlag": "--report"
