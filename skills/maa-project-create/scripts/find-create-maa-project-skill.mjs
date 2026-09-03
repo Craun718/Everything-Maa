@@ -129,11 +129,7 @@ function skillFromExplicitRoot(root) {
     path.join(root, "create-maa-project", "SKILL.md"),
     path.join(root, UPSTREAM_SKILL),
   ];
-  return candidates.find((candidate) => isUpstreamSkill(candidate));
-}
-
-function isUpstreamSkill(candidate) {
-  return upstreamSkillInfo(candidate)?.matchesPin ?? false;
+  return candidates.find((candidate) => upstreamSkillInfo(candidate));
 }
 
 function upstreamSkillInfo(candidate) {
@@ -176,7 +172,30 @@ function emit(result) {
 
 function findSkillCandidate(candidates) {
   candidates.sort((left, right) => left.precedence - right.precedence);
-  return candidates.find((candidate) => isUpstreamSkill(candidate.path));
+  let staleSkill;
+  for (const candidate of candidates) {
+    const skill = upstreamSkillInfo(candidate.path);
+    if (!skill) continue;
+    if (skill.matchesPin) {
+      return {
+        status: "found",
+        source: candidate.source,
+        skillPath: candidate.path,
+        packageRoot: null,
+        packageVersion: null,
+        skillVersion: skill.skillVersion,
+      };
+    }
+    staleSkill ??= {
+      status: "version-mismatch",
+      source: candidate.source,
+      skillPath: candidate.path,
+      packageRoot: null,
+      packageVersion: null,
+      skillVersion: skill.skillVersion,
+    };
+  }
+  return staleSkill;
 }
 
 function findPackageCandidate(candidates) {
@@ -245,14 +264,7 @@ function main() {
 
   const explicitSkill = findSkillCandidate(skillCandidates);
   if (explicitSkill) {
-    emit({
-      status: "found",
-      source: explicitSkill.source,
-      skillPath: explicitSkill.path,
-      packageRoot: null,
-      packageVersion: null,
-      skillVersion: PINNED_VERSION,
-    });
+    emit(explicitSkill);
     return;
   }
 
@@ -318,14 +330,7 @@ function main() {
 
   const ambientSkill = findSkillCandidate(skillCandidates);
   if (ambientSkill) {
-    emit({
-      status: "found",
-      source: ambientSkill.source,
-      skillPath: ambientSkill.path,
-      packageRoot: null,
-      packageVersion: null,
-      skillVersion: PINNED_VERSION,
-    });
+    emit(ambientSkill);
     return;
   }
 

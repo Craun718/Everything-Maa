@@ -71,12 +71,12 @@ def write_upstream_skill(root: Path, *, bundled: bool) -> Path:
     if not bundled:
         root.mkdir(parents=True)
         skill = root / "SKILL.md"
-        skill.write_text(TEST_SKILL, encoding="utf-8")
+        skill.write_bytes(TEST_SKILL.encode("utf-8"))
         return skill
 
     skill = root / "skills" / "create-maa-project" / "SKILL.md"
     skill.parent.mkdir(parents=True)
-    skill.write_text(TEST_SKILL, encoding="utf-8")
+    skill.write_bytes(TEST_SKILL.encode("utf-8"))
     return skill
 
 
@@ -194,8 +194,9 @@ def test_locator_finds_an_installed_user_skill(tmp_path: Path):
     assert Path(str(payload["skillPath"])).resolve() == expected.resolve()
 
 
-def test_locator_rejects_an_outdated_installed_user_skill(tmp_path: Path):
+def test_locator_reports_an_outdated_installed_user_skill(tmp_path: Path):
     home = tmp_path / "home"
+    expected = home / ".codex" / "skills" / "create-maa-project" / "SKILL.md"
     skill_directory = home / ".codex" / "skills" / "create-maa-project"
     skill_directory.mkdir(parents=True)
     (skill_directory / "SKILL.md").write_text(
@@ -214,5 +215,6 @@ def test_locator_rejects_an_outdated_installed_user_skill(tmp_path: Path):
 
     payload = run_locator(ambient=True, environment=environment, cwd=tmp_path)
 
-    assert payload["status"] == "not-found"
-    assert payload["skillPath"] is None
+    assert payload["status"] == "version-mismatch"
+    assert payload["skillPath"] == str(expected.resolve())
+    assert payload["skillVersion"] is None

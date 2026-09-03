@@ -21,7 +21,7 @@ The locator validates the frontmatter `name: create-maa-project`, requires the f
 | Field | Meaning |
 | --- | --- |
 | `status` | `found`, `version-mismatch`, `package-without-skill`, or `not-found` |
-| `skillPath` | Local authoritative `SKILL.md`, when found |
+| `skillPath` | Local `SKILL.md`, when found or when a named candidate reports a version mismatch |
 | `packageRoot` / `packageVersion` | npm package metadata, when applicable |
 | `skillVersion` | Version proved by the pinned Skill digest |
 | `pinnedVersion` / `pinnedSkillUrl` | Fixed `v3.2.0` fallback |
