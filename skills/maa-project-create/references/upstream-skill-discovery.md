@@ -16,13 +16,14 @@ For user-provided checkouts, package roots, standalone Skill directories, or `SK
 node scripts/find-create-maa-project-skill.mjs --root PATH
 ```
 
-The locator validates the frontmatter `name: create-maa-project`, excludes Everything Maa's wrapper copy, and returns JSON with:
+The locator validates the frontmatter `name: create-maa-project`, requires the file's SHA-256 to match the immutable `v3.2.0` release, requires npm package metadata to match the pin, excludes Everything Maa's wrapper copy, and returns JSON with:
 
 | Field | Meaning |
 | --- | --- |
-| `status` | `found`, `package-without-skill`, or `not-found` |
+| `status` | `found`, `version-mismatch`, `package-without-skill`, or `not-found` |
 | `skillPath` | Local authoritative `SKILL.md`, when found |
 | `packageRoot` / `packageVersion` | npm package metadata, when applicable |
+| `skillVersion` | Version proved by the pinned Skill digest |
 | `pinnedVersion` / `pinnedSkillUrl` | Fixed `v3.2.0` fallback |
 
 Search precedence is an explicit candidate, then an installed standalone Skill, then a project npm package, then npm/pnpm globals. Package metadata is not a substitute for the runtime version; query the CLI itself with `--cli-version`.

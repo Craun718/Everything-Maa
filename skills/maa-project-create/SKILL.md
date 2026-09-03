@@ -18,7 +18,7 @@ Before composing the first project-changing, doctor, add, sync, update, backup, 
 1. If the user supplies a create-maa-project checkout, npm package root, standalone Skill directory, or `SKILL.md`, pass each candidate to the locator with `--root PATH`.
 2. Run `node scripts/find-create-maa-project-skill.mjs`. The read-only locator searches installed standalone Skills, project and user installations, and npm/pnpm packages while excluding this Skill's own root. It never installs, downloads, builds, or updates anything.
 3. For `status: "found"`, read `skillPath` completely. Resolve its relative links from the directory containing that file and read only the references required by the requested operation.
-4. For `status: "package-without-skill"` or `status: "not-found"`, use the pinned `v3.2.0` Skill URL returned by the locator. Do not substitute guidance from `main`; the Python wheel does not contain the upstream Skill.
+4. For `status: "package-without-skill"`, `status: "version-mismatch"`, or `status: "not-found"`, use the pinned `v3.2.0` Skill URL returned by the locator. Do not substitute guidance from `main`; the Python wheel does not contain the upstream Skill.
 5. Compare the Skill version with the resolved runtime version (`create-maa-project --cli-version`) or with the catalog pin before invoking it. If they do not match, obtain and read the Skill for the resolved runtime version before continuing.
 
 Preserve the upstream Skill's non-interactive, JSON-report, version-checking, and backup requirements. Set `CREATE_MAA_PROJECT_AUTO_UPDATE=0` for a reproducible pinned run and do not re-enable automatic runtime or Skill updates. Prefer an installed CLI over a checkout's `dist` files. If a complete matching upstream Skill cannot be read, stop and report the locator result plus the release route attempted. Do not improvise create-maa-project commands from this Skill alone.
@@ -49,8 +49,6 @@ Prefer MCP when it is configured. Use the pinned CLI fallback in [references/cli
    - ASCII kebab-case slug and human display name when they differ;
    - controller targets (`Adb`, `Win32`, `MacOS`, `PlayCover`, `Gamepad`, `WlRoots`);
    - license;
-   - Git initialization;
-   - add-ons and optional resource-pack slug.
    - add-ons and optional resource-pack slug;
    - whether the tool may initialize Git and create the initial commit.
 3. Default to `pipeline` only when the user does not need Python custom logic. Choose `agent` when they ask for CustomAction, CustomRecognition, AgentServer, or Python business logic.

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -16,6 +17,8 @@ const PACKAGE_NAME = "create-maa-project";
 const PINNED_VERSION = "3.2.0";
 const PINNED_SKILL_URL =
   "https://raw.githubusercontent.com/Windsland52/create-maa-project/v3.2.0/skills/create-maa-project/SKILL.md";
+const PINNED_SKILL_SHA256 =
+  "4c0335f8483306a2fac56f68cc21a84a47fe49d928ae1e62e2ef3f1beb08f7a9";
 
 function parseArgs(argv) {
   const roots = [];
@@ -130,17 +133,30 @@ function skillFromExplicitRoot(root) {
 }
 
 function isUpstreamSkill(candidate) {
-  if (!isFile(candidate)) return false;
+  return upstreamSkillInfo(candidate)?.matchesPin ?? false;
+}
+
+function upstreamSkillInfo(candidate) {
+  if (!isFile(candidate)) return undefined;
   if (
     canonical(candidate).startsWith(`${canonical(PROJECT_CREATE_ROOT)}${path.sep}`)
   ) {
-    return false;
+    return undefined;
   }
   try {
-    const head = fs.readFileSync(candidate, "utf8").slice(0, 4096);
-    return /^---\r?\n[\s\S]*?^name:\s*["']?create-maa-project["']?\s*$/m.test(head);
+    const content = fs.readFileSync(candidate, "utf8");
+    const head = content.slice(0, 4096);
+    if (!/^---\r?\n[\s\S]*?^name:\s*["']?create-maa-project["']?\s*$/m.test(head)) {
+      return undefined;
+    }
+    const digest = createHash("sha256").update(content, "utf8").digest("hex");
+    const matchesPin = digest === PINNED_SKILL_SHA256;
+    return {
+      matchesPin,
+      skillVersion: matchesPin ? PINNED_VERSION : null,
+    };
   } catch {
-    return false;
+    return undefined;
   }
 }
 
@@ -170,13 +186,25 @@ function findPackageCandidate(candidates) {
     const info = packageInfo(candidate.path);
     if (!info) continue;
     const skillPath = path.join(info.root, UPSTREAM_SKILL);
-    if (isUpstreamSkill(skillPath)) {
+    const skill = upstreamSkillInfo(skillPath);
+    if (skill?.matchesPin && info.version === PINNED_VERSION) {
       return {
         status: "found",
         source: candidate.source,
         skillPath,
         packageRoot: info.root,
         packageVersion: info.version,
+        skillVersion: skill.skillVersion,
+      };
+    }
+    if (skill) {
+      return {
+        status: "version-mismatch",
+        source: candidate.source,
+        skillPath,
+        packageRoot: info.root,
+        packageVersion: info.version,
+        skillVersion: skill.skillVersion,
       };
     }
     packageWithoutSkill ??= { source: candidate.source, info };
@@ -188,6 +216,7 @@ function findPackageCandidate(candidates) {
       skillPath: null,
       packageRoot: packageWithoutSkill.info.root,
       packageVersion: packageWithoutSkill.info.version,
+      skillVersion: null,
     };
   }
   return undefined;
@@ -222,6 +251,7 @@ function main() {
       skillPath: explicitSkill.path,
       packageRoot: null,
       packageVersion: null,
+      skillVersion: PINNED_VERSION,
     });
     return;
   }
@@ -238,6 +268,7 @@ function main() {
       skillPath: null,
       packageRoot: null,
       packageVersion: null,
+      skillVersion: null,
     });
     return;
   }
@@ -293,6 +324,7 @@ function main() {
       skillPath: ambientSkill.path,
       packageRoot: null,
       packageVersion: null,
+      skillVersion: PINNED_VERSION,
     });
     return;
   }
@@ -309,6 +341,7 @@ function main() {
     skillPath: null,
     packageRoot: null,
     packageVersion: null,
+    skillVersion: null,
   });
 }
 
