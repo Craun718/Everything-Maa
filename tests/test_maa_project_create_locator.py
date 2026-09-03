@@ -62,6 +62,20 @@ def test_locator_prefers_an_explicit_upstream_skill(tmp_path: Path):
     )
 
 
+def test_locator_skips_an_unrelated_explicit_root_skill(tmp_path: Path):
+    (tmp_path / "SKILL.md").write_text(
+        "---\nname: unrelated-skill\ndescription: Unrelated.\n---\n",
+        encoding="utf-8",
+    )
+    expected = write_upstream_skill(tmp_path, bundled=True)
+
+    result = run_locator("--root", tmp_path)
+
+    assert result["status"] == "found"
+    assert result["source"] == "explicit"
+    assert Path(str(result["skillPath"])).resolve() == expected.resolve()
+
+
 def test_locator_reads_an_npm_package_skill(tmp_path: Path):
     package = tmp_path / "create-maa-project"
     package.mkdir()

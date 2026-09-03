@@ -126,7 +126,7 @@ function skillFromExplicitRoot(root) {
     path.join(root, "create-maa-project", "SKILL.md"),
     path.join(root, UPSTREAM_SKILL),
   ];
-  return candidates.find((candidate) => isFile(candidate));
+  return candidates.find((candidate) => isUpstreamSkill(candidate));
 }
 
 function isUpstreamSkill(candidate) {
