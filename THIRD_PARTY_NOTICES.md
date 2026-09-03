@@ -4,7 +4,7 @@ Everything Maa keeps third-party runtimes separate from its MIT-licensed source 
 
 | Component | Upstream license | Distribution policy |
 | --- | --- | --- |
-| [create-maa-project](https://github.com/Windsland52/create-maa-project) | AGPL-3.0-or-later | `create-maa-project==2.0.0`; referenced as an external project lifecycle CLI/MCP runtime and not vendored. |
+| [create-maa-project](https://github.com/Windsland52/create-maa-project) | AGPL-3.0-or-later | `create-maa-project==3.2.0`; referenced as an external project lifecycle CLI/MCP runtime and its upstream Skill is discovered at use time, never vendored. |
 | [MaaMCP](https://github.com/MaaXYZ/MaaMCP) | AGPL-3.0-or-later | `maa-mcp==1.2.3`; referenced as an external Python/uv runtime and not vendored. |
 | [maafw-cli](https://github.com/otowa-kotori/maafw-cli) | MIT | `maafw-cli==0.1.6`; cataloged as an optional experimental CLI and not vendored or installed by default. |
 | [MaaEvidenceKit](https://github.com/Windsland52/MaaEvidenceKit) (formerly MaaDiagnosticExpert) | MIT | `maa-evidence-kit@0.3.2`; its optional user-managed npm runtime and external `maa-evidence` Skill are discovered at use time by `maa-diagnose`, never vendored, installed, or updated by Everything Maa. |

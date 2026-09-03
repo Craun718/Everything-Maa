@@ -164,7 +164,9 @@ function selectedServers(profile, catalog) {
   return Object.fromEntries(
     catalog.profiles[profile].map((name) => {
       const server = catalog.servers[name];
-      return [name, { command: server.command, args: server.args }];
+      const expected = { command: server.command, args: server.args };
+      if (server.env) expected.env = server.env;
+      return [name, expected];
     }),
   );
 }
@@ -255,6 +257,12 @@ function tomlString(value) {
   return JSON.stringify(value);
 }
 
+function tomlEnvEntries(env) {
+  return Object.entries(env).map(
+    ([key, value]) => `${tomlString(key)} = ${tomlString(value)}`,
+  );
+}
+
 function renderCodexBlock(servers) {
   const chunks = [MANAGED_BEGIN];
   for (const [name, server] of Object.entries(servers)) {
@@ -262,6 +270,9 @@ function renderCodexBlock(servers) {
       `[mcp_servers.${name}]`,
       `command = ${tomlString(server.command)}`,
       `args = [${server.args.map(tomlString).join(", ")}]`,
+      ...(server.env
+        ? [`env = { ${tomlEnvEntries(server.env).join(", ")} }`]
+        : []),
       "",
     );
   }

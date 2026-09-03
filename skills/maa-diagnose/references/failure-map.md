@@ -38,7 +38,7 @@ Preserve the runtime's evidence ids verbatim so the owner can reopen the same fa
 | The failing node exists but nothing in the run proves the acceptance criterion was ever checked | `testing` | Add the missing focused check before further repair |
 | The run reached a state the designed state machine does not model, or a loop had no reachable exit candidate | `workflow-design` | Add or correct the missing start, no-op, failure, recovery, or stop state |
 | A referenced node, entry, Custom registration, or file placement is missing from the static definition | `workflow-implement` | Repair the cross-node link or registration, then rerun structural checks |
-| Resource or schema load failure, managed project file drift, or a template or scaffold inconsistency | `project-create` | Run `$maa-project-create` doctor or diff on the cited path before editing anything by hand |
+| Resource or schema load failure, managed project file drift, or a template or scaffold inconsistency | `project-create` | Run `$maa-project-create` doctor on the cited path before editing anything by hand |
 | Environment or dependency failure, incompatible runtime version, missing binary or model | `user` | State the smallest explicit unblock request; do not install anything |
 | Device, emulator, permission, or connection failure | `user` | Ask for the device or permission state to be restored, then re-collect the run |
 | Diagnostic runtime unavailable, unsupported, or unparsable | `user` | Report the discovered state and the smallest install or version action the user could take |
