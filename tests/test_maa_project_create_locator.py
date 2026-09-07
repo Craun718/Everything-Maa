@@ -63,8 +63,8 @@ def test_locator_does_not_embed_a_historical_pin():
     assert "PINNED_SKILL_SHA256" not in source
     assert 'versionPolicy: "latest"' in source
     assert "latestReleaseUrl" in source
-    assert "latestReadmeUrl" in source
-    assert "latestSkillUrl" in source
+    assert "defaultBranchReadmeUrl" in source
+    assert "defaultBranchSkillUrl" in source
 
 
 def test_locator_prefers_an_explicit_upstream_skill(tmp_path: Path):
@@ -78,8 +78,8 @@ def test_locator_prefers_an_explicit_upstream_skill(tmp_path: Path):
     assert Path(str(result["skillPath"])).resolve() == expected.resolve()
     assert result["versionPolicy"] == "latest"
     assert result["latestReleaseUrl"].endswith("/releases/latest")
-    assert result["latestReadmeUrl"].endswith("/README.md")
-    assert result["latestSkillUrl"].endswith("/SKILL.md")
+    assert result["defaultBranchReadmeUrl"].endswith("/README.md")
+    assert result["defaultBranchSkillUrl"].endswith("/SKILL.md")
 
 
 def test_locator_skips_an_unrelated_explicit_root_skill(tmp_path: Path):
@@ -139,10 +139,10 @@ def test_locator_rejects_the_wrapper_skill_and_reports_the_latest_fallback():
     assert result["latestReleaseUrl"] == (
         "https://github.com/Windsland52/create-maa-project/releases/latest"
     )
-    assert result["latestReadmeUrl"] == (
+    assert result["defaultBranchReadmeUrl"] == (
         "https://raw.githubusercontent.com/Windsland52/create-maa-project/main/README.md"
     )
-    assert result["latestSkillUrl"] == (
+    assert result["defaultBranchSkillUrl"] == (
         "https://raw.githubusercontent.com/Windsland52/create-maa-project/"
         "main/skills/create-maa-project/SKILL.md"
     )

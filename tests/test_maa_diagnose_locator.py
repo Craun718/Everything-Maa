@@ -74,10 +74,10 @@ def with_latest_metadata(result: dict[str, object]) -> dict[str, object]:
         "latestReleaseUrl": (
             "https://github.com/Windsland52/MaaEvidenceKit/releases/latest"
         ),
-        "latestReadmeUrl": (
+        "defaultBranchReadmeUrl": (
             "https://raw.githubusercontent.com/Windsland52/MaaEvidenceKit/main/README.md"
         ),
-        "latestSkillUrl": (
+        "defaultBranchSkillUrl": (
             "https://raw.githubusercontent.com/Windsland52/MaaEvidenceKit/"
             "main/skills/maa-evidence/SKILL.md"
         ),

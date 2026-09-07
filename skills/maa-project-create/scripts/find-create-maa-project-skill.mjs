@@ -15,9 +15,9 @@ const UPSTREAM_SKILL = path.join("skills", "create-maa-project", "SKILL.md");
 const PACKAGE_NAME = "create-maa-project";
 const LATEST_RELEASE_URL =
   "https://github.com/Windsland52/create-maa-project/releases/latest";
-const LATEST_README_URL =
+const DEFAULT_BRANCH_README_URL =
   "https://raw.githubusercontent.com/Windsland52/create-maa-project/main/README.md";
-const LATEST_SKILL_URL =
+const DEFAULT_BRANCH_SKILL_URL =
   "https://raw.githubusercontent.com/Windsland52/create-maa-project/main/skills/create-maa-project/SKILL.md";
 
 function parseArgs(argv) {
@@ -160,8 +160,8 @@ function emit(result) {
       {
         versionPolicy: "latest",
         latestReleaseUrl: LATEST_RELEASE_URL,
-        latestReadmeUrl: LATEST_README_URL,
-        latestSkillUrl: LATEST_SKILL_URL,
+        defaultBranchReadmeUrl: DEFAULT_BRANCH_README_URL,
+        defaultBranchSkillUrl: DEFAULT_BRANCH_SKILL_URL,
         ...result,
       },
       null,

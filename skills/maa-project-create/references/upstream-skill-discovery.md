@@ -24,7 +24,8 @@ The locator validates the frontmatter `name: create-maa-project`, excludes Every
 | `skillPath` | Local `SKILL.md`, when found |
 | `packageRoot` / `packageVersion` | npm package metadata, when applicable |
 | `skillVersion` | Version declared by the local Skill, when present |
-| `latestReleaseUrl` / `latestReadmeUrl` / `latestSkillUrl` | Latest upstream handoff routes |
+| `latestReleaseUrl` | Latest formal-release handoff entry point |
+| `defaultBranchReadmeUrl` / `defaultBranchSkillUrl` | Disclosed default-branch fallback routes |
 
 Search precedence is an explicit candidate, then an installed standalone Skill, then a project npm package, then npm/pnpm globals. Package metadata is not a substitute for the runtime version; query the CLI itself with `--cli-version`.
 
@@ -36,7 +37,7 @@ For every locator result, resolve the latest formal release from:
 https://github.com/Windsland52/create-maa-project/releases/latest
 ```
 
-Then read the integrated Skill at `skills/create-maa-project/SKILL.md` for that release. If the release does not expose the Skill, read the upstream README, using `latestReadmeUrl` from the locator only as the default-branch fallback and disclosing that fallback. Read the complete document and only the references needed by the requested operation.
+Then read the integrated Skill at `skills/create-maa-project/SKILL.md` for that release. If the release does not expose the Skill, read the upstream README, using `defaultBranchReadmeUrl` from the locator only as the disclosed fallback. Read the complete document and only the references needed for the requested operation.
 
 Do not select a historical tag or substitute a local Skill from this repository. The runtime and authoritative guidance both follow latest.
 
