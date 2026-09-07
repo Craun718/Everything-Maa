@@ -64,6 +64,23 @@ def write_upstream_skill(root: Path) -> Path:
     return skill
 
 
+def with_latest_metadata(result: dict[str, object]) -> dict[str, object]:
+    return {
+        "versionPolicy": "latest",
+        "latestReleaseUrl": (
+            "https://github.com/Windsland52/MaaEvidenceKit/releases/latest"
+        ),
+        "latestReadmeUrl": (
+            "https://raw.githubusercontent.com/Windsland52/MaaEvidenceKit/main/README.md"
+        ),
+        "latestSkillUrl": (
+            "https://raw.githubusercontent.com/Windsland52/MaaEvidenceKit/"
+            "main/skills/maa-evidence/SKILL.md"
+        ),
+        **result,
+    }
+
+
 def test_diagnose_loads_authoritative_upstream_guidance():
     text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
     metadata = yaml.safe_load(
@@ -149,13 +166,13 @@ def test_locator_reports_a_package_without_a_skill(tmp_path: Path):
 
     result = run_locator("--root", tmp_path)
 
-    assert result == {
+    assert result == with_latest_metadata({
         "status": "package-without-skill",
         "source": "explicit-package",
         "skillPath": None,
         "packageRoot": str(tmp_path.resolve()),
         "packageVersion": "2.0.0",
-    }
+    })
 
 
 def test_locator_excludes_a_package_skill_under_the_diagnose_root(
@@ -172,13 +189,13 @@ def test_locator_excludes_a_package_skill_under_the_diagnose_root(
 
     result = run_locator("--root", package, diagnose_root=diagnose_root)
 
-    assert result == {
+    assert result == with_latest_metadata({
         "status": "package-without-skill",
         "source": "explicit-package",
         "skillPath": None,
         "packageRoot": str(package.resolve()),
         "packageVersion": "1.2.3",
-    }
+    })
 
 
 def test_locator_reads_pnpm_global_package_layout(tmp_path: Path):
@@ -249,10 +266,10 @@ def test_locator_reads_pnpm_global_package_layout(tmp_path: Path):
         },
     )
 
-    assert result == {
+    assert result == with_latest_metadata({
         "status": "found",
         "source": "pnpm-global-package",
         "skillPath": str((package / "skills" / "maa-evidence" / "SKILL.md").resolve()),
         "packageRoot": str(package.resolve()),
         "packageVersion": "3.4.5",
-    }
+    })

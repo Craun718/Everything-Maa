@@ -108,7 +108,7 @@ npm run smoke:maafw-cli
 
 ## 范围与依赖
 
-Everything Maa 不复制 create-maa-project、MaaMCP、maafw-cli、Playwright MCP、MaaFramework 二进制、OCR 模型、`@nekosu/maa-tools` 或 MaaLLMWiki catalog。MCP 与 CLI 命令契约只调用上游发行包，并按 Everything Maa 版本锁定经过验证的版本。`maa-wiki` skill 只引用 MaaLLMWiki 的 raw GitHub URL，不下载、缓存或复制 catalog 内容到安装目录。MaaMCP、create-maa-project 和实验性的 maafw-cli skill 需要 `uvx`，Playwright MCP 和 `@nekosu/maa-tools` 需要 `npx`；maafw-cli 仅按需运行，不由 profile 持久安装。
+Everything Maa 不复制 create-maa-project、MaaEvidenceKit、MaaMCP、maafw-cli、Playwright MCP、MaaFramework 二进制、OCR 模型、`@nekosu/maa-tools` 或 MaaLLMWiki catalog。MCP 与 CLI 命令契约只调用上游发行包；create-maa-project 与 MaaEvidenceKit 跟踪 latest，并衔接上游 README 或集成 Skill。`maa-wiki` skill 只引用 MaaLLMWiki 的 raw GitHub URL，不下载、缓存或复制 catalog 内容到安装目录。MaaMCP、create-maa-project 和实验性的 maafw-cli skill 需要 `uvx`，Playwright MCP 和 `@nekosu/maa-tools` 需要 `npx`；maafw-cli 仅按需运行，不由 profile 持久安装。调用 MaaEvidenceKit 时，通过 `npx` 按需解析 `maa-evidence-kit@latest`；不要回退到 `PATH` 中的旧 `maa-evidence` 可执行文件。
 
 许可证边界见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 

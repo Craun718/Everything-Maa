@@ -39,8 +39,8 @@ def test_skill_discovers_the_runtime_before_invoking_it():
     discovery = read("references", "runtime-discovery.md")
 
     assert "Never assume a command catalog from memory" in skill
-    assert "maa-evidence --version" in discovery
-    assert "maa-evidence --help" in discovery
+    assert "npx --yes --package maa-evidence-kit@latest maa-evidence --version" in discovery
+    assert "npx --yes --package maa-evidence-kit@latest maa-evidence --help" in discovery
     assert "Re-run discovery every session; never cache a command catalog" in discovery
 
 
@@ -59,16 +59,16 @@ def test_authoritative_upstream_skill_is_loaded_before_runtime_use():
     assert not (ROOT / "skills" / "maa-evidence-guide").exists()
 
 
-def test_precedence_policy_orders_mcp_then_cli_then_local_checkout():
+def test_precedence_policy_orders_mcp_then_latest_cli_then_local_checkout():
     discovery = read("references", "runtime-discovery.md")
 
     mcp = discovery.index("**Local MCP surface.**")
-    cli = discovery.index("**Packaged CLI on `PATH`.**")
+    cli = discovery.index("**On-demand latest CLI.**")
     checkout = discovery.index("**User-supplied local checkout.**")
 
     assert mcp < cli < checkout
     assert "Do not mix surfaces inside one diagnosis" in discovery
-    assert "Never install, build, or upgrade the runtime" in discovery
+    assert "Never globally install, build, or upgrade the runtime" in discovery
 
 
 def test_missing_or_incompatible_runtime_fails_safely():
@@ -80,7 +80,7 @@ def test_missing_or_incompatible_runtime_fails_safely():
     assert "## When the contract changes" in discovery
 
 
-def test_supported_runtime_versions_are_documented_and_pinned():
+def test_runtime_tracks_latest_and_documents_upstream_handoff():
     discovery = read("references", "runtime-discovery.md")
     integrations = json.loads(
         (ROOT / "integrations" / "catalog.json").read_text(encoding="utf-8")
@@ -89,11 +89,22 @@ def test_supported_runtime_versions_are_documented_and_pinned():
     tool = integrations["tools"]["maa-evidence-kit"]
 
     assert tool["package"] == "maa-evidence-kit"
-    assert tool["version"] == "0.3.2"
+    assert tool["version"] == "latest"
     assert tool["role"] == "diagnostic-runtime"
-    assert tool["version"] in discovery
-    assert ">=0.3.0 <0.4.0" in discovery
-    assert "maa-evidence-kit" in notices and "0.3.2" in notices
+    assert tool["install"] == "on-demand-user-managed"
+    assert tool["cli"]["command"] == "npx"
+    assert tool["cli"]["args"] == [
+        "--yes",
+        "--package",
+        "maa-evidence-kit@latest",
+        "maa-evidence",
+    ]
+    assert "Resolve `latest`" in discovery
+    assert "Do not invoke a bare `maa-evidence` from `PATH`" in discovery
+    assert tool["readme"].endswith("/README.md")
+    assert tool["skillPath"] == "skills/maa-evidence/SKILL.md"
+    assert "maa-evidence-kit@latest" in notices
+    assert "0.3.2" not in discovery
 
 
 def test_structured_contract_is_primary_and_output_is_read_only():

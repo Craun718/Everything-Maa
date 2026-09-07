@@ -490,7 +490,10 @@ function doctor(catalog, integrations) {
     checkCommand("Node.js", process.execPath),
     checkCommand("Python", process.platform === "win32" ? "python" : "python3"),
     checkCommand("uvx (required by Maa MCP integrations)", "uvx"),
-    checkCommand("npx (required by Playwright MCP)", process.platform === "win32" ? "npx.cmd" : "npx"),
+    checkCommand(
+      "npx (required by Playwright MCP and MaaEvidenceKit)",
+      process.platform === "win32" ? "npx.cmd" : "npx",
+    ),
   ];
   console.log("Configured integrations:");
   for (const [name, tool] of Object.entries(integrations.tools)) {
@@ -498,7 +501,9 @@ function doctor(catalog, integrations) {
       const server = catalog.servers[tool.mcpServer];
       console.log(`  [mcp] ${name}: ${server.package}@${server.version}`);
     } else if (tool.cli) {
-      console.log(`  [optional cli] ${name}: ${tool.package}@${tool.version} (${tool.status || "stable"})`);
+      console.log(
+        `  [optional cli] ${name}: ${tool.package}@${tool.version} (${tool.status || "stable"}, ${tool.install || "on-demand"})`,
+      );
     } else if (tool.package) {
       console.log(
         `  [external runtime] ${name}: ${tool.package}@${tool.version} (${tool.status || "stable"}, ${tool.install || "user-managed"})`,

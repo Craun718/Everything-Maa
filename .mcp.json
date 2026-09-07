@@ -10,12 +10,10 @@
     },
     "create-maa-project": {
       "command": "uvx",
-      "env": {
-        "CREATE_MAA_PROJECT_AUTO_UPDATE": "0"
-      },
       "args": [
+        "--upgrade",
         "--from",
-        "create-maa-project==3.2.0",
+        "create-maa-project",
         "create-maa-project",
         "--mcp"
       ]

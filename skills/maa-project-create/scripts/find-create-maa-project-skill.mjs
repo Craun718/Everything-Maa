@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -14,11 +13,12 @@ const PROJECT_CREATE_ROOT = path.resolve(
 );
 const UPSTREAM_SKILL = path.join("skills", "create-maa-project", "SKILL.md");
 const PACKAGE_NAME = "create-maa-project";
-const PINNED_VERSION = "3.2.0";
-const PINNED_SKILL_URL =
-  "https://raw.githubusercontent.com/Windsland52/create-maa-project/v3.2.0/skills/create-maa-project/SKILL.md";
-const PINNED_SKILL_SHA256 =
-  "4c0335f8483306a2fac56f68cc21a84a47fe49d928ae1e62e2ef3f1beb08f7a9";
+const LATEST_RELEASE_URL =
+  "https://github.com/Windsland52/create-maa-project/releases/latest";
+const LATEST_README_URL =
+  "https://raw.githubusercontent.com/Windsland52/create-maa-project/main/README.md";
+const LATEST_SKILL_URL =
+  "https://raw.githubusercontent.com/Windsland52/create-maa-project/main/skills/create-maa-project/SKILL.md";
 
 function parseArgs(argv) {
   const roots = [];
@@ -145,11 +145,9 @@ function upstreamSkillInfo(candidate) {
     if (!/^---\r?\n[\s\S]*?^name:\s*["']?create-maa-project["']?\s*$/m.test(head)) {
       return undefined;
     }
-    const digest = createHash("sha256").update(content, "utf8").digest("hex");
-    const matchesPin = digest === PINNED_SKILL_SHA256;
+    const version = head.match(/^version:\s*["']?([^"'\r\n#]+?)["']?\s*$/m)?.[1] ?? null;
     return {
-      matchesPin,
-      skillVersion: matchesPin ? PINNED_VERSION : null,
+      skillVersion: version,
     };
   } catch {
     return undefined;
@@ -160,8 +158,10 @@ function emit(result) {
   console.log(
     JSON.stringify(
       {
-        pinnedVersion: PINNED_VERSION,
-        pinnedSkillUrl: PINNED_SKILL_URL,
+        versionPolicy: "latest",
+        latestReleaseUrl: LATEST_RELEASE_URL,
+        latestReadmeUrl: LATEST_README_URL,
+        latestSkillUrl: LATEST_SKILL_URL,
         ...result,
       },
       null,
@@ -172,22 +172,11 @@ function emit(result) {
 
 function findSkillCandidate(candidates) {
   candidates.sort((left, right) => left.precedence - right.precedence);
-  let staleSkill;
   for (const candidate of candidates) {
     const skill = upstreamSkillInfo(candidate.path);
     if (!skill) continue;
-    if (skill.matchesPin) {
-      return {
-        status: "found",
-        source: candidate.source,
-        skillPath: candidate.path,
-        packageRoot: null,
-        packageVersion: null,
-        skillVersion: skill.skillVersion,
-      };
-    }
-    staleSkill ??= {
-      status: "version-mismatch",
+    return {
+      status: "found",
       source: candidate.source,
       skillPath: candidate.path,
       packageRoot: null,
@@ -195,7 +184,7 @@ function findSkillCandidate(candidates) {
       skillVersion: skill.skillVersion,
     };
   }
-  return staleSkill;
+  return undefined;
 }
 
 function findPackageCandidate(candidates) {
@@ -206,19 +195,9 @@ function findPackageCandidate(candidates) {
     if (!info) continue;
     const skillPath = path.join(info.root, UPSTREAM_SKILL);
     const skill = upstreamSkillInfo(skillPath);
-    if (skill?.matchesPin && info.version === PINNED_VERSION) {
-      return {
-        status: "found",
-        source: candidate.source,
-        skillPath,
-        packageRoot: info.root,
-        packageVersion: info.version,
-        skillVersion: skill.skillVersion,
-      };
-    }
     if (skill) {
       return {
-        status: "version-mismatch",
+        status: "found",
         source: candidate.source,
         skillPath,
         packageRoot: info.root,

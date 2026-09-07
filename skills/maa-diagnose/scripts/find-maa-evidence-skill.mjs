@@ -13,6 +13,12 @@ const DIAGNOSE_ROOT = path.resolve(
 );
 const UPSTREAM_SKILL = path.join("skills", "maa-evidence", "SKILL.md");
 const PACKAGE_NAME = "maa-evidence-kit";
+const LATEST_RELEASE_URL =
+  "https://github.com/Windsland52/MaaEvidenceKit/releases/latest";
+const LATEST_README_URL =
+  "https://raw.githubusercontent.com/Windsland52/MaaEvidenceKit/main/README.md";
+const LATEST_SKILL_URL =
+  "https://raw.githubusercontent.com/Windsland52/MaaEvidenceKit/main/skills/maa-evidence/SKILL.md";
 
 function parseArgs(argv) {
   const roots = [];
@@ -138,6 +144,22 @@ function isUpstreamSkill(candidate) {
   return /^---\r?\n[\s\S]*?^name:\s*["']?maa-evidence["']?\s*$/m.test(head);
 }
 
+function emit(result) {
+  console.log(
+    JSON.stringify(
+      {
+        versionPolicy: "latest",
+        latestReleaseUrl: LATEST_RELEASE_URL,
+        latestReadmeUrl: LATEST_README_URL,
+        latestSkillUrl: LATEST_SKILL_URL,
+        ...result,
+      },
+      null,
+      2,
+    ),
+  );
+}
+
 function main() {
   const { roots: explicitRoots, ambient } = parseArgs(process.argv.slice(2));
   const skillCandidates = [];
@@ -159,7 +181,13 @@ function main() {
   skillCandidates.sort((left, right) => left.precedence - right.precedence);
   for (const candidate of skillCandidates) {
     if (isUpstreamSkill(candidate.path)) {
-      console.log(JSON.stringify({ status: "found", source: candidate.source, skillPath: candidate.path, packageRoot: null, packageVersion: null }, null, 2));
+      emit({
+        status: "found",
+        source: candidate.source,
+        skillPath: candidate.path,
+        packageRoot: null,
+        packageVersion: null,
+      });
       return;
     }
   }
@@ -171,17 +199,35 @@ function main() {
     if (!info) continue;
     const skillPath = path.join(info.root, UPSTREAM_SKILL);
     if (isUpstreamSkill(skillPath)) {
-      console.log(JSON.stringify({ status: "found", source: candidate.source, skillPath, packageRoot: info.root, packageVersion: info.version }, null, 2));
+      emit({
+        status: "found",
+        source: candidate.source,
+        skillPath,
+        packageRoot: info.root,
+        packageVersion: info.version,
+      });
       return;
     }
     explicitPackageWithoutSkill ??= { candidate, info };
   }
   if (explicitPackageWithoutSkill) {
-    console.log(JSON.stringify({ status: "package-without-skill", source: explicitPackageWithoutSkill.candidate.source, skillPath: null, packageRoot: explicitPackageWithoutSkill.info.root, packageVersion: explicitPackageWithoutSkill.info.version }, null, 2));
+    emit({
+      status: "package-without-skill",
+      source: explicitPackageWithoutSkill.candidate.source,
+      skillPath: null,
+      packageRoot: explicitPackageWithoutSkill.info.root,
+      packageVersion: explicitPackageWithoutSkill.info.version,
+    });
     return;
   }
   if (!ambient) {
-    console.log(JSON.stringify({ status: "not-found", source: null, skillPath: null, packageRoot: null, packageVersion: null }, null, 2));
+    emit({
+      status: "not-found",
+      source: null,
+      skillPath: null,
+      packageRoot: null,
+      packageVersion: null,
+    });
     return;
   }
 
@@ -210,7 +256,13 @@ function main() {
   skillCandidates.sort((left, right) => left.precedence - right.precedence);
   for (const candidate of skillCandidates) {
     if (isUpstreamSkill(candidate.path)) {
-      console.log(JSON.stringify({ status: "found", source: candidate.source, skillPath: candidate.path, packageRoot: null, packageVersion: null }, null, 2));
+      emit({
+        status: "found",
+        source: candidate.source,
+        skillPath: candidate.path,
+        packageRoot: null,
+        packageVersion: null,
+      });
       return;
     }
   }
@@ -222,18 +274,36 @@ function main() {
     if (!info) continue;
     const skillPath = path.join(info.root, UPSTREAM_SKILL);
     if (isUpstreamSkill(skillPath)) {
-      console.log(JSON.stringify({ status: "found", source: candidate.source, skillPath, packageRoot: info.root, packageVersion: info.version }, null, 2));
+      emit({
+        status: "found",
+        source: candidate.source,
+        skillPath,
+        packageRoot: info.root,
+        packageVersion: info.version,
+      });
       return;
     }
     packageWithoutSkill ??= { candidate, info };
   }
 
   if (packageWithoutSkill) {
-    console.log(JSON.stringify({ status: "package-without-skill", source: packageWithoutSkill.candidate.source, skillPath: null, packageRoot: packageWithoutSkill.info.root, packageVersion: packageWithoutSkill.info.version }, null, 2));
+    emit({
+      status: "package-without-skill",
+      source: packageWithoutSkill.candidate.source,
+      skillPath: null,
+      packageRoot: packageWithoutSkill.info.root,
+      packageVersion: packageWithoutSkill.info.version,
+    });
     return;
   }
 
-  console.log(JSON.stringify({ status: "not-found", source: null, skillPath: null, packageRoot: null, packageVersion: null }, null, 2));
+  emit({
+    status: "not-found",
+    source: null,
+    skillPath: null,
+    packageRoot: null,
+    packageVersion: null,
+  });
 }
 
 try {

@@ -1,11 +1,11 @@
 ---
 name: maa-diagnose
-description: Diagnose unexplained MaaFramework failures by driving the installed MaaEvidenceKit diagnostic runtime (formerly MaaDiagnosticExpert) read-only over local logs, project sources, and run-state context. Use when a run, task, or test already failed and the owner of the defect is still unknown, including maafw.log, timestamped maafw.bak logs, or other maafw.*.log files - resource or schema load failures, environment or dependency problems, device errors, runtime timeouts, wrong branches, Custom exceptions, or large MaaFramework logs that need timeline and node correlation. Produces normalized findings, evidence, artifacts, and one bounded failure owner, and never applies a repair. Route project scaffold health checks to $maa-project-create doctor and focused recognition retuning to $maa-pipeline-generate.
+description: Diagnose unexplained MaaFramework failures by driving the externally managed latest MaaEvidenceKit diagnostic runtime (formerly MaaDiagnosticExpert) read-only over local logs, project sources, and run-state context. Use when a run, task, or test already failed and the owner of the defect is still unknown, including maafw.log, timestamped maafw.bak logs, or other maafw.*.log files - resource or schema load failures, environment or dependency problems, device errors, runtime timeouts, wrong branches, Custom exceptions, or large MaaFramework logs that need timeline and node correlation. Produces normalized findings, evidence, artifacts, and one bounded failure owner, and never applies a repair. Route project scaffold health checks to $maa-project-create doctor and focused recognition retuning to $maa-pipeline-generate.
 ---
 
 # Maa Diagnose
 
-Drive the externally installed diagnostic runtime to turn an unexplained MaaFramework failure into normalized evidence and one bounded failure owner. This skill owns discovery, invocation, and normalization. It does not parse MaaFramework logs itself and does not contain a diagnostic engine.
+Drive the externally managed latest diagnostic runtime to turn an unexplained MaaFramework failure into normalized evidence and one bounded failure owner. This skill owns discovery, invocation, and normalization. It does not parse MaaFramework logs itself and does not contain a diagnostic engine.
 
 Read [references/runtime-discovery.md](references/runtime-discovery.md) before the first invocation. Read [references/failure-map.md](references/failure-map.md) before reporting an owner.
 
@@ -28,17 +28,17 @@ Before composing a MaaEvidenceKit command, locate and read the authoritative ups
 1. If the user supplies a MaaEvidenceKit checkout, package root, skill directory, or `SKILL.md`, pass each candidate to the locator with `--root PATH`.
 2. Run `node scripts/find-maa-evidence-skill.mjs`. The read-only locator searches installed standalone skills, project and user installations, and npm/pnpm global packages while excluding this Skill's own root.
 3. For `status: "found"`, read `skillPath` completely. Resolve its relative links from the directory containing that file and load only the references required by this diagnosis.
-4. For `status: "package-without-skill"`, read the upstream `skills/maa-evidence` directory at the package's release tag.
-5. For `status: "not-found"`, read the latest formal GitHub Release of `Windsland52/MaaEvidenceKit`; use the default branch only when no formal release exposes the Skill, and disclose that the guidance is unpinned.
+4. For `status: "package-without-skill"`, read the upstream `skills/maa-evidence` directory at the package's release tag; use that release's README when the integrated Skill is unavailable.
+5. For `status: "not-found"`, read the latest formal GitHub Release of `Windsland52/MaaEvidenceKit`, preferring the integrated `maa-evidence` Skill and falling back to its README; use the default branch only when no formal release exposes either document, and disclose that fallback.
 
-Prefer an installed standalone `maa-evidence` Skill over a package copy, and a package copy over GitHub. Preserve the upstream Skill's installation, privacy, telemetry, evidence, and version-matching requirements. If no complete Skill can be read, stop and report every local or GitHub route attempted. Do not improvise MaaEvidenceKit commands from this Skill alone.
+Prefer an installed standalone `maa-evidence` Skill over a package copy, and a package copy over GitHub. Preserve the upstream Skill or README's installation, privacy, telemetry, evidence, and version-matching requirements. If no complete authoritative document can be read, stop and report every local or GitHub route attempted. Do not improvise MaaEvidenceKit commands from this Skill alone.
 
 ## Discover the runtime before invoking it
 
 1. Resolve the runtime surface with the discovery sequence in `references/runtime-discovery.md`. Never assume a command catalog from memory; the upstream project has already been renamed and has already changed its command names.
 2. Record the resolved surface, package version, and output schema id as evidence.
-3. Apply one precedence policy: supported local MCP surface first when the installed runtime advertises one and the harness already has it configured, then the packaged CLI on `PATH`, then a user-supplied local checkout entry point. Do not mix surfaces inside one diagnosis.
-4. If no surface resolves, or the discovered schema id is outside the supported set, stop with `status: error`, `failure_owner: user`, and a `stop_reason`. Never install, build, or upgrade the runtime to make a diagnosis possible.
+3. Apply one precedence policy: supported local MCP surface first when it is already configured and provably matches npm latest, then the on-demand latest CLI, then a user-supplied local checkout entry point. Do not mix surfaces inside one diagnosis.
+4. If no surface resolves, or the discovered schema id is outside the supported set, stop with `status: error`, `failure_owner: user`, and a `stop_reason`. Never persistently install, build, or upgrade the runtime to make a diagnosis possible.
 
 ## Collect bounded local inputs
 
