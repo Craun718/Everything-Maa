@@ -20,6 +20,7 @@ The locator validates the frontmatter `name: create-maa-project`, excludes Every
 
 | Field | Meaning |
 | --- | --- |
+| `versionPolicy` / `guidanceAuthority` | Runtime follows `latest`; guidance follows the latest formal release |
 | `status` | `found`, `package-without-skill`, or `not-found`; local candidates are diagnostics only |
 | `skillPath` | Local `SKILL.md`, when found |
 | `packageRoot` / `packageVersion` | npm package metadata, when applicable |

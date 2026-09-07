@@ -71,6 +71,7 @@ def write_upstream_skill(root: Path, *, version: str | None = None) -> Path:
 def with_latest_metadata(result: dict[str, object]) -> dict[str, object]:
     return {
         "versionPolicy": "latest",
+        "guidanceAuthority": "latest-release",
         "latestReleaseUrl": (
             "https://github.com/Windsland52/MaaEvidenceKit/releases/latest"
         ),

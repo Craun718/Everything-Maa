@@ -62,6 +62,7 @@ def test_locator_does_not_embed_a_historical_pin():
     assert "3.2.0" not in source
     assert "PINNED_SKILL_SHA256" not in source
     assert 'versionPolicy: "latest"' in source
+    assert 'guidanceAuthority: "latest-release"' in source
     assert "latestReleaseUrl" in source
     assert "defaultBranchReadmeUrl" in source
     assert "defaultBranchSkillUrl" in source
@@ -77,6 +78,7 @@ def test_locator_prefers_an_explicit_upstream_skill(tmp_path: Path):
     assert result["skillVersion"] == "9.9.9"
     assert Path(str(result["skillPath"])).resolve() == expected.resolve()
     assert result["versionPolicy"] == "latest"
+    assert result["guidanceAuthority"] == "latest-release"
     assert result["latestReleaseUrl"].endswith("/releases/latest")
     assert result["defaultBranchReadmeUrl"].endswith("/README.md")
     assert result["defaultBranchSkillUrl"].endswith("/SKILL.md")
@@ -136,6 +138,7 @@ def test_locator_rejects_the_wrapper_skill_and_reports_the_latest_fallback():
     assert result["status"] == "not-found"
     assert result["skillPath"] is None
     assert result["versionPolicy"] == "latest"
+    assert result["guidanceAuthority"] == "latest-release"
     assert result["latestReleaseUrl"] == (
         "https://github.com/Windsland52/create-maa-project/releases/latest"
     )

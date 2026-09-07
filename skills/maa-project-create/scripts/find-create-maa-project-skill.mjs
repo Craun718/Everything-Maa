@@ -159,6 +159,7 @@ function emit(result) {
     JSON.stringify(
       {
         versionPolicy: "latest",
+        guidanceAuthority: "latest-release",
         latestReleaseUrl: LATEST_RELEASE_URL,
         defaultBranchReadmeUrl: DEFAULT_BRANCH_README_URL,
         defaultBranchSkillUrl: DEFAULT_BRANCH_SKILL_URL,

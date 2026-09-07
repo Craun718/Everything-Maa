@@ -21,7 +21,7 @@ Before using any command surface below, run the locator in `scripts/find-maa-evi
 
 - any locator result: read the latest formal upstream Release, preferring the integrated Skill and falling back to its README; use the default branch only with a disclosed fallback.
 
-Local skill and package candidates are diagnostic locator results only; they do not override the latest upstream handoff. This document only routes discovery; it is not a substitute for the upstream guidance. If authoritative guidance cannot be loaded, do not compose commands from this reference alone.
+The locator reports `guidanceAuthority: "latest-release"`. Local skill and package candidates are diagnostic locator results only; they do not override the latest upstream handoff. This document only routes discovery; it is not a substitute for the upstream guidance. If authoritative guidance cannot be loaded, do not compose commands from this reference alone.
 
 ## Discovery sequence
 
