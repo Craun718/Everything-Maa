@@ -19,11 +19,9 @@ The rename is the reason discovery is mandatory. Command names from older planni
 
 Before using any command surface below, run the locator in `scripts/find-maa-evidence-skill.mjs` and follow its result:
 
-- `found`: resolve the npm latest version first, then read `skillPath` and its required references only when the guidance provenance matches that version. A package-backed Skill requires `packageVersion` to match; a standalone Skill requires `skillVersion` to match.
-- `package-without-skill`: read the integrated Skill at the release matching `packageVersion` only when that version is also the resolved runtime version, falling back to that release's README;
-- a version mismatch, missing version metadata, or `not-found`: read the latest formal upstream Release, preferring the integrated Skill and falling back to its README; use the default branch only with a disclosed fallback.
+- any locator result: read the latest formal upstream Release, preferring the integrated Skill and falling back to its README; use the default branch only with a disclosed fallback.
 
-Version-matched standalone skills take precedence over package copies, and version-matched package copies take precedence over GitHub. Unversioned local guidance must not be mixed with the latest runtime. This document only routes discovery; it is not a substitute for the upstream guidance. If authoritative guidance cannot be loaded, do not compose commands from this reference alone.
+Local skill and package candidates are diagnostic locator results only; they do not override the latest upstream handoff. This document only routes discovery; it is not a substitute for the upstream guidance. If authoritative guidance cannot be loaded, do not compose commands from this reference alone.
 
 ## Discovery sequence
 

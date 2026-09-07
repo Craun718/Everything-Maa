@@ -50,7 +50,7 @@ def test_skill_discovers_the_runtime_before_invoking_it():
     assert "Re-run discovery every session; never cache a command catalog" in discovery
 
 
-def test_authoritative_upstream_guidance_matches_the_latest_runtime():
+def test_authoritative_upstream_guidance_always_uses_latest_handoff():
     skill = read("SKILL.md")
     discovery = read("references", "runtime-discovery.md")
     docs = (ROOT / "docs" / "skills" / "maa-diagnose.md").read_text(
@@ -59,14 +59,13 @@ def test_authoritative_upstream_guidance_matches_the_latest_runtime():
 
     assert "## Load the authoritative upstream Skill" in skill
     assert "node scripts/find-maa-evidence-skill.mjs" in skill
-    assert "Resolve the npm latest runtime version before accepting local guidance" in skill
-    assert "a standalone Skill requires `skillVersion` to match" in skill
-    assert "Unversioned local guidance must not be mixed with the latest runtime" in discovery
-    assert "`packageVersion` 或独立 Skill 的 `skillVersion` 必须与运行时版本一致" in docs
+    assert "For every locator result, read the latest formal GitHub Release" in skill
+    assert "it never makes a local `skillPath` authoritative" in skill
+    assert "any locator result: read the latest formal upstream Release" in discovery
+    assert "本地 Skill 与包路径只作为 locator 诊断结果，不覆盖 latest upstream handoff" in docs
     assert "Do not improvise MaaEvidenceKit commands from this Skill alone" in skill
     assert "does not broaden this Skill into an entry point" in skill
     assert "## Authoritative Skill handoff" in discovery
-    assert "`package-without-skill`" in discovery
     assert (SKILL_DIR / "scripts" / "find-maa-evidence-skill.mjs").is_file()
     assert not (ROOT / "skills" / "maa-evidence-guide").exists()
 

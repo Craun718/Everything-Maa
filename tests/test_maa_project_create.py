@@ -30,7 +30,8 @@ def test_project_create_requires_upstream_skill_handoff():
 
     assert "## Load the bundled upstream Skill" in text
     assert "node scripts/find-create-maa-project-skill.mjs" in text
-    assert 'For `status: "found"`, read `skillPath` completely' in text
+    assert "For every locator result, read the latest formal upstream Release" in text
+    assert "they do not override the latest upstream handoff" in text
     assert "latest formal release" in discovery
     assert "README" in discovery
     assert "integrated Skill" in discovery

@@ -27,12 +27,10 @@ Before composing a MaaEvidenceKit command, locate and read the authoritative ups
 
 1. If the user supplies a MaaEvidenceKit checkout, package root, skill directory, or `SKILL.md`, pass each candidate to the locator with `--root PATH`.
 2. Run `node scripts/find-maa-evidence-skill.mjs`. The read-only locator searches installed standalone skills, project and user installations, and npm/pnpm global packages while excluding this Skill's own root.
-3. Resolve the npm latest runtime version before accepting local guidance.
-4. For `status: "found"`, read `skillPath` completely only when its provenance matches that runtime version: a package-backed Skill requires `packageVersion` to match, and a standalone Skill requires `skillVersion` to match. Resolve its relative links from the directory containing that file and load only the references required by this diagnosis.
-5. For `status: "package-without-skill"`, read the upstream `skills/maa-evidence` directory at the matching release tag only when `packageVersion` matches the runtime version; use that release's README when the integrated Skill is unavailable.
-6. For a version mismatch, missing version metadata, or `status: "not-found"`, read the latest formal GitHub Release of `Windsland52/MaaEvidenceKit`, preferring the integrated `maa-evidence` Skill and falling back to its README; use the default branch only when no formal release exposes either document, and disclose that fallback.
+3. For every locator result, read the latest formal GitHub Release of `Windsland52/MaaEvidenceKit`, preferring its integrated `maa-evidence` Skill and falling back to its README. The locator result reports local candidates; it never makes a local `skillPath` authoritative for the latest runtime.
+4. If the latest formal release does not expose the integrated Skill or README, use the disclosed default-branch handoff.
 
-Prefer a version-matched installed standalone `maa-evidence` Skill over a package copy, and a version-matched package copy over GitHub. Preserve the upstream Skill or README's installation, privacy, telemetry, evidence, and version-matching requirements. If no complete authoritative document can be read, stop and report every local or GitHub route attempted. Do not improvise MaaEvidenceKit commands from this Skill alone.
+Preserve the latest upstream Skill or README's installation, privacy, telemetry, evidence, and version requirements. If no complete authoritative document can be read, stop and report every latest-release and default-branch route attempted. Do not improvise MaaEvidenceKit commands from this Skill alone.
 
 ## Discover the runtime before invoking it
 

@@ -20,7 +20,7 @@ The locator validates the frontmatter `name: create-maa-project`, excludes Every
 
 | Field | Meaning |
 | --- | --- |
-| `status` | `found`, `package-without-skill`, or `not-found` |
+| `status` | `found`, `package-without-skill`, or `not-found`; local candidates are diagnostics only |
 | `skillPath` | Local `SKILL.md`, when found |
 | `packageRoot` / `packageVersion` | npm package metadata, when applicable |
 | `skillVersion` | Version declared by the local Skill, when present |
@@ -28,9 +28,9 @@ The locator validates the frontmatter `name: create-maa-project`, excludes Every
 
 Search precedence is an explicit candidate, then an installed standalone Skill, then a project npm package, then npm/pnpm globals. Package metadata is not a substitute for the runtime version; query the CLI itself with `--cli-version`.
 
-## Latest fallback
+## Latest handoff
 
-When no complete local copy is available, resolve the latest formal release from:
+For every locator result, resolve the latest formal release from:
 
 ```text
 https://github.com/Windsland52/create-maa-project/releases/latest
@@ -38,7 +38,7 @@ https://github.com/Windsland52/create-maa-project/releases/latest
 
 Then read the integrated Skill at `skills/create-maa-project/SKILL.md` for that release. If the release does not expose the Skill, read the upstream README, using `latestReadmeUrl` from the locator only as the default-branch fallback and disclosing that fallback. Read the complete document and only the references needed by the requested operation.
 
-Do not select a historical tag from this repository. If a runtime already resolved by the user is older, read the integrated Skill or README matching that runtime rather than mixing its commands with latest guidance.
+Do not select a historical tag or substitute a local Skill from this repository. The runtime and authoritative guidance both follow latest.
 
 ## Version and updates
 

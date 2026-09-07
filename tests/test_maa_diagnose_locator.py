@@ -93,7 +93,7 @@ def test_diagnose_loads_authoritative_upstream_guidance():
 
     assert "maafw.bak.<timestamp>.log" in text
     assert "another `maafw.*.log`" in text
-    assert 'read `skillPath` completely' in text
+    assert "For every locator result, read the latest formal GitHub Release" in text
     assert "find-maa-evidence-skill.mjs" in text
     assert "Do not improvise" in text
     assert "$maa-diagnose" in metadata["interface"]["default_prompt"]

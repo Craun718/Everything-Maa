@@ -24,9 +24,8 @@
 
 - 诊断命令拼装前，先运行 `skills/maa-diagnose/scripts/find-maa-evidence-skill.mjs`。
 - 显式提供的 checkout、包根目录或 Skill 路径优先；随后查找已安装的独立 `maa-evidence` Skill、项目/用户安装与 npm/pnpm 全局包。
-- 找到本地 Skill 时完整读取 `SKILL.md`，并只加载当前诊断需要的相对引用。
-- 接受本地指引前先解析 npm latest 版本；包内 Skill 的 `packageVersion` 或独立 Skill 的 `skillVersion` 必须与运行时版本一致，否则改用上游 latest handoff。
-- 包内缺少 Skill 时读取对应 release tag 的集成 Skill，缺失时回退 README；本地均未找到时读取最新正式 Release，只有无正式版本才回退默认分支并说明该回退。
+- 无论 locator 找到什么本地候选，都读取最新正式 Release 的集成 Skill，缺失时回退 README；只有无正式版本才回退默认分支并说明该回退。
+- 本地 Skill 与包路径只作为 locator 诊断结果，不覆盖 latest upstream handoff。
 - 无法读取完整权威 Skill 或 README 时安全停止，不根据记忆拼装 MaaEvidenceKit 命令。
 
 ## 运行时契约

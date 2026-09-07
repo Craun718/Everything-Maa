@@ -17,11 +17,11 @@ Before composing the first project-changing, doctor, add, sync, update, backup, 
 
 1. If the user supplies a create-maa-project checkout, npm package root, standalone Skill directory, or `SKILL.md`, pass each candidate to the locator with `--root PATH`.
 2. Run `node scripts/find-create-maa-project-skill.mjs`. The read-only locator searches installed standalone Skills, project and user installations, and npm/pnpm packages while excluding this Skill's own root. It never installs, downloads, builds, or updates anything.
-3. For `status: "found"`, read `skillPath` completely. Resolve its relative links from the directory containing that file and read only the references required by the requested operation.
-4. For `status: "package-without-skill"` or `status: "not-found"`, read the latest upstream handoff returned by the locator: prefer the integrated upstream Skill, and use the README when that Skill route is unavailable. The Python wheel does not contain the upstream Skill.
-5. Resolve the runtime with an unversioned latest package reference, then compare the resolved runtime version with any version declared by the loaded guidance. If the loaded guidance declares another version, read the matching integrated Skill or README before continuing.
+3. For every locator result, read the latest formal upstream Release: prefer its integrated `create-maa-project` Skill, and use the README when that Skill route is unavailable. Local skill and package candidates are locator diagnostics; they do not override the latest upstream handoff.
+4. If the latest formal release does not expose the integrated Skill or README, use the disclosed default-branch handoff. The Python wheel does not contain the upstream Skill.
+5. Resolve the runtime with an unversioned latest package reference.
 
-Preserve the upstream Skill or README's non-interactive, JSON-report, version-checking, and backup requirements. Prefer an installed CLI over a checkout's `dist` files. If complete authoritative upstream guidance cannot be read, stop and report the locator result plus the latest Skill and README routes attempted. Do not improvise create-maa-project commands from this Skill alone.
+Preserve the latest upstream Skill or README's non-interactive, JSON-report, version-checking, and backup requirements. Prefer the latest CLI over a checkout's `dist` files. If complete authoritative upstream guidance cannot be read, stop and report the latest Skill and README routes attempted. Do not improvise create-maa-project commands from this Skill alone.
 
 ## Route the request
 
