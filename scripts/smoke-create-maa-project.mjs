@@ -3,11 +3,9 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-const PACKAGE_SPEC = "create-maa-project==3.2.0";
-const BASE_ARGS = ["--from", PACKAGE_SPEC, "create-maa-project"];
+const BASE_ARGS = ["--upgrade", "--from", "create-maa-project", "create-maa-project"];
 const ENVIRONMENT = {
   ...process.env,
-  CREATE_MAA_PROJECT_AUTO_UPDATE: "0",
 };
 
 function runReport(args, cwd, allowedStatuses = [0]) {

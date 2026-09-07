@@ -32,16 +32,14 @@
     "create-maa-project": {
       "description": "Create, update, diagnose, and release MaaFramework application projects.",
       "package": "create-maa-project",
-      "version": "3.2.0",
+      "version": "latest",
       "license": "AGPL-3.0-or-later",
       "upstream": "https://github.com/Windsland52/create-maa-project",
       "command": "uvx",
-      "env": {
-        "CREATE_MAA_PROJECT_AUTO_UPDATE": "0"
-      },
       "args": [
+        "--upgrade",
         "--from",
-        "create-maa-project==3.2.0",
+        "create-maa-project",
         "create-maa-project",
         "--mcp"
       ]

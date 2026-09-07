@@ -17,11 +17,11 @@ Before composing the first project-changing, doctor, add, sync, update, backup, 
 
 1. If the user supplies a create-maa-project checkout, npm package root, standalone Skill directory, or `SKILL.md`, pass each candidate to the locator with `--root PATH`.
 2. Run `node scripts/find-create-maa-project-skill.mjs`. The read-only locator searches installed standalone Skills, project and user installations, and npm/pnpm packages while excluding this Skill's own root. It never installs, downloads, builds, or updates anything.
-3. For `status: "found"`, read `skillPath` completely. Resolve its relative links from the directory containing that file and read only the references required by the requested operation.
-4. For `status: "package-without-skill"`, `status: "version-mismatch"`, or `status: "not-found"`, use the pinned `v3.2.0` Skill URL returned by the locator. Do not substitute guidance from `main`; the Python wheel does not contain the upstream Skill.
-5. Compare the Skill version with the resolved runtime version (`create-maa-project --cli-version`) or with the catalog pin before invoking it. If they do not match, obtain and read the Skill for the resolved runtime version before continuing.
+3. For every locator result, read the latest formal upstream Release: prefer its integrated `create-maa-project` Skill, and use the README when that Skill route is unavailable. Local skill and package candidates are locator diagnostics; they do not override the latest upstream handoff.
+4. If the latest formal release does not expose the integrated Skill or README, use the disclosed default-branch handoff. The Python wheel does not contain the upstream Skill.
+5. Resolve the runtime with an unversioned latest package reference.
 
-Preserve the upstream Skill's non-interactive, JSON-report, version-checking, and backup requirements. Set `CREATE_MAA_PROJECT_AUTO_UPDATE=0` for a reproducible pinned run and do not re-enable automatic runtime or Skill updates. Prefer an installed CLI over a checkout's `dist` files. If a complete matching upstream Skill cannot be read, stop and report the locator result plus the release route attempted. Do not improvise create-maa-project commands from this Skill alone.
+Preserve the latest upstream Skill or README's non-interactive, JSON-report, version-checking, and backup requirements. Prefer the latest CLI over a checkout's `dist` files. If complete authoritative upstream guidance cannot be read, stop and report the latest Skill and README routes attempted. Do not improvise create-maa-project commands from this Skill alone.
 
 ## Route the request
 
@@ -38,7 +38,7 @@ Choose the smallest operation that matches the user's intent:
 | Restore a backup | `restore` | Yes, potentially destructive |
 | Remove local cache | `clean_cache` | Yes |
 
-Prefer MCP when it is configured. Use the pinned CLI fallback in [references/cli-and-reports.md](references/cli-and-reports.md) when MCP is unavailable or when a follow-up command must run with a different working directory. See [references/upstream-skill-discovery.md](references/upstream-skill-discovery.md) for the fixed-version handoff.
+Prefer MCP when it is configured. Use the latest CLI fallback in [references/cli-and-reports.md](references/cli-and-reports.md) when MCP is unavailable or when a follow-up command must run with a different working directory. See [references/upstream-skill-discovery.md](references/upstream-skill-discovery.md) for the latest-version handoff.
 
 ## Create workflow
 
@@ -59,7 +59,7 @@ Prefer MCP when it is configured. Use the pinned CLI fallback in [references/cli
 8. Run `doctor` from the new project root. The MCP server keeps the working directory it was launched with, so use the CLI fallback with its working directory set to the new project when necessary.
 9. Run `$maa-project-init` against the completed project to create `basic_info.md`, then route further work to the relevant Maa skill.
 
-In 3.2.0, Git initialization and the initial commit are enabled by default when the target is not already inside a Git repository. Keep `git=false` (or `--no-git`) when the user has not accepted an automatic initial commit, and report the `git` field from the create report.
+If the loaded upstream guidance says Git initialization and the initial commit are enabled by default, keep `git=false` (or the equivalent current flag) when the user has not accepted an automatic initial commit, and report the `git` field from the create report.
 
 ## Maintain an existing project
 

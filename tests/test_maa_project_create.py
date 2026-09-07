@@ -30,10 +30,11 @@ def test_project_create_requires_upstream_skill_handoff():
 
     assert "## Load the bundled upstream Skill" in text
     assert "node scripts/find-create-maa-project-skill.mjs" in text
-    assert 'For `status: "found"`, read `skillPath` completely' in text
-    assert "v3.2.0" in discovery
-    assert "Do not use `main`" in discovery
-    assert "CREATE_MAA_PROJECT_AUTO_UPDATE=0" in text
+    assert "For every locator result, read the latest formal upstream Release" in text
+    assert "they do not override the latest upstream handoff" in text
+    assert "latest formal release" in discovery
+    assert "README" in discovery
+    assert "integrated Skill" in discovery
     assert "Do not improvise create-maa-project commands" in text
     assert (SKILL_DIR / "scripts" / "find-create-maa-project-skill.mjs").is_file()
 
@@ -48,12 +49,19 @@ def test_project_create_cli_reference_matches_catalog_pin():
     )
     server = mcp_catalog["servers"]["create-maa-project"]
 
-    assert server["version"] == "3.2.0"
-    assert "create-maa-project==3.2.0" in reference
-    assert "@latest" not in reference
+    assert server["version"] == "latest"
+    assert "uvx --upgrade --from create-maa-project" in reference
+    assert "create-maa-project==" not in reference
+    assert "v3.2.0" not in reference
     assert integration_catalog["tools"]["create-maa-project"]["mcpServer"] == (
         "create-maa-project"
     )
+    assert integration_catalog["tools"]["create-maa-project"]["cli"]["args"] == [
+        "--upgrade",
+        "--from",
+        "create-maa-project",
+        "create-maa-project",
+    ]
 
 
 def test_project_create_openai_metadata_and_evals_are_discoverable():
