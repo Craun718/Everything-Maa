@@ -30,8 +30,8 @@ Version-matched standalone skills take precedence over package copies, and versi
 Run these before composing any analysis command, and treat their output as the authoritative catalog:
 
 ```bash
-npx --yes --package maa-evidence-kit@latest maa-evidence --version
-npx --yes --package maa-evidence-kit@latest maa-evidence --help
+MAA_EVIDENCE_AUTO_UPDATE=0 npx --yes --package maa-evidence-kit@latest maa-evidence --version
+MAA_EVIDENCE_AUTO_UPDATE=0 npx --yes --package maa-evidence-kit@latest maa-evidence --help
 ```
 
 Record, as evidence:

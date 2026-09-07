@@ -39,8 +39,14 @@ def test_skill_discovers_the_runtime_before_invoking_it():
     discovery = read("references", "runtime-discovery.md")
 
     assert "Never assume a command catalog from memory" in skill
-    assert "npx --yes --package maa-evidence-kit@latest maa-evidence --version" in discovery
-    assert "npx --yes --package maa-evidence-kit@latest maa-evidence --help" in discovery
+    assert (
+        "MAA_EVIDENCE_AUTO_UPDATE=0 npx --yes --package "
+        "maa-evidence-kit@latest maa-evidence --version" in discovery
+    )
+    assert (
+        "MAA_EVIDENCE_AUTO_UPDATE=0 npx --yes --package "
+        "maa-evidence-kit@latest maa-evidence --help" in discovery
+    )
     assert "Re-run discovery every session; never cache a command catalog" in discovery
 
 
