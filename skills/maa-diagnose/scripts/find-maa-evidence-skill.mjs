@@ -137,11 +137,23 @@ function skillFromExplicitRoot(root) {
   return candidates.find((candidate) => isFile(candidate));
 }
 
-function isUpstreamSkill(candidate) {
-  if (!isFile(candidate)) return false;
-  if (canonical(candidate).startsWith(`${canonical(DIAGNOSE_ROOT)}${path.sep}`)) return false;
-  const head = fs.readFileSync(candidate, "utf8").slice(0, 4096);
-  return /^---\r?\n[\s\S]*?^name:\s*["']?maa-evidence["']?\s*$/m.test(head);
+function upstreamSkillInfo(candidate) {
+  if (!isFile(candidate)) return undefined;
+  if (canonical(candidate).startsWith(`${canonical(DIAGNOSE_ROOT)}${path.sep}`)) {
+    return undefined;
+  }
+  try {
+    const head = fs.readFileSync(candidate, "utf8").slice(0, 4096);
+    if (!/^---\r?\n[\s\S]*?^name:\s*["']?maa-evidence["']?\s*$/m.test(head)) {
+      return undefined;
+    }
+    const version = head.match(
+      /^version:\s*["']?([^"'\r\n#]+?)["']?\s*$/m,
+    )?.[1] ?? null;
+    return { skillVersion: version };
+  } catch {
+    return undefined;
+  }
 }
 
 function emit(result) {
@@ -180,13 +192,15 @@ function main() {
 
   skillCandidates.sort((left, right) => left.precedence - right.precedence);
   for (const candidate of skillCandidates) {
-    if (isUpstreamSkill(candidate.path)) {
+    const skill = upstreamSkillInfo(candidate.path);
+    if (skill) {
       emit({
         status: "found",
         source: candidate.source,
         skillPath: candidate.path,
         packageRoot: null,
         packageVersion: null,
+        skillVersion: skill.skillVersion,
       });
       return;
     }
@@ -198,13 +212,15 @@ function main() {
     const info = packageInfo(candidate.path);
     if (!info) continue;
     const skillPath = path.join(info.root, UPSTREAM_SKILL);
-    if (isUpstreamSkill(skillPath)) {
+    const skill = upstreamSkillInfo(skillPath);
+    if (skill) {
       emit({
         status: "found",
         source: candidate.source,
         skillPath,
         packageRoot: info.root,
         packageVersion: info.version,
+        skillVersion: skill.skillVersion,
       });
       return;
     }
@@ -217,6 +233,7 @@ function main() {
       skillPath: null,
       packageRoot: explicitPackageWithoutSkill.info.root,
       packageVersion: explicitPackageWithoutSkill.info.version,
+      skillVersion: null,
     });
     return;
   }
@@ -227,6 +244,7 @@ function main() {
       skillPath: null,
       packageRoot: null,
       packageVersion: null,
+      skillVersion: null,
     });
     return;
   }
@@ -255,13 +273,15 @@ function main() {
 
   skillCandidates.sort((left, right) => left.precedence - right.precedence);
   for (const candidate of skillCandidates) {
-    if (isUpstreamSkill(candidate.path)) {
+    const skill = upstreamSkillInfo(candidate.path);
+    if (skill) {
       emit({
         status: "found",
         source: candidate.source,
         skillPath: candidate.path,
         packageRoot: null,
         packageVersion: null,
+        skillVersion: skill.skillVersion,
       });
       return;
     }
@@ -273,13 +293,15 @@ function main() {
     const info = packageInfo(candidate.path);
     if (!info) continue;
     const skillPath = path.join(info.root, UPSTREAM_SKILL);
-    if (isUpstreamSkill(skillPath)) {
+    const skill = upstreamSkillInfo(skillPath);
+    if (skill) {
       emit({
         status: "found",
         source: candidate.source,
         skillPath,
         packageRoot: info.root,
         packageVersion: info.version,
+        skillVersion: skill.skillVersion,
       });
       return;
     }
@@ -293,6 +315,7 @@ function main() {
       skillPath: null,
       packageRoot: packageWithoutSkill.info.root,
       packageVersion: packageWithoutSkill.info.version,
+      skillVersion: null,
     });
     return;
   }
@@ -303,6 +326,7 @@ function main() {
     skillPath: null,
     packageRoot: null,
     packageVersion: null,
+    skillVersion: null,
   });
 }
 

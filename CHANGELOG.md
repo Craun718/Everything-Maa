@@ -18,6 +18,7 @@ All notable changes to Everything Maa will be documented in this file. The proje
 ### Changed
 
 - Changed create-maa-project and MaaEvidenceKit integration policy from tested version pins to latest: create-maa-project resolves through `uvx --upgrade --from create-maa-project`, while MaaEvidenceKit remains externally user-managed and invokes its CLI on demand through `maa-evidence-kit@latest`, rejecting stale `PATH` executables; both locators expose latest Release, README, and integrated-Skill handoffs instead of a fixed CMP digest or MEK version range.
+- `maa-diagnose` now requires local MaaEvidenceKit guidance provenance to match the resolved npm-latest runtime before use, falling back to the upstream latest handoff when version metadata is absent or stale.
 - Pipeline node authoring now derives click targets from recognition results across `maa-pipeline-guide`, `maa-pipeline-generate`, and `maa-workflow-build`, instead of presenting a hardcoded `target_offset` as a default pattern.
 - `maa-pipeline-testing` documents that recognition success does not prove the click landed, and records the current lack of an ROI-limited `run_pipeline` in MaaMCP together with the ways to keep single-node verification cheap.
 

@@ -25,13 +25,14 @@
 - 诊断命令拼装前，先运行 `skills/maa-diagnose/scripts/find-maa-evidence-skill.mjs`。
 - 显式提供的 checkout、包根目录或 Skill 路径优先；随后查找已安装的独立 `maa-evidence` Skill、项目/用户安装与 npm/pnpm 全局包。
 - 找到本地 Skill 时完整读取 `SKILL.md`，并只加载当前诊断需要的相对引用。
+- 接受本地指引前先解析 npm latest 版本；包内 Skill 的 `packageVersion` 或独立 Skill 的 `skillVersion` 必须与运行时版本一致，否则改用上游 latest handoff。
 - 包内缺少 Skill 时读取对应 release tag 的集成 Skill，缺失时回退 README；本地均未找到时读取最新正式 Release，只有无正式版本才回退默认分支并说明该回退。
 - 无法读取完整权威 Skill 或 README 时安全停止，不根据记忆拼装 MaaEvidenceKit 命令。
 
 ## 运行时契约
 
 - 每次会话先执行发现（`--version` 与 `--help`），不缓存命令目录；上游已经改名并变更过命令名。
-- 单一优先级策略：受支持的本地 MCP 面 → `PATH` 上的打包 CLI → 用户指定的本地 checkout。
+- 单一优先级策略：仅当本地 MCP 已配置且包元数据与 npm latest 一致时使用；随后使用按需执行的 `npx --yes --package maa-evidence-kit@latest maa-evidence`；最后才是用户明确授权且版本能证明与 npm latest 完全一致的 checkout，否则停止。绝不使用裸 `PATH` 可执行文件或旧版本。
 - 只解析结构化 JSON 输出，不把人类可读文本或图形渲染当作主契约。
 - 运行时缺失或契约不兼容时安全失败，不安装、不构建、不升级。
 - latest 指引加载与契约变更行为见 `skills/maa-diagnose/references/runtime-discovery.md`。

@@ -27,17 +27,18 @@ Before composing a MaaEvidenceKit command, locate and read the authoritative ups
 
 1. If the user supplies a MaaEvidenceKit checkout, package root, skill directory, or `SKILL.md`, pass each candidate to the locator with `--root PATH`.
 2. Run `node scripts/find-maa-evidence-skill.mjs`. The read-only locator searches installed standalone skills, project and user installations, and npm/pnpm global packages while excluding this Skill's own root.
-3. For `status: "found"`, read `skillPath` completely. Resolve its relative links from the directory containing that file and load only the references required by this diagnosis.
-4. For `status: "package-without-skill"`, read the upstream `skills/maa-evidence` directory at the package's release tag; use that release's README when the integrated Skill is unavailable.
-5. For `status: "not-found"`, read the latest formal GitHub Release of `Windsland52/MaaEvidenceKit`, preferring the integrated `maa-evidence` Skill and falling back to its README; use the default branch only when no formal release exposes either document, and disclose that fallback.
+3. Resolve the npm latest runtime version before accepting local guidance.
+4. For `status: "found"`, read `skillPath` completely only when its provenance matches that runtime version: a package-backed Skill requires `packageVersion` to match, and a standalone Skill requires `skillVersion` to match. Resolve its relative links from the directory containing that file and load only the references required by this diagnosis.
+5. For `status: "package-without-skill"`, read the upstream `skills/maa-evidence` directory at the matching release tag only when `packageVersion` matches the runtime version; use that release's README when the integrated Skill is unavailable.
+6. For a version mismatch, missing version metadata, or `status: "not-found"`, read the latest formal GitHub Release of `Windsland52/MaaEvidenceKit`, preferring the integrated `maa-evidence` Skill and falling back to its README; use the default branch only when no formal release exposes either document, and disclose that fallback.
 
-Prefer an installed standalone `maa-evidence` Skill over a package copy, and a package copy over GitHub. Preserve the upstream Skill or README's installation, privacy, telemetry, evidence, and version-matching requirements. If no complete authoritative document can be read, stop and report every local or GitHub route attempted. Do not improvise MaaEvidenceKit commands from this Skill alone.
+Prefer a version-matched installed standalone `maa-evidence` Skill over a package copy, and a version-matched package copy over GitHub. Preserve the upstream Skill or README's installation, privacy, telemetry, evidence, and version-matching requirements. If no complete authoritative document can be read, stop and report every local or GitHub route attempted. Do not improvise MaaEvidenceKit commands from this Skill alone.
 
 ## Discover the runtime before invoking it
 
 1. Resolve the runtime surface with the discovery sequence in `references/runtime-discovery.md`. Never assume a command catalog from memory; the upstream project has already been renamed and has already changed its command names.
 2. Record the resolved surface, package version, and output schema id as evidence.
-3. Apply one precedence policy: supported local MCP surface first when it is already configured and provably matches npm latest, then the on-demand latest CLI, then a user-supplied local checkout entry point. Do not mix surfaces inside one diagnosis.
+3. Apply one precedence policy: supported local MCP surface first when it is already configured and provably matches npm latest, then the on-demand latest CLI, then a user-supplied local checkout entry point only when its reported version exactly matches npm latest. If that proof is unavailable, stop rather than using an old runtime. Do not mix surfaces inside one diagnosis.
 4. If no surface resolves, or the discovered schema id is outside the supported set, stop with `status: error`, `failure_owner: user`, and a `stop_reason`. Never persistently install, build, or upgrade the runtime to make a diagnosis possible.
 
 ## Collect bounded local inputs

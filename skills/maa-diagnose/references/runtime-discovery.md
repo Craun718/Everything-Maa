@@ -19,11 +19,11 @@ The rename is the reason discovery is mandatory. Command names from older planni
 
 Before using any command surface below, run the locator in `scripts/find-maa-evidence-skill.mjs` and follow its result:
 
-- `found`: read `skillPath` and the references it requires for the current diagnosis completely;
-- `package-without-skill`: read the integrated Skill at the release matching `packageVersion`, falling back to that release's README;
-- `not-found`: read the latest formal upstream Release, preferring the integrated Skill and falling back to its README; use the default branch only with a disclosed fallback.
+- `found`: resolve the npm latest version first, then read `skillPath` and its required references only when the guidance provenance matches that version. A package-backed Skill requires `packageVersion` to match; a standalone Skill requires `skillVersion` to match.
+- `package-without-skill`: read the integrated Skill at the release matching `packageVersion` only when that version is also the resolved runtime version, falling back to that release's README;
+- a version mismatch, missing version metadata, or `not-found`: read the latest formal upstream Release, preferring the integrated Skill and falling back to its README; use the default branch only with a disclosed fallback.
 
-Standalone installed skills take precedence over package copies, and package copies take precedence over GitHub. This document only routes discovery; it is not a substitute for the upstream guidance. If authoritative guidance cannot be loaded, do not compose commands from this reference alone.
+Version-matched standalone skills take precedence over package copies, and version-matched package copies take precedence over GitHub. Unversioned local guidance must not be mixed with the latest runtime. This document only routes discovery; it is not a substitute for the upstream guidance. If authoritative guidance cannot be loaded, do not compose commands from this reference alone.
 
 ## Discovery sequence
 
@@ -49,7 +49,7 @@ Apply exactly one policy, in this order, and record which surface was used:
 
 1. **Local MCP surface.** Resolve npm latest with the version command above, then use the local server only when the harness already has it configured and its package metadata reports exactly that version.
 2. **On-demand latest CLI.** Invoke the `npx --package maa-evidence-kit@latest` command documented above.
-3. **User-supplied local checkout.** Use the entry point the user named only when the user explicitly authorized that checkout.
+3. **User-supplied local checkout.** Use the entry point the user named only when the user explicitly authorized that checkout and its reported version exactly matches the version resolved from npm latest. If npm latest cannot be resolved or the checkout cannot prove that match, stop.
 
 Do not mix surfaces inside one diagnosis, and do not fall back to a surface the user did not authorize. Do not invoke a bare `maa-evidence` from `PATH`; a previously installed executable is not proof that it matches npm latest. If on-demand latest resolution fails, stop rather than silently using a stale executable. Never globally install, build, or upgrade the runtime to reach a later step.
 
