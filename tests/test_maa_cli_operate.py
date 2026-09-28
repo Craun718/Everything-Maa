@@ -20,7 +20,8 @@ def test_cli_skill_routes_batch_and_persistent_workflows():
     assert "$maa-pipeline-testing" in text
 
 
-def test_cli_reference_matches_integration_pin():
+def test_cli_reference_documents_pinned_version_and_contract_terms():
+    # This checks documentation discoverability, not the external CLI contract.
     reference = (SKILL_DIR / "references" / "command-contract.md").read_text(
         encoding="utf-8"
     )
