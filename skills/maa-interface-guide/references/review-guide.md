@@ -51,6 +51,11 @@
 
 ## 常见高风险点
 
+- 每个 controller 的 `display_short_side`、`display_long_side`、`display_expand`
+  和 `display_raw` 是互斥的分辨率策略；都不配置时，PI 运行时使用短边 720。
+  改成 `display_raw` 会脱离 Pipeline 模板和 ROI 的 720p 基准，不能作为普通
+  跨设备适配方案。资源包之间的设备差异应先核对 controller/resource 组合，
+  不要把某个模拟器 raw 截图上的坐标复制到另一个 controller。
 - import 后出现重复 controller/resource/group/option/case/input 声明；
 - task.entry 只在部分 resource 中存在；
 - controller/resource 过滤导致 option 或 preset 在当前组合不可用；

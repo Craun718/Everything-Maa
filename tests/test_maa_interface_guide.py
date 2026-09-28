@@ -40,6 +40,19 @@ def test_interface_guide_prioritizes_project_evidence_and_uses_project_tooling()
     assert "不以 `npx ... init` 创建配置" in validation
 
 
+def test_interface_review_guide_documents_controller_resolution_modes():
+    review = (SKILL_DIR / "references" / "review-guide.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "display_short_side" in review
+    assert "display_long_side" in review
+    assert "display_expand" in review
+    assert "display_raw" in review
+    assert "互斥" in review
+    assert "短边 720" in review
+
+
 def test_interface_guide_metadata_adapter_and_evals_are_discoverable():
     metadata = yaml.safe_load(
         (SKILL_DIR / "agents" / "openai.yaml").read_text(encoding="utf-8")

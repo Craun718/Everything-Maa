@@ -32,6 +32,12 @@ def test_cli_reference_matches_integration_pin():
     assert tool["version"] == "0.1.6"
     assert "maafw-cli==0.1.6" in reference
     assert "--json" in reference
+    assert "--size short:720" in reference
+    assert "short-side baseline" in reference
+    assert "NoScalingTouchPoints" in reference
+    assert "ProjectInterface V2" in reference
+    assert "Unity Canvas Scaler" in reference
+    assert "must not rely" in reference
 
 
 def test_cli_metadata_and_evals_are_discoverable():
