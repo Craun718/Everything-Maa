@@ -2,11 +2,11 @@
 
 Everything Maa is a focused toolkit of reusable AI skills for MaaFramework projects. Its canonical content covers intent-to-workflow orchestration, project creation and discovery, Project Interface maintenance, Pipeline authoring and generation, option wiring, graph analysis, testing, history auditing, guarded CLI operation, and official Maa knowledge routing.
 
-> Status: pre-release development baseline. The canonical skills, native plugin manifests, MCP profiles, and installer are implemented and tested locally; the npm package and GitHub repository have not been published yet.
+> Status: published toolkit baseline. The canonical skills, native plugin manifests, MCP profiles, and installer are covered by local and CI checks; the npm package and GitHub repository are public.
 
 ## Install
 
-After the first npm release, install into a project with one of these commands:
+Install into a project with one of these commands:
 
 ```bash
 npx everything-maa@latest install --target claude
@@ -15,7 +15,7 @@ npx everything-maa@latest install --target codex
 
 For a local checkout, replace `npx everything-maa@latest` with `node packages/cli/bin/everything-maa.js`.
 
-After the GitHub repository is public, Claude Code can also install the native plugin through its self-hosted marketplace:
+Claude Code can also install the native plugin through its self-hosted marketplace:
 
 ```text
 /plugin marketplace add https://github.com/KhazixW2/Everything-Maa
@@ -108,7 +108,7 @@ The current baseline supports Python 3.10 and later and Node.js 18 and later. Do
 
 ## Scope and dependencies
 
-Everything Maa does not vendor create-maa-project, MaaEvidenceKit, MaaMCP, maafw-cli, Playwright MCP, MaaFramework binaries, OCR models, `@nekosu/maa-tools`, or the MaaLLMWiki catalog. MCP and CLI launch contracts reference upstream packages; create-maa-project and MaaEvidenceKit track latest and hand off to the upstream README or integrated Skill. The `maa-wiki` skill references raw GitHub URLs into MaaLLMWiki and does not download, cache, or copy catalog content into installations. MaaMCP, create-maa-project, and the experimental maafw-cli skill require `uvx`; Playwright MCP and `@nekosu/maa-tools` require `npx`. Maafw-cli runs on demand without persistent installation by a profile. When invoking MaaEvidenceKit, resolve `maa-evidence-kit@latest` on demand with `npx`; reject a stale `maa-evidence` executable from `PATH`.
+Everything Maa does not vendor create-maa-project, MaaEvidenceKit, MaaMCP, maafw-cli, Playwright MCP, MaaFramework binaries, OCR models, `@nekosu/maa-tools`, the MaaLLMWiki catalog, or Project Interface V2 protocol snapshots. MCP and CLI launch contracts reference upstream packages; create-maa-project and MaaEvidenceKit track latest and hand off to the upstream README or integrated Skill. The `maa-wiki` skill references raw GitHub URLs into MaaLLMWiki and does not download, cache, or copy catalog content into installations; Interface and option guidance resolves protocol semantics through project evidence and pinned upstream documentation and schemas. MaaMCP, create-maa-project, and the experimental maafw-cli skill require `uvx`; Playwright MCP and `@nekosu/maa-tools` require `npx`. Maafw-cli runs on demand without persistent installation by a profile. When invoking MaaEvidenceKit, resolve `maa-evidence-kit@latest` on demand with `npx`; reject a stale `maa-evidence` executable from `PATH`.
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for license boundaries and [README.zh-CN.md](README.zh-CN.md) for Chinese documentation.
 
