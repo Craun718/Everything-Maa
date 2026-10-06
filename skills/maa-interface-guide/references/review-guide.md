@@ -4,10 +4,21 @@
 
 1. 目标项目已关联或 vendored 的 `interface.schema.json`、`interface_import.schema.json`、`interface_config.schema.json`。
 2. 目标项目锁定的 MaaFramework tag、commit、依赖版本或模板版本。
-3. [MaaFramework 官方仓库](https://github.com/MaaXYZ/MaaFramework)中对应版本的 `docs/zh_cn/3.3-ProjectInterfaceV2协议.md` 与 `tools/interface*.schema.json`。
+3. [MaaFramework 官方仓库](https://github.com/MaaXYZ/MaaFramework)中对应版本的原始 Project Interface V2 文档与 `tools/interface*.schema.json`。
 4. 社区工具的诊断结果和真实项目写法，仅作补充证据，不覆盖官方 schema。
 
-项目证据冲突时先报告差异，不静默改用 `main`。无法确定版本时说明假设，并避免使用仅见于更新协议的字段。
+`interface_version: 2` 与 PI 扩展能力语义版本是两层版本。项目证据冲突时先报告差异，不静默改用 `main`。无法确定版本时说明假设，并避免使用仅见于更新协议的字段；schema 与 PI 文档不一致时分别记录，不要把文档写法当成 schema 已验证。
+
+## 协议来源发现
+
+本仓库不维护 Project Interface V2 的字段矩阵、版本能力表或语义快照。需要上游依据时按以下流程发现并引用：
+
+1. 通过 `$maa-wiki` 读取 MaaLLMWiki 总入口，找到 Project Interface V2 文档和 `interface*.schema.json` 对应的入口。
+2. 采用该入口记录的 pinned tag、commit 或 revision，回到 MaaFramework 官方仓库读取原始文档与 schema。
+3. 没有项目内证据时不要凭模型记忆补字段；找到的每个事实记录 URL 或 revision。
+4. MaaLLMWiki 路径不可达或 revision 不明确时，把相关 PI 语义标记为未验证，并继续完成可核实的项目文件检查。
+
+官方文件路径可能随上游重构变化，不要把历史路径或本地引用写成永久协议来源。
 
 ## 文件边界
 
@@ -20,7 +31,7 @@
 - languages 指向的翻译文件；
 - 项目已有的 Interface 配置文件。
 
-只读核实：Pipeline、Python Agent、图片、可执行文件和构建配置。
+只读核实：Pipeline、Python Agent、pretask 可执行程序、图片、可执行文件和构建配置。
 
 ## 引用闭环
 
@@ -28,12 +39,14 @@
 
 | 声明 | 常见引用位置 | 重点检查 |
 | --- | --- | --- |
-| controller | resource、task、option、pretask | 名称唯一，过滤条件有交集 |
-| resource | task、option、preset、配置 | 路径存在，controller 组合有效 |
+| controller | resource、task、option、preset、pretask | 名称唯一，过滤条件有交集 |
+| resource | task、option、preset、pretask、hash、配置 | path/`attach_resource_path` 存在，controller 组合有效 |
 | group | task.group、展示顺序 | 声明存在，分组不悬空 |
 | task | task entry、preset、setting | entry 在适用资源中存在 |
-| option | 全局/controller/resource/task/setting/preset | 类型、case/input、过滤条件一致 |
-| case/input | default、preset、占位符 | 名称和取值类型匹配所属 option |
+| option | global/resource/controller/task/setting/pretask/preset | 类型、case/input/hotkey、过滤条件一致 |
+| case/input | default、preset、pretask 参数、占位符 | 名称和取值类型匹配所属 option；password 禁止 default/preset |
+| pretask | exec、args、resource/controller、option | 名称和引用可解析，主文件加 import 执行顺序明确 |
+| setting | option | 分区键唯一，引用 option 存在且适用 |
 | locale key | 所有支持国际化的字符串 | 每种声明语言均存在 |
 
 对每个 controller/resource 组合分别求解，不能只看全局合并后的“存在”。某个引用在另一资源中存在，不代表当前组合有效。
@@ -61,6 +74,13 @@
 - controller/resource 过滤导致 option 或 preset 在当前组合不可用；
 - preset 值与 select/switch、checkbox、input 的期望类型不符；
 - `$locale_key` 只在部分语言中定义；
+- 把 `interface_version: 2` 当成所有 PI v2.x 字段都可用的证明；
+- schema 滞后时把文档允许字段误报为结构错误，或反向把 schema 能解析误当成运行时支持；
 - 相对路径基准理解错误或使用反斜杠造成跨平台问题；
+- `resource.hash` 覆盖范围或校验时机错误，`attach_resource_path` 被计入主资源 hash；
+- pretask 执行顺序、CWD、最后一参数 JSON 或 controller/resource 过滤与目标 Client 不一致；
+- Agent 子进程假设 `PI_*` 全部存在，或把 `PI_INTERFACE_VERSION` 与 `interface_version: 2` 混淆；
+- password 字段进入 `default` 或 `preset`，或 pretask 参数、日志、遥测泄漏明文；
+- 已配置 telemetry 但未处理用户授权、调试禁用、`focus.trace` 默认值或敏感内容采样；
 - 为修复 Interface 而越界改动 Pipeline/Python；
 - 将某个社区项目的历史写法误当成当前官方协议。

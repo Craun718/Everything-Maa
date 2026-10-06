@@ -27,7 +27,8 @@ def test_interface_guide_prioritizes_project_evidence_and_uses_project_tooling()
     )
 
     assert "项目内证据优先" in text
-    assert "https://github.com/MaaXYZ/MaaFramework" in text
+    assert "$maa-wiki" in text
+    assert "pinned revision" in text
     assert "必须先询问用户" in text
     assert "`package.json`" in text
     assert "禁止直接执行 `node_modules`" in text
@@ -78,3 +79,57 @@ def test_interface_guide_documents_maa_tools_in_readmes():
 
     assert "@nekosu/maa-tools" in english
     assert "@nekosu/maa-tools" in chinese
+
+
+def test_interface_guide_routes_protocol_semantics_to_external_sources():
+    skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+    interface_protocol = SKILL_DIR / "references" / "interface-v2-protocol.md"
+    review = (SKILL_DIR / "references" / "review-guide.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "`interface_version: 2` 不是 PI 扩展能力的语义版本" in skill
+    assert "不维护 PI 字段矩阵、能力快照或版本语义缓存" in skill
+    assert "$maa-wiki" in skill
+    assert "MaaLLMWiki" in skill
+    assert "pinned revision" in skill
+    assert "interface*.schema.json" in skill
+    assert "pretask" in skill
+    assert "telemetry" in skill
+    assert "resource hash" in skill
+    assert "attach_resource_path" in skill
+
+    assert not interface_protocol.exists()
+
+    assert "`interface_version: 2` 与 PI 扩展能力语义版本是两层版本" in review
+    assert "## 协议来源发现" in review
+    assert "不维护 Project Interface V2 的字段矩阵、版本能力表或语义快照" in review
+    assert "$maa-wiki" in review
+    assert "pinned tag、commit 或 revision" in review
+    assert "不要把历史路径或本地引用写成永久协议来源" in review
+    assert "pretask" in review
+    assert "`attach_resource_path`" in review
+    assert "Agent 子进程假设 `PI_*` 全部存在" in review
+
+
+def test_pipeline_option_routes_protocol_and_keeps_wiring_boundary():
+    option_skill = (ROOT / "skills" / "maa-pipeline-option" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    option_protocol = ROOT / "skills" / "maa-pipeline-option" / "references" / "protocol.md"
+    docs = (ROOT / "docs" / "skills" / "maa-pipeline-option.md").read_text(
+        encoding="utf-8"
+    )
+
+    for term in ("hotkey", "password", "min_count", "max_count"):
+        assert term in option_skill
+
+    assert "不是协议全量清单" in option_skill
+    assert "$maa-wiki" in option_skill
+    assert "interface*.schema.json" in option_skill
+    assert "pinned" in option_skill
+    assert "不要把本仓库文件当成协议缓存" in option_skill
+    assert "pipeline_override 只做属性合并" in option_skill
+    assert "context.get_node_data()" in option_skill
+    assert not option_protocol.exists()
+    assert "references/protocol.md" not in docs

@@ -1,5 +1,7 @@
 # Maa Pipeline Option Anti-patterns
 
+这些反模式描述接线、命名和状态流问题，不定义协议字段合法性。字段可用性和默认值约束以目标项目 schema 与 `$maa-wiki` 定位的官方来源为准。
+
 ## Contents
 
 1. 不要只通过 pipeline_override 定义节点

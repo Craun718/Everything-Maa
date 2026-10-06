@@ -2,11 +2,11 @@
 
 Everything Maa 是一个严格面向 MaaFramework 项目的 AI skills 工具集。核心范围包括从意图到工作流的编排、项目创建与发现、Project Interface 维护、Pipeline 编写与生成、选项接线、节点图谱、测试、历史审计、受控 CLI 操作和官方 Maa 知识路由。
 
-> 当前状态：预发布开发基线。规范化 skills、原生插件清单、MCP profiles 和安装器均已在本地实现并通过测试；npm 包与 GitHub 仓库尚未发布。
+> 当前状态：已发布基线。规范化 skills、原生插件清单、MCP profiles 和安装器都有本地与 CI 检查；npm 包与 GitHub 仓库已公开。
 
 ## 安装
 
-首次发布到 npm 后，可用下面任一命令安装到当前项目：
+可用下面任一命令安装到当前项目：
 
 ```bash
 npx everything-maa@latest install --target claude
@@ -15,7 +15,7 @@ npx everything-maa@latest install --target codex
 
 在本地仓库试用时，将 `npx everything-maa@latest` 替换为 `node packages/cli/bin/everything-maa.js`。
 
-GitHub 仓库公开后，Claude Code 也可以通过自托管 marketplace 安装原生插件：
+Claude Code 也可以通过自托管 marketplace 安装原生插件：
 
 ```text
 /plugin marketplace add https://github.com/KhazixW2/Everything-Maa
@@ -84,9 +84,9 @@ npx everything-maa uninstall --target codex
 ## 开发与验证
 
 ```bash
-python -m pip install -r requirements-dev.txt
-python -m pytest
-python scripts/validate_skills.py
+uv sync
+uv run python -m pytest
+uv run python scripts/validate_skills.py
 npm test
 npm run release:check
 npm pack --dry-run
@@ -108,7 +108,7 @@ npm run smoke:maafw-cli
 
 ## 范围与依赖
 
-Everything Maa 不复制 create-maa-project、MaaEvidenceKit、MaaMCP、maafw-cli、Playwright MCP、MaaFramework 二进制、OCR 模型、`@nekosu/maa-tools` 或 MaaLLMWiki catalog。MCP 与 CLI 命令契约只调用上游发行包；create-maa-project 与 MaaEvidenceKit 跟踪 latest，并衔接上游 README 或集成 Skill。`maa-wiki` skill 只引用 MaaLLMWiki 的 raw GitHub URL，不下载、缓存或复制 catalog 内容到安装目录。MaaMCP、create-maa-project 和实验性的 maafw-cli skill 需要 `uvx`，Playwright MCP 和 `@nekosu/maa-tools` 需要 `npx`；maafw-cli 仅按需运行，不由 profile 持久安装。调用 MaaEvidenceKit 时，通过 `npx` 按需解析 `maa-evidence-kit@latest`；不要回退到 `PATH` 中的旧 `maa-evidence` 可执行文件。
+Everything Maa 不复制 create-maa-project、MaaEvidenceKit、MaaMCP、maafw-cli、Playwright MCP、MaaFramework 二进制、OCR 模型、`@nekosu/maa-tools`、MaaLLMWiki catalog 或 Project Interface V2 协议快照。MCP 与 CLI 命令契约只调用上游发行包；create-maa-project 与 MaaEvidenceKit 跟踪 latest，并衔接上游 README 或集成 Skill。`maa-wiki` skill 只引用 MaaLLMWiki 的 raw GitHub URL，不下载、缓存或复制 catalog 内容到安装目录；Interface 与 option 指南通过项目证据和 pinned 上游文档/schema 解析协议语义。MaaMCP、create-maa-project 和实验性的 maafw-cli skill 需要 `uvx`，Playwright MCP 和 `@nekosu/maa-tools` 需要 `npx`；maafw-cli 仅按需运行，不由 profile 持久安装。调用 MaaEvidenceKit 时，通过 `npx` 按需解析 `maa-evidence-kit@latest`；不要回退到 `PATH` 中的旧 `maa-evidence` 可执行文件。
 
 许可证边界见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
