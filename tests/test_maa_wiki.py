@@ -18,6 +18,8 @@ def test_wiki_routes_to_authoritative_upstream_skill():
         "skills/maallmwiki/SKILL.md"
     ) in skill
     assert "路由权威" in skill
+    assert "先检查目标项目锁定的 MaaFramework" in skill
+    assert "优先于上游默认或 latest" in skill
     assert "pinned commit" in skill
     assert "不要用本节替代上游 skill 的完整规则" in skill
 
@@ -32,6 +34,10 @@ def test_wiki_has_disclosed_fallbacks_and_no_vendoring():
 
     assert "https://cdn.jsdelivr.net/gh/Windsland52/MaaLLMWiki@main/" in skill
     assert "https://raw.githubusercontent.com/Windsland52/MaaLLMWiki/main/README.md" in skill
+    assert (
+        "https://cdn.jsdelivr.net/gh/Windsland52/MaaLLMWiki@main/README.md"
+        in skill
+    )
     assert "回退时说明实际使用的入口" in skill
     assert "不要把 catalog 内容或上游 skill 写进用户项目" in skill
     assert "maallmwiki` Skill and catalog through raw GitHub URLs" in notices

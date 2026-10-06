@@ -7,6 +7,7 @@ All notable changes to Everything Maa will be documented in this file. The proje
 ### Changed
 
 - `maa-wiki` now loads MaaLLMWiki's authoritative `maallmwiki` Skill before catalog navigation and uses disclosed raw, jsDelivr, and README fallbacks while preserving pinned-source citation requirements.
+- `maa-wiki` now requires a target project's locked or runtime MaaFramework version to take precedence over upstream defaults, and Interface protocol discovery routes through the upstream `maallmwiki` Skill with the root README only as a disclosed fallback.
 
 ## [0.2.0] - 2026-10-06
 
