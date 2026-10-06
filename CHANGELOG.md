@@ -4,6 +4,8 @@ All notable changes to Everything Maa will be documented in this file. The proje
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-06
+
 ### Added
 
 - Strengthened `maa-diagnose` to locate and fully load the authoritative MaaEvidenceKit Skill before runtime discovery and diagnosis.
@@ -54,6 +56,7 @@ All notable changes to Everything Maa will be documented in this file. The proje
 - Cross-platform tests, upstream contract smoke tests, native plugin manifests, and release validation.
 - Self-hosted Claude marketplace metadata, a complete ten-skill MaaHub adapter set, and a machine-readable distribution catalog.
 
-[Unreleased]: https://github.com/KhazixW2/Everything-Maa/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/KhazixW2/Everything-Maa/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/KhazixW2/Everything-Maa/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/KhazixW2/Everything-Maa/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/KhazixW2/Everything-Maa/releases/tag/v0.1.0
