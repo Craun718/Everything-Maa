@@ -21,7 +21,7 @@ description: Route MaaFramework questions and other Maa skills to the authoritat
 https://raw.githubusercontent.com/Windsland52/MaaLLMWiki/main/skills/maallmwiki/SKILL.md
 ```
 
-上游 skill 是版本选择、目录导航和 pinned-source 引用的路由权威。先检查目标项目锁定的 MaaFramework tag/commit、依赖声明或实际运行时版本；该版本是本次查询的目标版本，优先于上游默认或 latest。随后按上游流程在 `generated/maa-framework/<version>/` 下定位文档、binding、schema 或 native API 索引，再回到 pinned commit 指向的原始来源。精确版本目录缺失时按上游 skill 的邻近版本规则处理并披露版本差距；不要为了让来源更新而改用其它版本。不要用本节替代上游 skill 的完整规则。
+上游 skill 是版本选择、目录导航和 pinned-source 引用的路由权威。用户明确指定版本、要求 latest release 或跨版本对比时，先以该显式查询目标为准；项目版本只作为对比或兼容性上下文。一般项目问题先检查实际运行时、锁定 tag/commit 和依赖声明：运行时已知时用它解释当前行为，并与锁/依赖不一致时披露差异；安装、迁移或兼容性意图再按锁定版本单独核对。运行时未知时优先使用锁定版本；锁定与依赖声明冲突时优先使用锁定版本并披露冲突。随后按上游流程在 `generated/maa-framework/<version>/` 下定位文档、binding、schema 或 native API 索引，再回到 pinned commit 指向的原始来源。精确版本目录缺失时按上游 skill 的邻近版本规则处理并披露版本差距；一般项目问题不要为了让来源更新而改用其它版本。不要用本节替代上游 skill 的完整规则。
 
 Raw GitHub 不可用时，先尝试同一相对路径的 jsDelivr 镜像；若需要根 README 降级，使用其 raw 或 jsDelivr 镜像入口：
 
