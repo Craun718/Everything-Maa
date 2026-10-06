@@ -4,6 +4,10 @@ All notable changes to Everything Maa will be documented in this file. The proje
 
 ## [Unreleased]
 
+### Changed
+
+- `maa-wiki` now loads MaaLLMWiki's authoritative `maallmwiki` Skill before catalog navigation and uses disclosed raw, jsDelivr, and README fallbacks while preserving pinned-source citation requirements.
+
 ## [0.2.0] - 2026-10-06
 
 ### Added
