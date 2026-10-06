@@ -19,6 +19,7 @@ All notable changes to Everything Maa will be documented in this file. The proje
 
 ### Changed
 
+- Replaced local Project Interface V2 protocol snapshots and version matrices with `$maa-wiki` routing, project-first schema resolution, and pinned upstream source discovery. Interface and option guidance now keep only workflow, reference, and wiring boundaries locally, while `pretask`, Agent `PI_*`, telemetry, resource hash, preset, option type, and field semantics remain under upstream authority.
 - Changed create-maa-project and MaaEvidenceKit integration policy from tested version pins to latest: create-maa-project resolves through `uvx --upgrade --from create-maa-project`, while MaaEvidenceKit remains externally user-managed and invokes its CLI on demand through `maa-evidence-kit@latest`, rejecting stale `PATH` executables; both locators expose latest Release, README, and integrated-Skill handoffs instead of a fixed CMP digest or MEK version range.
 - `maa-diagnose` and `maa-project-create` now load authoritative guidance from the upstream latest Release Skill or README instead of selecting local guidance by version metadata.
 - Pipeline node authoring now derives click targets from recognition results across `maa-pipeline-guide`, `maa-pipeline-generate`, and `maa-workflow-build`, instead of presenting a hardcoded `target_offset` as a default pattern.
